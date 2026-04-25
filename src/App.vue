@@ -1,16 +1,35 @@
+﻿<script setup>
+import { RouterView } from 'vue-router';
+
+defineOptions({ name: 'App' });
+</script>
+
 <template>
   <div class="app-shell">
-    <h1>FoodTime Frontend</h1>
-    <p>当前为前端项目初始目录骨架，占位页面已创建。</p>
+    <svg width="0" height="0" aria-hidden="true" focusable="false">
+      <filter id="print-jitter">
+        <feTurbulence
+          type="fractalNoise"
+          baseFrequency="0.65"
+          numOctaves="1"
+          seed="9"
+          result="noise"
+        />
+        <feDisplacementMap
+          in="SourceGraphic"
+          in2="noise"
+          scale="0.9"
+          xChannelSelector="R"
+          yChannelSelector="G"
+        />
+      </filter>
+    </svg>
+    <RouterView />
   </div>
 </template>
 
-<script setup>
-</script>
-
 <style scoped>
 .app-shell {
-  padding: 24px;
-  font-family: sans-serif;
+  min-height: 100vh;
 }
 </style>
