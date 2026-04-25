@@ -1,0 +1,42 @@
+:root {
+  --ft-color-bg: #f8f4ee;
+  --ft-color-bg-soft: #fffaf2;
+  --ft-color-surface: #fffdf9;
+  --ft-color-surface-strong: #fff6ea;
+  --ft-color-primary: #dd6b20;
+  --ft-color-primary-soft: #f59e0b;
+  --ft-color-secondary: #8c4f2c;
+  --ft-color-text: #2f2a25;
+  --ft-color-text-muted: #766a5f;
+  --ft-color-border: #ecd9c7;
+  --ft-color-success: #2e8b57;
+  --ft-color-danger: #c53030;
+
+  --ft-radius-sm: 10px;
+  --ft-radius-md: 16px;
+  --ft-radius-lg: 24px;
+  --ft-radius-pill: 999px;
+
+  --ft-shadow-sm: 0 8px 20px rgb(111 79 56 / 8%);
+  --ft-shadow-md: 0 16px 32px rgb(111 79 56 / 12%);
+  --ft-shadow-lg: 0 26px 52px rgb(111 79 56 / 16%);
+
+  --ft-space-1: 8px;
+  --ft-space-2: 16px;
+  --ft-space-3: 24px;
+  --ft-space-4: 32px;
+  --ft-space-5: 40px;
+  --ft-space-6: 48px;
+
+  --ft-font-family: 'PingFang SC', 'Hiragino Sans GB', 'Noto Sans SC',
+    'Microsoft YaHei', sans-serif;
+  --ft-font-size-xs: 12px;
+  --ft-font-size-sm: 14px;
+  --ft-font-size-md: 16px;
+  --ft-font-size-lg: 20px;
+  --ft-font-size-xl: 28px;
+  --ft-font-size-2xl: clamp(34px, 5vw, 52px);
+
+  --ft-transition-fast: 180ms ease;
+  --ft-transition-base: 260ms cubic-bezier(0.22, 1, 0.36, 1);
+}

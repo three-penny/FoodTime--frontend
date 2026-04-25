@@ -1,16 +1,30 @@
 <template>
   <div class="app-shell">
-    <h1>FoodTime Frontend</h1>
-    <p>当前为前端项目初始目录骨架，占位页面已创建。</p>
+    <AppHeader />
+    <main class="app-main">
+      <RouterView />
+    </main>
+    <AppFooter />
   </div>
 </template>
 
 <script setup>
+import { RouterView } from 'vue-router';
+import AppHeader from './components/layout/AppHeader.vue';
+import AppFooter from './components/layout/AppFooter.vue';
 </script>
 
-<style scoped>
+<style scoped lang="scss">
 .app-shell {
-  padding: 24px;
-  font-family: sans-serif;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.app-main {
+  flex: 1;
+  width: min(1200px, calc(100% - 48px));
+  margin: 0 auto;
+  padding: 24px 0 40px;
 }
 </style>
