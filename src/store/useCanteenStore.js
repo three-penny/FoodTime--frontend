@@ -1,5 +1,9 @@
 import { defineStore } from 'pinia';
-import { CANTEENS, HOME_RANKINGS } from '../mock/canteens.mock';
+import {
+  CANTEENS,
+  HOME_CANTEEN_SPOTS,
+  HOME_RANKINGS,
+} from '../mock/canteens.mock';
 
 /**
  * useCanteenStore
@@ -12,6 +16,7 @@ import { CANTEENS, HOME_RANKINGS } from '../mock/canteens.mock';
 export const useCanteenStore = defineStore('canteen', {
   state: () => ({
     canteens: CANTEENS,
+    homeCanteenSpots: HOME_CANTEEN_SPOTS,
     rankings: HOME_RANKINGS,
     activeCanteenId: CANTEENS[0]?.id ?? '',
   }),

@@ -1,59 +1,57 @@
 <template>
   <section class="dish-list-view">
-    <el-result
-      v-if="!canteen"
-      icon="warning"
-      title="食堂不存在"
-      sub-title="请返回首页重新进入菜品列表。"
-    >
-      <template #extra>
-        <el-button type="primary" @click="router.push({ name: 'homeCanteenSelect' })">
-          返回首页
-        </el-button>
-      </template>
-    </el-result>
+    <article v-if="!canteen" class="empty torn-edge">
+      <h1>食堂不存在</h1>
+      <p>链接可能已过期，回首页再选一次。</p>
+      <button class="button-ink is-primary" type="button" @click="goHome">返回首页</button>
+    </article>
 
     <template v-else>
       <header class="dish-list-view__header">
-        <div>
-          <p class="dish-list-view__tag">{{ canteen.name }} · 菜品列表</p>
-          <h1>{{ canteen.name }}今天吃什么</h1>
-          <p class="dish-list-view__desc">
-            支持按关键词、标签与排序方式筛选，先看评分再看价格更高效。
-          </p>
+        <div class="section-rule">
+          <span class="section-rule__index">06</span>
+          <span class="section-rule__line"></span>
         </div>
-        <div class="dish-list-view__header-action">
-          <el-button @click="router.push({ name: 'canteenDetail', params: { canteenId } })">
-            返回食堂详情
-          </el-button>
-        </div>
+        <p class="dish-list-view__tag">{{ canteen.name }} · 菜品档案</p>
+        <h1>{{ canteen.name }}今天吃什么</h1>
+        <p class="dish-list-view__desc">
+          筛选规则很简单：先看印章，再看评分和“¥ / 性价比”备注，最后看同学吐槽。
+        </p>
       </header>
 
-      <DishFilterBar
-        :keyword="dishStore.filters.keyword"
-        :sort-by="dishStore.filters.sortBy"
-        :active-tag="dishStore.filters.tag"
-        :tag-options="tagOptions"
-        @update:keyword="value => dishStore.setDishFilter({ keyword: value })"
-        @update:sort-by="value => dishStore.setDishFilter({ sortBy: value })"
-        @update:active-tag="value => dishStore.setDishFilter({ tag: value })"
-        @reset="dishStore.resetDishFilter"
-      />
+      <div class="dish-list-view__layout">
+        <aside class="dish-list-view__aside">
+          <DishFilterBar
+            :keyword="dishStore.filters.keyword"
+            :sort-by="dishStore.filters.sortBy"
+            :active-tag="dishStore.filters.tag"
+            :tag-options="tagOptions"
+            @update:keyword="value => dishStore.setDishFilter({ keyword: value })"
+            @update:sort-by="value => dishStore.setDishFilter({ sortBy: value })"
+            @update:active-tag="value => dishStore.setDishFilter({ tag: value })"
+            @reset="dishStore.resetDishFilter"
+          />
+          <button class="button-ink" type="button" @click="toCanteenDetail">
+            返回食堂详情
+          </button>
+        </aside>
 
-      <el-empty
-        v-if="dishes.length === 0"
-        class="dish-list-view__empty"
-        description="当前筛选条件下暂无菜品"
-      />
+        <div v-if="dishes.length > 0" class="dish-list-view__cards">
+          <DishCard
+            v-for="(dish, index) in dishes"
+            :key="dish.id"
+            :dish="dish"
+            :tilt="index % 2 === 0"
+            :image-shape="index % 3 === 0 ? 'hard' : index % 3 === 1 ? 'polygon' : 'polaroid'"
+            clickable
+            @click="toDishDetail(dish.id)"
+          />
+        </div>
 
-      <div v-else class="dish-list-view__grid">
-        <DishCard
-          v-for="dish in dishes"
-          :key="dish.id"
-          :dish="dish"
-          clickable
-          @click="toDishDetail(dish.id)"
-        />
+        <article v-else class="dish-list-view__empty torn-edge">
+          <h2>暂无结果</h2>
+          <p>这个筛选太狠了，试试清空筛选条件再看。</p>
+        </article>
       </div>
     </template>
   </section>
@@ -90,6 +88,14 @@ watch(
   { immediate: true }
 );
 
+function goHome() {
+  router.push({ name: 'homeCanteenSelect' });
+}
+
+function toCanteenDetail() {
+  router.push({ name: 'canteenDetail', params: { canteenId: canteenId.value } });
+}
+
 function toDishDetail(dishId) {
   router.push({
     name: 'dishDetail',
@@ -102,61 +108,69 @@ function toDishDetail(dishId) {
 </script>
 
 <style scoped lang="scss">
+.empty {
+  border: 1px solid var(--ft-color-secondary);
+  background: var(--ft-color-surface);
+  padding: 22px;
+}
+
 .dish-list-view__header {
   margin-bottom: var(--ft-space-3);
-  display: flex;
-  justify-content: space-between;
-  gap: var(--ft-space-2);
-  align-items: flex-start;
 
   h1 {
     margin: 8px 0 0;
-    font-size: clamp(30px, 4vw, 44px);
-    line-height: 1.15;
+    font-family: var(--ft-font-family-title);
+    font-size: clamp(48px, 7vw, 90px);
+    line-height: 0.9;
   }
 }
 
 .dish-list-view__tag {
-  margin: 0;
-  font-size: var(--ft-font-size-sm);
-  color: var(--ft-color-secondary);
-  font-weight: 700;
+  margin: 8px 0 0;
+  color: var(--ft-color-text-muted);
 }
 
 .dish-list-view__desc {
   margin: 10px 0 0;
-  color: var(--ft-color-text-muted);
+  max-width: 720px;
+  color: var(--ft-color-secondary-soft);
 }
 
-.dish-list-view__header-action {
-  display: flex;
-  align-items: center;
-  padding-top: 10px;
-}
-
-.dish-list-view__grid {
-  margin-top: var(--ft-space-3);
+.dish-list-view__layout {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: 0.36fr 0.64fr;
+  gap: var(--ft-space-2);
+}
+
+.dish-list-view__aside {
+  display: grid;
+  align-content: start;
+  gap: 10px;
+}
+
+.dish-list-view__cards {
+  display: grid;
   gap: var(--ft-space-2);
 }
 
 .dish-list-view__empty {
-  margin-top: var(--ft-space-4);
-}
+  border: 1px solid var(--ft-color-secondary);
+  background: var(--ft-color-surface);
+  padding: 20px;
 
-@media (max-width: 1100px) {
-  .dish-list-view__grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+  h2 {
+    margin: 0;
+    font-family: var(--ft-font-family-title);
+    font-size: 36px;
+  }
+
+  p {
+    margin: 8px 0 0;
   }
 }
 
-@media (max-width: 820px) {
-  .dish-list-view__header {
-    flex-direction: column;
-  }
-
-  .dish-list-view__grid {
+@media (max-width: 980px) {
+  .dish-list-view__layout {
     grid-template-columns: 1fr;
   }
 }

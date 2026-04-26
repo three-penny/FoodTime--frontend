@@ -1,25 +1,22 @@
 :root {
-  --ft-color-bg: #f8f4ee;
-  --ft-color-bg-soft: #fffaf2;
-  --ft-color-surface: #fffdf9;
-  --ft-color-surface-strong: #fff6ea;
-  --ft-color-primary: #dd6b20;
-  --ft-color-primary-soft: #f59e0b;
-  --ft-color-secondary: #8c4f2c;
-  --ft-color-text: #2f2a25;
-  --ft-color-text-muted: #766a5f;
-  --ft-color-border: #ecd9c7;
-  --ft-color-success: #2e8b57;
-  --ft-color-danger: #c53030;
+  --ft-color-bg: #f2efe6;
+  --ft-color-bg-soft: #faf7f0;
+  --ft-color-surface: #f8f5ee;
+  --ft-color-surface-ink: #f1ece2;
+  --ft-color-primary: #c9341e;
+  --ft-color-primary-strong: #ab1f0b;
+  --ft-color-secondary: #3a2418;
+  --ft-color-secondary-soft: #6a4b3a;
+  --ft-color-accent: #5b7a3a;
+  --ft-color-text: #3a2418;
+  --ft-color-text-muted: #6e5547;
+  --ft-color-border: #d5ccbc;
+  --ft-color-danger: #c9341e;
 
-  --ft-radius-sm: 10px;
-  --ft-radius-md: 16px;
-  --ft-radius-lg: 24px;
+  --ft-radius-sm: 4px;
+  --ft-radius-md: 10px;
+  --ft-radius-lg: 16px;
   --ft-radius-pill: 999px;
-
-  --ft-shadow-sm: 0 8px 20px rgb(111 79 56 / 8%);
-  --ft-shadow-md: 0 16px 32px rgb(111 79 56 / 12%);
-  --ft-shadow-lg: 0 26px 52px rgb(111 79 56 / 16%);
 
   --ft-space-1: 8px;
   --ft-space-2: 16px;
@@ -28,15 +25,21 @@
   --ft-space-5: 40px;
   --ft-space-6: 48px;
 
-  --ft-font-family: 'PingFang SC', 'Hiragino Sans GB', 'Noto Sans SC',
+  --ft-font-family-title: 'Noto Serif SC', 'Source Han Serif SC', serif;
+  --ft-font-family: 'Noto Sans SC', 'PingFang SC', 'Hiragino Sans GB',
     'Microsoft YaHei', sans-serif;
+  --ft-font-family-note: 'Ma Shan Zheng', 'KaiTi', cursive;
   --ft-font-size-xs: 12px;
   --ft-font-size-sm: 14px;
   --ft-font-size-md: 16px;
   --ft-font-size-lg: 20px;
-  --ft-font-size-xl: 28px;
-  --ft-font-size-2xl: clamp(34px, 5vw, 52px);
+  --ft-font-size-xl: 32px;
+  --ft-font-size-2xl: clamp(52px, 10vw, 116px);
 
-  --ft-transition-fast: 180ms ease;
-  --ft-transition-base: 260ms cubic-bezier(0.22, 1, 0.36, 1);
+  --ft-shadow-sm: 0 6px 0 rgb(58 36 24 / 10%);
+  --ft-shadow-md: 0 10px 0 rgb(58 36 24 / 16%);
+  --ft-shadow-lg: 0 14px 0 rgb(58 36 24 / 22%);
+
+  --ft-transition-fast: 180ms cubic-bezier(0.37, 0, 0.63, 1);
+  --ft-transition-base: 320ms cubic-bezier(0.22, 1, 0.36, 1);
 }

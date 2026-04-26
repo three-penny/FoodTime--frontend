@@ -23,8 +23,17 @@ import AppFooter from './components/layout/AppFooter.vue';
 
 .app-main {
   flex: 1;
-  width: min(1200px, calc(100% - 48px));
-  margin: 0 auto;
-  padding: 24px 0 40px;
+  width: 100%;
+  margin: 0;
+  padding: 36px clamp(12px, 3.2vw, 36px) 56px;
+}
+
+@media (max-width: 768px) {
+  .app-main {
+    width: 100%;
+    padding-top: 18px;
+    padding-bottom: 40px;
+    padding-inline: 10px;
+  }
 }
 </style>

@@ -1,24 +1,38 @@
 <template>
-  <section class="hero" data-test="home-hero">
-    <div class="hero__content">
-      <p class="hero__badge">北京交通大学 · 校园美食指南</p>
+  <section class="hero torn-edge" data-test="home-hero">
+    <div class="hero__left">
+      <span class="sticker sticker--r-2">食堂日志 · 2026</span>
       <h1 class="hero__title">北交干饭吧</h1>
-      <p class="hero__desc">
-        食堂选择、菜品对比、评分推荐一屏搞定。先看热度，再做决定，每一餐都不踩雷。
-      </p>
+      <p class="hero__slogan handwrite">把每次排队、踩雷和真香都记下来。</p>
       <div class="hero__actions">
-        <el-button type="primary" size="large" round @click="emit('review')">
+        <button class="button-ink is-primary" type="button" @click="emit('review')">
           我要点评
-        </el-button>
-        <el-button size="large" round @click="emit('recommend')">
+        </button>
+        <button class="button-ink" type="button" @click="emit('recommend')">
           美食推荐
-        </el-button>
+        </button>
       </div>
     </div>
-    <div class="hero__decor" aria-hidden="true">
-      <div class="hero__circle hero__circle--one"></div>
-      <div class="hero__circle hero__circle--two"></div>
-    </div>
+
+    <aside class="hero__right">
+      <p class="hero__small">BEIJIAO CANTEEN FIELD NOTES</p>
+      <p class="hero__desc">
+        这不是餐饮官网，是一群爱吃饭的同学在记笔记。我们关心排队时长、阿姨手抖程度、
+        周几最稳以及“今天值得冲吗”。
+      </p>
+      <p class="hero__desc">
+        每条推荐都保留原始情绪，评分之外还有“必吃 / 再来 / 踩雷”印章，方便你 30 秒做决定。
+      </p>
+      <span class="sticker sticker--r2 hero__sticker">今日推荐已更新</span>
+    </aside>
+
+    <svg class="hero__decor hero__decor--chopsticks" viewBox="0 0 140 60" aria-hidden="true">
+      <path class="decor-svg" d="M8 12l116 34M20 6l112 32" />
+    </svg>
+    <svg class="hero__decor hero__decor--aunt" viewBox="0 0 90 90" aria-hidden="true">
+      <circle class="decor-svg" cx="46" cy="22" r="10" />
+      <path class="decor-svg" d="M24 64c10-15 34-15 44 0M46 32v26M34 44h24" />
+    </svg>
   </section>
 </template>
 
@@ -33,80 +47,97 @@ const emit = defineEmits(['review', 'recommend']);
 <style scoped lang="scss">
 .hero {
   position: relative;
+  border: 1px solid var(--ft-color-secondary);
+  background: var(--ft-color-surface);
+  display: grid;
+  grid-template-columns: 1.25fr 0.75fr;
+  min-height: 430px;
   overflow: hidden;
-  border-radius: var(--ft-radius-lg);
-  background: linear-gradient(145deg, #fff7ec 0%, #ffe7cd 60%, #ffd8b0 100%);
-  box-shadow: var(--ft-shadow-lg);
-  padding: clamp(24px, 5vw, 56px);
-  min-height: 320px;
-  display: flex;
-  align-items: center;
 }
 
-.hero__content {
-  position: relative;
-  z-index: 2;
-  max-width: 620px;
-}
-
-.hero__badge {
-  display: inline-flex;
-  align-items: center;
-  margin: 0 0 10px;
-  padding: 8px 14px;
-  border-radius: var(--ft-radius-pill);
-  background: rgb(255 255 255 / 68%);
-  color: var(--ft-color-secondary);
-  font-weight: 600;
-  font-size: var(--ft-font-size-sm);
+.hero__left {
+  padding: clamp(26px, 6vw, 62px);
 }
 
 .hero__title {
-  margin: 0;
+  margin: 12px 0 0;
+  font-family: var(--ft-font-family-title);
   font-size: var(--ft-font-size-2xl);
-  line-height: 1.08;
-  letter-spacing: 0.02em;
+  line-height: 0.88;
+  letter-spacing: 0.03em;
+  font-weight: 900;
+  width: min(760px, 92%);
 }
 
-.hero__desc {
-  margin: 18px 0 0;
-  max-width: 520px;
-  color: var(--ft-color-text-muted);
-  line-height: 1.7;
+.hero__slogan {
+  margin: 22px 0 0;
+  font-size: clamp(20px, 2.5vw, 32px);
+  color: var(--ft-color-primary);
 }
 
 .hero__actions {
-  margin-top: 28px;
+  margin-top: 26px;
   display: flex;
   flex-wrap: wrap;
   gap: 12px;
 }
 
+.hero__right {
+  border-left: 1px dashed rgb(58 36 24 / 35%);
+  padding: 36px 24px 24px;
+  background: rgb(241 236 226 / 64%);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.hero__small {
+  margin: 0;
+  letter-spacing: 0.16em;
+  font-size: 12px;
+  color: var(--ft-color-text-muted);
+}
+
+.hero__desc {
+  margin: 14px 0 0;
+  column-count: 1;
+  line-height: 1.8;
+  color: var(--ft-color-secondary-soft);
+}
+
+.hero__sticker {
+  margin-top: 18px;
+  align-self: flex-start;
+}
+
 .hero__decor {
   position: absolute;
-  inset: 0;
+  opacity: 0.4;
   pointer-events: none;
 }
 
-.hero__circle {
-  position: absolute;
-  border-radius: 50%;
-  filter: blur(1px);
+.hero__decor--chopsticks {
+  width: 128px;
+  right: 24px;
+  top: 12px;
+  transform: rotate(-9deg);
+}
 
-  &--one {
-    width: 280px;
-    height: 280px;
-    right: -70px;
-    top: -50px;
-    background: rgb(255 183 94 / 34%);
+.hero__decor--aunt {
+  width: 86px;
+  right: 30px;
+  bottom: 20px;
+  transform: rotate(7deg);
+}
+
+@media (max-width: 980px) {
+  .hero {
+    grid-template-columns: 1fr;
   }
 
-  &--two {
-    width: 210px;
-    height: 210px;
-    right: 120px;
-    bottom: -100px;
-    background: rgb(221 107 32 / 22%);
+  .hero__right {
+    border-left: 0;
+    border-top: 1px dashed rgb(58 36 24 / 35%);
   }
 }
 </style>

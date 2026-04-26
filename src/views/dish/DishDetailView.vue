@@ -1,77 +1,70 @@
 <template>
   <section class="dish-detail-view">
-    <el-result
-      v-if="!dish || !canteen"
-      icon="warning"
-      title="未找到该菜品"
-      sub-title="可能已下架，建议返回菜品列表重新选择。"
-    >
-      <template #extra>
-        <el-button type="primary" @click="router.push({ name: 'homeCanteenSelect' })">
-          返回首页
-        </el-button>
-      </template>
-    </el-result>
+    <article v-if="!dish || !canteen" class="empty torn-edge">
+      <h1>未找到该菜品</h1>
+      <p>这道菜可能已经下架，回列表重新挑一份吧。</p>
+      <button class="button-ink is-primary" type="button" @click="goHome">返回首页</button>
+    </article>
 
     <template v-else>
-      <el-breadcrumb class="dish-detail-view__crumb">
-        <el-breadcrumb-item :to="{ name: 'homeCanteenSelect' }">首页</el-breadcrumb-item>
-        <el-breadcrumb-item :to="{ name: 'canteenDetail', params: { canteenId } }">
-          {{ canteen.name }}
-        </el-breadcrumb-item>
-        <el-breadcrumb-item>{{ dish.name }}</el-breadcrumb-item>
-      </el-breadcrumb>
+      <div class="crumb handwrite">
+        首页 / {{ canteen.name }} / {{ dish.name }}
+      </div>
 
-      <article class="dish-main">
-        <img class="dish-main__image" :src="dish.image" :alt="`${dish.name}菜品图`" />
+      <article class="dish-main torn-edge">
+        <div class="dish-main__media">
+          <img class="dish-main__image" :src="dish.image" :alt="`${dish.name}菜品图`" />
+          <span class="sticker sticker--r2 dish-main__sticker">今日主角</span>
+        </div>
+
         <div class="dish-main__content">
-          <p class="dish-main__canteen">{{ canteen.name }}</p>
+          <span class="stamp">{{ dish.stamp ?? stampLabel }}</span>
           <h1>{{ dish.name }}</h1>
-          <p class="dish-main__desc">{{ dish.description }}</p>
+          <p class="dish-main__meta">
+            评分 {{ dish.rating.toFixed(1) }} · 月售 {{ dish.monthlySales }} ·
+            ¥{{ dish.price }} / {{ dish.valueNote }}
+          </p>
+          <p class="dish-main__comment handwrite">“{{ dish.comment }}”</p>
 
-          <div class="dish-main__meta">
-            <div>
-              <span class="dish-main__meta-label">评分</span>
-              <strong>{{ dish.rating.toFixed(1) }}</strong>
-            </div>
-            <div>
-              <span class="dish-main__meta-label">月售</span>
-              <strong>{{ dish.monthlySales }}</strong>
-            </div>
-            <div>
-              <span class="dish-main__meta-label">价格</span>
-              <strong>¥{{ dish.price }}</strong>
-            </div>
+          <div class="dish-main__essay">
+            <p class="dropcap">{{ dish.description }}</p>
+            <p>
+              在 {{ canteen.name }} 里，这道菜属于“犹豫时就点它”的那类。风味不追求花哨，
+              但稳定度高，尤其适合晚课后急着吃饭的时段。
+            </p>
           </div>
 
           <div class="dish-main__tags">
-            <el-tag
-              v-for="tag in dish.tags"
-              :key="`${dish.id}-${tag}`"
-              round
-              effect="plain"
-            >
-              {{ tag }}
-            </el-tag>
+            <span v-for="tag in dish.tags" :key="tag">#{{ tag }}</span>
           </div>
 
-          <div class="dish-main__action">
-            <el-button type="primary" @click="toDishList">返回菜品列表</el-button>
-            <el-button @click="toCanteenDetail">查看食堂详情</el-button>
+          <div class="dish-main__actions">
+            <button class="button-ink is-primary" type="button" @click="toDishList">
+              返回菜品列表
+            </button>
+            <button class="button-ink" type="button" @click="toCanteenDetail">
+              查看食堂详情
+            </button>
           </div>
         </div>
       </article>
 
       <section class="related">
+        <div class="section-rule">
+          <span class="section-rule__index">07</span>
+          <span class="section-rule__line"></span>
+        </div>
         <header class="related__header">
-          <h2 class="section-title">同食堂你可能还喜欢</h2>
-          <p class="section-subtitle">按评分筛选的相关菜品，适合一起对比后再决定。</p>
+          <h2 class="section-title">同食堂你可能还想点</h2>
+          <p class="section-subtitle">继续按印章和评分挑，少踩坑。</p>
         </header>
         <div class="related__grid">
           <DishCard
-            v-for="item in relatedDishes"
+            v-for="(item, index) in relatedDishes"
             :key="item.id"
             :dish="item"
+            :tilt="index % 2 === 0"
+            :image-shape="index % 2 === 0 ? 'polygon' : 'polaroid'"
             clickable
             @click="toAnotherDish(item.id)"
           />
@@ -109,6 +102,19 @@ const dish = computed(() => {
   return target;
 });
 
+const stampLabel = computed(() => {
+  if (!dish.value) {
+    return '再来';
+  }
+  if (dish.value.rating >= 4.7) {
+    return '必吃';
+  }
+  if (dish.value.rating >= 4.4) {
+    return '再来';
+  }
+  return '踩雷';
+});
+
 const relatedDishes = computed(() =>
   dishStore.dishes
     .filter(item => item.canteenId === canteenId.value && item.id !== dishId.value)
@@ -123,6 +129,10 @@ watch(
   },
   { immediate: true }
 );
+
+function goHome() {
+  router.push({ name: 'homeCanteenSelect' });
+}
 
 function toDishList() {
   router.push({ name: 'dishList', params: { canteenId: canteenId.value } });
@@ -144,74 +154,92 @@ function toAnotherDish(targetDishId) {
 </script>
 
 <style scoped lang="scss">
-.dish-detail-view__crumb {
-  margin-bottom: var(--ft-space-2);
+.empty {
+  border: 1px solid var(--ft-color-secondary);
+  background: var(--ft-color-surface);
+  padding: 24px;
+}
+
+.crumb {
+  margin-bottom: 10px;
+  color: var(--ft-color-text-muted);
+  font-size: 24px;
 }
 
 .dish-main {
-  border-radius: var(--ft-radius-lg);
-  overflow: hidden;
+  border: 1px solid var(--ft-color-secondary);
   background: var(--ft-color-surface);
-  box-shadow: var(--ft-shadow-md);
   display: grid;
-  grid-template-columns: 1.1fr 1fr;
+  grid-template-columns: 1.15fr 0.85fr;
+}
+
+.dish-main__media {
+  position: relative;
+  border-right: 1px dashed rgb(58 36 24 / 35%);
 }
 
 .dish-main__image {
   width: 100%;
   height: 100%;
-  min-height: 420px;
+  min-height: 430px;
   object-fit: cover;
+  clip-path: polygon(0 2%, 100% 0, 98% 100%, 0 96%);
+}
+
+.dish-main__sticker {
+  position: absolute;
+  left: 18px;
+  bottom: 18px;
 }
 
 .dish-main__content {
-  padding: var(--ft-space-3);
-  display: flex;
-  flex-direction: column;
+  padding: 20px 18px;
 
   h1 {
-    margin: 8px 0 0;
-    font-size: clamp(30px, 4vw, 44px);
-    line-height: 1.15;
+    margin: 10px 0 0;
+    font-family: var(--ft-font-family-title);
+    font-size: clamp(44px, 6vw, 74px);
+    line-height: 0.9;
   }
 }
 
-.dish-main__canteen {
-  margin: 0;
-  color: var(--ft-color-secondary);
-  font-size: var(--ft-font-size-sm);
-  font-weight: 700;
-}
-
-.dish-main__desc {
-  margin: 14px 0 0;
-  color: var(--ft-color-text-muted);
-  line-height: 1.8;
-}
-
 .dish-main__meta {
-  margin-top: var(--ft-space-2);
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 12px;
+  margin: 12px 0 0;
+  color: var(--ft-color-text-muted);
 }
 
-.dish-main__meta-label {
-  display: block;
-  color: var(--ft-color-text-muted);
-  font-size: var(--ft-font-size-sm);
+.dish-main__comment {
+  margin: 12px 0 0;
+  color: var(--ft-color-primary);
+  font-size: 24px;
+}
+
+.dish-main__essay {
+  margin-top: 12px;
+  column-count: 2;
+  column-gap: 18px;
+
+  p {
+    margin: 0 0 10px;
+    color: var(--ft-color-secondary-soft);
+  }
 }
 
 .dish-main__tags {
-  margin-top: var(--ft-space-2);
+  margin-top: 8px;
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
+  gap: 6px;
+
+  span {
+    border: 1px dashed rgb(58 36 24 / 38%);
+    font-size: 12px;
+    padding: 2px 6px;
+  }
 }
 
-.dish-main__action {
-  margin-top: auto;
-  padding-top: var(--ft-space-3);
+.dish-main__actions {
+  margin-top: 14px;
   display: flex;
   gap: 10px;
   flex-wrap: wrap;
@@ -227,17 +255,23 @@ function toAnotherDish(targetDishId) {
 
 .related__grid {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: 1fr 1.2fr;
   gap: var(--ft-space-2);
 }
 
 @media (max-width: 980px) {
-  .dish-main {
+  .dish-main,
+  .related__grid {
     grid-template-columns: 1fr;
   }
 
-  .related__grid {
-    grid-template-columns: 1fr;
+  .dish-main__media {
+    border-right: 0;
+    border-bottom: 1px dashed rgb(58 36 24 / 35%);
+  }
+
+  .dish-main__essay {
+    column-count: 1;
   }
 }
 </style>

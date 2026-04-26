@@ -1,13 +1,23 @@
 <template>
   <div class="home-view" data-test="home-view">
-    <HomeHero @recommend="scrollToSection('recommend')" @review="scrollToSection('ranking')" />
+    <HomeHero
+      @recommend="scrollToSection('recommend')"
+      @review="scrollToSection('ranking')"
+    />
 
     <section id="recommend" class="home-view__section">
+      <div class="home-view__sticker-row">
+        <span class="sticker sticker--r1">排队实测</span>
+        <span class="sticker sticker--r-1">同学口碑</span>
+      </div>
       <TodayRecommendationCarousel :items="recommendations" />
     </section>
 
     <section id="canteens" class="home-view__section">
-      <CanteenCarousel :canteens="canteens" @select="handleSelectCanteen" />
+      <div class="home-view__sticker-row home-view__sticker-row--right">
+        <span class="sticker sticker--r2">午饭冲刺地图</span>
+      </div>
+      <CanteenCarousel :items="canteenSpots" @select="handleSelectCanteen" />
       <CanteenIntroGrid :canteens="canteens" />
     </section>
 
@@ -15,9 +25,12 @@
       <HomeRankingList :rankings="rankings" />
     </section>
 
-    <section id="message" class="home-view__section home-view__notice">
-      <h2>消息与点评</h2>
-      <p>消息中心与点评流将于下一迭代接入，这里预留统一入口避免后续导航调整。</p>
+    <section id="message" class="home-view__section home-view__notice torn-edge">
+      <h2>04 / 消息与吐槽墙</h2>
+      <p class="dropcap">
+        后续会接入“今日翻车播报”和“打饭成功率”实时投稿区。现在先保留入口位，
+        保证导航结构稳定，避免你收藏的页面链接失效。
+      </p>
     </section>
   </div>
 </template>
@@ -42,11 +55,16 @@ const canteenStore = useCanteenStore();
 const dishStore = useDishStore();
 
 const canteens = computed(() => canteenStore.canteens);
+const canteenSpots = computed(() => canteenStore.homeCanteenSpots);
 const recommendations = computed(() => dishStore.homeRecommendations);
 const rankings = computed(() =>
   canteenStore.rankings.map(item => ({
     ...item,
     canteenName: canteenStore.getCanteenById(item.canteenId)?.name ?? '未知食堂',
+    image: dishStore.getDishById(item.dishId)?.image ?? '',
+    price: dishStore.getDishById(item.dishId)?.price ?? 0,
+    valueNote: dishStore.getDishById(item.dishId)?.valueNote ?? '性价比待补充',
+    comment: dishStore.getDishById(item.dishId)?.comment ?? '同学评价待补充',
   }))
 );
 
@@ -71,7 +89,7 @@ function scrollToSection(sectionName) {
     return;
   }
 
-  const top = element.getBoundingClientRect().top + window.scrollY - 94;
+  const top = element.getBoundingClientRect().top + window.scrollY - 110;
   window.scrollTo({
     top,
     behavior: 'smooth',
@@ -91,30 +109,40 @@ watch(
 
 <style scoped lang="scss">
 .home-view {
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  gap: var(--ft-space-4);
 }
 
 .home-view__section {
-  margin-top: var(--ft-space-4);
+  display: grid;
+  gap: 10px;
+}
+
+.home-view__sticker-row {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.home-view__sticker-row--right {
+  justify-content: flex-end;
 }
 
 .home-view__notice {
-  margin-bottom: var(--ft-space-2);
-  border-radius: var(--ft-radius-md);
-  border: 1px dashed var(--ft-color-border);
-  background: rgb(255 255 255 / 65%);
-  padding: var(--ft-space-3);
+  border: 1px solid var(--ft-color-secondary);
+  background: var(--ft-color-surface-ink);
+  padding: 14px 18px;
 
   h2 {
     margin: 0;
-    font-size: var(--ft-font-size-lg);
+    font-family: var(--ft-font-family-title);
+    font-size: 30px;
+    font-weight: 900;
   }
 
   p {
     margin: 8px 0 0;
-    color: var(--ft-color-text-muted);
-    line-height: 1.7;
+    color: var(--ft-color-secondary-soft);
   }
 }
 </style>

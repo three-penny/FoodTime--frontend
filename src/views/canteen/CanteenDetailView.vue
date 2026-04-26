@@ -1,42 +1,38 @@
 <template>
   <section class="canteen-detail-view">
-    <el-result
-      v-if="!canteen"
-      icon="warning"
-      title="未找到该食堂"
-      sub-title="请返回首页重新选择食堂。"
-    >
-      <template #extra>
-        <el-button type="primary" @click="router.push({ name: 'homeCanteenSelect' })">
-          返回首页
-        </el-button>
-      </template>
-    </el-result>
+    <article v-if="!canteen" class="empty torn-edge">
+      <h1>未找到该食堂</h1>
+      <p>你可能点到了旧链接。回首页重新选择一次即可。</p>
+      <button class="button-ink is-primary" type="button" @click="goHome">返回首页</button>
+    </article>
 
     <template v-else>
-      <article class="hero">
+      <article class="hero torn-edge">
         <img class="hero__image" :src="canteen.image" :alt="`${canteen.name}环境图`" />
         <div class="hero__content">
-          <p class="hero__tag">食堂详情</p>
+          <span class="sticker sticker--r-1">食堂档案</span>
           <h1>{{ canteen.name }}</h1>
-          <p class="hero__summary">{{ canteen.summary }}</p>
-          <div class="hero__meta">
-            <span>位置：{{ canteen.location }}</span>
-            <span>营业时间：{{ canteen.openHours }}</span>
-            <span>评分：{{ canteen.rating.toFixed(1) }}</span>
-          </div>
-          <div class="hero__action">
-            <el-button type="primary" @click="toDishList">查看菜品列表</el-button>
-            <el-button @click="router.push({ name: 'homeCanteenSelect' })">返回首页</el-button>
+          <p class="hero__meta">
+            评分 {{ canteen.rating.toFixed(1) }} · {{ canteen.location }} ·
+            {{ canteen.openHours }}
+          </p>
+          <p class="hero__summary dropcap">{{ canteen.summary }}</p>
+          <p class="hero__rant handwrite">学生吐槽：{{ canteen.rant }}</p>
+          <div class="hero__actions">
+            <button class="button-ink is-primary" type="button" @click="toDishList">
+              查看菜品列表
+            </button>
+            <button class="button-ink" type="button" @click="goHome">返回首页</button>
           </div>
         </div>
       </article>
 
       <section class="blocks">
         <article
-          v-for="block in canteen.introBlocks"
+          v-for="(block, index) in canteen.introBlocks"
           :key="`${canteen.id}-${block.title}`"
-          class="blocks__item"
+          class="blocks__item torn-edge"
+          :class="index % 2 === 0 ? 'is-left-heavy' : 'is-right-heavy'"
         >
           <h2>{{ block.title }}</h2>
           <p>{{ block.content }}</p>
@@ -44,16 +40,22 @@
       </section>
 
       <section class="hot">
+        <div class="section-rule">
+          <span class="section-rule__index">05</span>
+          <span class="section-rule__line"></span>
+        </div>
         <header class="hot__header">
-          <h2 class="section-title">该食堂热门菜品</h2>
-          <p class="section-subtitle">依据评分和销量综合排序，帮助你快速下单。</p>
+          <h2 class="section-title">这家店最稳的菜</h2>
+          <p class="section-subtitle">按评分倒序，先看最强三道再做选择。</p>
         </header>
 
-        <div class="hot__grid">
+        <div class="hot__layout">
           <DishCard
-            v-for="dish in hotDishes"
+            v-for="(dish, index) in hotDishes"
             :key="dish.id"
             :dish="dish"
+            :tilt="index % 2 === 0"
+            :image-shape="index % 3 === 0 ? 'polygon' : index % 3 === 1 ? 'hard' : 'polaroid'"
             clickable
             @click="toDishDetail(dish.id)"
           />
@@ -96,6 +98,10 @@ watch(
   { immediate: true }
 );
 
+function goHome() {
+  router.push({ name: 'homeCanteenSelect' });
+}
+
 function toDishList() {
   router.push({
     name: 'dishList',
@@ -115,86 +121,103 @@ function toDishDetail(dishId) {
 </script>
 
 <style scoped lang="scss">
-.hero {
-  display: grid;
-  grid-template-columns: 1.1fr 1fr;
-  gap: var(--ft-space-3);
-  border-radius: var(--ft-radius-lg);
-  overflow: hidden;
+.empty {
+  border: 1px solid var(--ft-color-secondary);
   background: var(--ft-color-surface);
-  box-shadow: var(--ft-shadow-md);
+  padding: 26px;
+
+  h1 {
+    margin: 0;
+    font-family: var(--ft-font-family-title);
+    font-size: 46px;
+  }
+
+  p {
+    margin: 8px 0 0;
+    color: var(--ft-color-text-muted);
+  }
+}
+
+.hero {
+  border: 1px solid var(--ft-color-secondary);
+  background: var(--ft-color-surface);
+  display: grid;
+  grid-template-columns: 1.2fr 0.8fr;
 }
 
 .hero__image {
   width: 100%;
   height: 100%;
-  min-height: 330px;
+  min-height: 360px;
   object-fit: cover;
+  clip-path: polygon(0 0, 100% 0, 96% 100%, 0 100%);
 }
 
 .hero__content {
-  padding: var(--ft-space-3);
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
+  padding: 20px 18px;
 
   h1 {
     margin: 10px 0 0;
-    font-size: clamp(30px, 4vw, 42px);
+    font-family: var(--ft-font-family-title);
+    font-size: clamp(44px, 6vw, 68px);
+    line-height: 0.95;
   }
-}
-
-.hero__tag {
-  margin: 0;
-  font-size: var(--ft-font-size-sm);
-  color: var(--ft-color-secondary);
-  font-weight: 700;
-}
-
-.hero__summary {
-  margin: 14px 0 0;
-  color: var(--ft-color-text-muted);
-  line-height: 1.8;
 }
 
 .hero__meta {
-  margin-top: 14px;
-  display: grid;
-  gap: 8px;
-  color: var(--ft-color-text);
+  margin: 12px 0 0;
+  color: var(--ft-color-text-muted);
 }
 
-.hero__action {
-  margin-top: var(--ft-space-2);
+.hero__summary {
+  margin: 10px 0 0;
+  color: var(--ft-color-secondary-soft);
+}
+
+.hero__rant {
+  margin: 14px 0 0;
+  color: var(--ft-color-primary);
+  font-size: 24px;
+}
+
+.hero__actions {
+  margin-top: 14px;
   display: flex;
-  flex-wrap: wrap;
   gap: 10px;
+  flex-wrap: wrap;
 }
 
 .blocks {
-  margin-top: var(--ft-space-4);
+  margin-top: var(--ft-space-3);
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: var(--ft-space-2);
+  gap: 10px;
 }
 
 .blocks__item {
-  border-radius: var(--ft-radius-md);
-  border: 1px solid var(--ft-color-border);
-  background: var(--ft-color-surface);
-  box-shadow: var(--ft-shadow-sm);
-  padding: var(--ft-space-3);
+  border: 1px solid var(--ft-color-secondary);
+  background: var(--ft-color-surface-ink);
+  padding: 14px 16px;
 
   h2 {
     margin: 0;
-    font-size: var(--ft-font-size-lg);
+    font-family: var(--ft-font-family-title);
+    font-size: 30px;
+    font-weight: 900;
   }
 
   p {
-    margin: 10px 0 0;
-    color: var(--ft-color-text-muted);
-    line-height: 1.7;
+    margin: 8px 0 0;
+    color: var(--ft-color-secondary-soft);
   }
+}
+
+.blocks__item.is-left-heavy {
+  width: 72%;
+}
+
+.blocks__item.is-right-heavy {
+  width: 72%;
+  justify-self: end;
 }
 
 .hot {
@@ -205,20 +228,21 @@ function toDishDetail(dishId) {
   margin-bottom: var(--ft-space-2);
 }
 
-.hot__grid {
+.hot__layout {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: 1fr 1.2fr;
   gap: var(--ft-space-2);
 }
 
-@media (max-width: 960px) {
-  .hero {
+@media (max-width: 980px) {
+  .hero,
+  .hot__layout {
     grid-template-columns: 1fr;
   }
 
-  .blocks,
-  .hot__grid {
-    grid-template-columns: 1fr;
+  .blocks__item.is-left-heavy,
+  .blocks__item.is-right-heavy {
+    width: 100%;
   }
 }
 </style>

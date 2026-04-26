@@ -1,9 +1,9 @@
 <template>
-  <header class="app-header">
+  <header class="app-header torn-edge">
     <div class="app-header__inner">
       <button class="brand" type="button" @click="goHome">
-        <span class="brand__logo">北交干饭吧</span>
-        <span class="brand__desc">今天吃点什么</span>
+        <span class="brand__title">北交干饭吧</span>
+        <span class="brand__sub handwrite">今天食堂开盲盒</span>
       </button>
 
       <nav class="nav">
@@ -15,20 +15,26 @@
           type="button"
           @click="handleNavClick(item)"
         >
-          {{ item.label }}
+          <span class="nav__index">{{ item.index }}</span>
+          <span>{{ item.label }}</span>
         </button>
       </nav>
 
-      <button class="profile" type="button" @click="openProfile">
-        <el-avatar :size="38" src="https://i.pravatar.cc/150?img=10" />
+      <button class="profile" type="button" @click="goProfile">
+        <span class="profile__avatar">饭</span>
+        <span class="profile__label handwrite">个人中心</span>
       </button>
     </div>
+
+    <svg class="decor decor--soy" viewBox="0 0 64 64" aria-hidden="true">
+      <path class="decor-svg" d="M26 8h12l4 8v10l-6 5v21H28V31l-6-5V16z" />
+      <path class="decor-svg" d="M26 18h16M28 38h8" />
+    </svg>
   </header>
 </template>
 
 <script setup>
 import { computed } from 'vue';
-import { ElMessage } from 'element-plus';
 import { useRoute, useRouter } from 'vue-router';
 
 defineOptions({
@@ -41,21 +47,25 @@ const router = useRouter();
 const navItems = [
   {
     key: 'canteen',
+    index: '01',
     label: '食堂',
     to: { name: 'homeCanteenSelect' },
   },
   {
     key: 'recommend',
+    index: '02',
     label: '推荐',
     to: { name: 'homeCanteenSelect', query: { section: 'recommend' } },
   },
   {
     key: 'review',
+    index: '03',
     label: '点评',
     to: { name: 'homeCanteenSelect', query: { section: 'review' } },
   },
   {
     key: 'message',
+    index: '04',
     label: '消息',
     to: { name: 'homeCanteenSelect', query: { section: 'message' } },
   },
@@ -77,11 +87,8 @@ function handleNavClick(item) {
   router.push(item.to);
 }
 
-function openProfile() {
-  ElMessage({
-    type: 'info',
-    message: '个人中心功能建设中，敬请期待。',
-  });
+function goProfile() {
+  router.push({ name: 'homeCanteenSelect', query: { section: 'message' } });
 }
 </script>
 
@@ -89,20 +96,21 @@ function openProfile() {
 .app-header {
   position: sticky;
   top: 0;
-  z-index: 50;
-  backdrop-filter: blur(12px);
-  background: rgb(248 244 238 / 92%);
-  border-bottom: 1px solid var(--ft-color-border);
+  z-index: 40;
+  border-bottom: 1px solid var(--ft-color-secondary);
+  background: rgb(242 239 230 / 94%);
+  backdrop-filter: blur(4px);
+}
 
-  &__inner {
-    width: min(1200px, calc(100% - 48px));
-    margin: 0 auto;
-    height: 78px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: var(--ft-space-2);
-  }
+.app-header__inner {
+  width: 100%;
+  margin: 0;
+  min-height: 82px;
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  gap: var(--ft-space-2);
+  align-items: center;
+  padding: 6px clamp(12px, 3.2vw, 36px);
 }
 
 .brand {
@@ -112,90 +120,119 @@ function openProfile() {
   text-align: left;
   color: inherit;
   padding: 0;
+}
 
-  &__logo {
-    display: block;
-    font-size: 24px;
-    font-weight: 800;
-    letter-spacing: 0.02em;
-  }
+.brand__title {
+  display: block;
+  font-family: var(--ft-font-family-title);
+  font-size: 34px;
+  font-weight: 900;
+  letter-spacing: 0.03em;
+  line-height: 0.95;
+}
 
-  &__desc {
-    display: block;
-    margin-top: 2px;
-    font-size: var(--ft-font-size-xs);
-    color: var(--ft-color-text-muted);
-  }
+.brand__sub {
+  display: block;
+  margin-top: 2px;
+  color: var(--ft-color-text-muted);
+  font-size: 18px;
 }
 
 .nav {
   display: flex;
-  align-items: center;
-  gap: 6px;
-  padding: 6px;
-  border-radius: var(--ft-radius-pill);
-  background: var(--ft-color-surface);
-  box-shadow: var(--ft-shadow-sm);
+  gap: 8px;
+  border-left: 1px solid rgb(58 36 24 / 22%);
+  padding-left: 16px;
+}
 
-  &__item {
-    border: 0;
-    border-radius: var(--ft-radius-pill);
-    background: transparent;
-    color: var(--ft-color-text-muted);
-    padding: 8px 16px;
-    font-size: var(--ft-font-size-sm);
-    font-weight: 600;
-    cursor: pointer;
-    transition: all var(--ft-transition-fast);
+.nav__item {
+  border: 1px solid transparent;
+  background: transparent;
+  padding: 8px 10px;
+  cursor: pointer;
+  color: var(--ft-color-secondary);
+  font: inherit;
+  font-weight: 700;
+  display: grid;
+  justify-items: start;
+  transition: transform var(--ft-transition-fast), border-color var(--ft-transition-fast);
 
-    &:hover {
-      color: var(--ft-color-primary);
-      background: rgb(221 107 32 / 8%);
-      transform: translateY(-1px);
-    }
-
-    &.is-active {
-      color: #fff;
-      background: linear-gradient(
-        135deg,
-        var(--ft-color-primary),
-        var(--ft-color-primary-soft)
-      );
-      box-shadow: 0 8px 18px rgb(221 107 32 / 28%);
-    }
+  &:hover {
+    transform: translateY(-1px);
+    border-color: rgb(58 36 24 / 35%);
   }
+
+  &.is-active {
+    color: var(--ft-color-primary);
+    border-color: var(--ft-color-primary);
+    box-shadow: 3px 3px 0 rgb(58 36 24 / 60%);
+    transform: rotate(-1deg);
+  }
+}
+
+.nav__index {
+  font-size: 11px;
+  color: rgb(58 36 24 / 60%);
+  letter-spacing: 0.09em;
 }
 
 .profile {
   border: 0;
-  background: var(--ft-color-surface);
-  border-radius: 50%;
-  width: 46px;
-  height: 46px;
-  padding: 4px;
+  background: none;
   cursor: pointer;
-  box-shadow: var(--ft-shadow-sm);
-  transition: transform var(--ft-transition-fast);
-
-  &:hover {
-    transform: translateY(-2px);
-  }
+  color: inherit;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0;
 }
 
-@media (max-width: 900px) {
-  .app-header {
-    &__inner {
-      width: calc(100% - 24px);
-      height: auto;
-      padding: 12px 0;
-      flex-wrap: wrap;
-    }
+.profile__avatar {
+  width: 34px;
+  height: 34px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--ft-color-secondary);
+  background: var(--ft-color-surface);
+  font-family: var(--ft-font-family-title);
+  font-weight: 900;
+  box-shadow: 2px 2px 0 var(--ft-color-secondary);
+}
+
+.profile__label {
+  font-size: 19px;
+}
+
+.decor {
+  position: absolute;
+  pointer-events: none;
+  opacity: 0.35;
+}
+
+.decor--soy {
+  width: 44px;
+  height: 44px;
+  right: 14px;
+  top: 10px;
+  transform: rotate(8deg);
+}
+
+@media (max-width: 980px) {
+  .app-header__inner {
+    grid-template-columns: 1fr;
+    padding: 10px 10px 14px;
+    gap: 10px;
   }
 
   .nav {
-    order: 3;
-    width: 100%;
-    justify-content: space-between;
+    border-left: 0;
+    padding-left: 0;
+    flex-wrap: wrap;
+  }
+
+  .profile {
+    justify-self: end;
   }
 }
 </style>
