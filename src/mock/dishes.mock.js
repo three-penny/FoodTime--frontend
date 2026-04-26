@@ -5,211 +5,157 @@ import tomatoBeefRiceImage from '../assets/images/dishs/番茄肥牛饭.jpg';
 import braisedBeefNoodleImage from '../assets/images/dishs/红烧牛肉面.jpg';
 import sourSoupRiceNoodleImage from '../assets/images/dishs/酸汤米线.png';
 import blackPepperChickenImage from '../assets/images/dishs/黑胶鸡腿饭.png';
+import { CANTEENS } from './canteens.mock';
 
-export const DISHES = [
+const DISH_IDS = [
+  'braised-beef-noodle',
+  'black-pepper-chicken',
+  'spicy-hot-pot',
+  'tomato-beef-rice',
+  'chicken-salad-bowl',
+  'mushroom-chicken-rice',
+  'sour-soup-rice-noodle',
+  'vine-pepper-noodle',
+  'beef-claypot-rice',
+  'kungpao-chicken-rice',
+  'tomato-egg-noodle',
+  'crispy-fish-rice',
+];
+
+const DISH_IMAGES = [
+  braisedBeefNoodleImage,
+  blackPepperChickenImage,
+  tomatoBeefRiceImage,
+  beefClaypotRiceImage,
+  sourSoupRiceNoodleImage,
+];
+
+const DISH_IMAGE_BY_NAME = {
+  红烧牛肉面: braisedBeefNoodleImage,
+  黑椒鸡腿饭: blackPepperChickenImage,
+  麻辣香锅: beefClaypotRiceImage,
+  番茄肥牛饭: tomatoBeefRiceImage,
+  鸡胸沙拉碗: tomatoBeefRiceImage,
+  香菇鸡肉饭: blackPepperChickenImage,
+  酸汤米线: sourSoupRiceNoodleImage,
+  藤椒鸡丝面: sourSoupRiceNoodleImage,
+  牛肉煲仔饭: beefClaypotRiceImage,
+  宫保鸡丁饭: blackPepperChickenImage,
+  番茄鸡蛋面: tomatoBeefRiceImage,
+  酥皮鱼排饭: beefClaypotRiceImage,
+};
+
+// 用户后续录入菜品时，只需要维护这里的 5 个字段：
+// 菜名 name、所在餐厅 canteenId、档口 stall、打分 rating、点评 comment。
+const DISH_FORM_ROWS = [
   {
-    id: 'braised-beef-noodle',
-    canteenId: 'xueyuan',
-    canteenName: '学苑餐厅',
     name: '红烧牛肉面',
-    price: 22,
-    valueNote: '一碗顶一顿',
+    canteenId: 'xueyuan_dahuo',
+    stall: '一碗顶一顿',
     rating: 4.9,
-    stamp: '必吃',
-    monthlySales: 680,
-    tags: ['招牌', '热汤', '高蛋白'],
-    image: braisedBeefNoodleImage,
-    description:
-      '牛腱炖得很烂，汤底不油但有厚度，冷天来一碗会觉得今天没白活。',
     comment: '阿姨今天给肉给得很实在，记住这班人。',
   },
   {
-    id: 'black-pepper-chicken',
-    canteenId: 'xueyuan',
-    canteenName: '学苑餐厅',
     name: '黑椒鸡腿饭',
-    price: 20,
-    valueNote: '肉量够狠',
+    canteenId: 'xueyuan_dahuo',
+    stall: '肉量够狠',
     rating: 4.8,
-    stamp: '必吃',
-    monthlySales: 560,
-    tags: ['畅销', '下饭', '现炒'],
-    image: blackPepperChickenImage,
-    description:
-      '鸡腿肉油润但不腻，黑椒汁挂得住饭，属于“吃完想再打包一份”的类型。',
     comment: '别在 12 点后去，晚 10 分钟就得排半小时。',
   },
   {
-    id: 'spicy-hot-pot',
-    canteenId: 'xueyuan',
-    canteenName: '学苑餐厅',
     name: '麻辣香锅',
-    price: 24,
-    valueNote: '配菜自由',
+    canteenId: 'xuesi',
+    stall: '自选热锅',
     rating: 4.6,
-    stamp: '再来',
-    monthlySales: 430,
-    tags: ['重口', '可自选', '人气'],
-    image: beefClaypotRiceImage,
-    description:
-      '辣度可以细调，锅气稳定，想吃点刺激感的时候基本都能满足。',
     comment: '挑菜别贪多，称重那一刻会心痛。',
   },
   {
-    id: 'tomato-beef-rice',
-    canteenId: 'jiaogong',
-    canteenName: '教工餐厅',
     name: '番茄肥牛饭',
-    price: 23,
-    valueNote: '酸甜稳妥',
+    canteenId: 'jiaogong',
+    stall: '酸甜稳妥',
     rating: 4.8,
-    stamp: '再来',
-    monthlySales: 510,
-    tags: ['酸甜', '高人气', '暖胃'],
-    image: tomatoBeefRiceImage,
-    description:
-      '番茄汁的酸甜比例在线，肥牛片薄但量足，适合连吃三天不腻。',
     comment: '课间冲过去五分钟拿到，效率党福音。',
   },
   {
-    id: 'chicken-salad-bowl',
+    name: '鸡胸沙拉碗',
     canteenId: 'jiaogong',
-    canteenName: '教工餐厅',
-    name: '轻盈鸡胸沙拉碗',
-    price: 19,
-    valueNote: '减脂友好',
+    stall: '轻食窗口',
     rating: 4.5,
-    stamp: '再来',
-    monthlySales: 360,
-    tags: ['轻食', '低脂', '健身友好'],
-    image: tomatoBeefRiceImage,
-    description: '鸡胸肉口感不柴，酱汁可选，适合晚间不想吃太重口。',
     comment: '健身搭子聚会指定款。',
   },
   {
-    id: 'mushroom-chicken-rice',
-    canteenId: 'jiaogong',
-    canteenName: '教工餐厅',
-    name: '香菇滑鸡饭',
-    price: 18,
-    valueNote: '吃到撑',
+    name: '香菇鸡肉饭',
+    canteenId: 'xueyi',
+    stall: '家常盖饭',
     rating: 4.6,
-    stamp: '再来',
-    monthlySales: 410,
-    tags: ['家常', '软嫩', '经典'],
-    image: blackPepperChickenImage,
-    description:
-      '香菇香气足，鸡肉软嫩，米饭吸汁后很顶，属于“普适型安全牌”。',
     comment: '饿狠了就点这份，基本不会后悔。',
   },
   {
-    id: 'sour-soup-rice-noodle',
-    canteenId: 'qinghe',
-    canteenName: '清河餐厅',
     name: '酸汤米线',
-    price: 17,
-    valueNote: '夜宵首选',
+    canteenId: 'qingzhen',
+    stall: '夜宵首选',
     rating: 4.7,
-    stamp: '必吃',
-    monthlySales: 470,
-    tags: ['夜宵', '开胃', '汤面'],
-    image: sourSoupRiceNoodleImage,
-    description:
-      '酸辣平衡，米线细滑，晚课后来一碗很解馋，分量刚好不会太撑。',
     comment: '考试周晚上最常见的“续命套餐”。',
   },
   {
-    id: 'vine-pepper-noodle',
-    canteenId: 'qinghe',
-    canteenName: '清河餐厅',
-    name: '藤椒鸡丝拌面',
-    price: 16,
-    valueNote: '便宜够味',
+    name: '藤椒鸡丝面',
+    canteenId: 'dongqu',
+    stall: '清爽麻香',
     rating: 4.6,
-    stamp: '再来',
-    monthlySales: 380,
-    tags: ['麻香', '拌面', '晚餐推荐'],
-    image: sourSoupRiceNoodleImage,
-    description:
-      '藤椒香气很突出，鸡丝量中规中矩，拌匀后风味层次感明显。',
     comment: '第一口平平，后劲很上头。',
   },
   {
-    id: 'beef-claypot-rice',
-    canteenId: 'qinghe',
-    canteenName: '清河餐厅',
     name: '牛肉煲仔饭',
-    price: 24,
-    valueNote: '香但略贵',
+    canteenId: 'liuyuan',
+    stall: '锅气略贵',
     rating: 4.7,
-    stamp: '再来',
-    monthlySales: 340,
-    tags: ['煲仔', '锅气', '推荐'],
-    image: beefClaypotRiceImage,
-    description:
-      '锅巴香是亮点，牛肉片偏嫩，适合不赶时间的慢慢吃法。',
     comment: '锅底脆感看师傅手法，偶尔会翻车。',
   },
   {
-    id: 'kungpao-chicken-rice',
-    canteenId: 'siyuan',
-    canteenName: '思源餐厅',
-    name: '宫保鸡丁盖饭',
-    price: 16,
-    valueNote: '高性价比',
+    name: '宫保鸡丁饭',
+    canteenId: 'dongkuai',
+    stall: '下饭小炒',
     rating: 4.5,
-    stamp: '再来',
-    monthlySales: 520,
-    tags: ['经典', '高性价比', '微辣'],
-    image: blackPepperChickenImage,
-    description:
-      '花生脆感和鸡丁嫩度都在线，口味稳定，是赶时间时的优先选项。',
-    comment: '分量看心情，遇到手抖阿姨能开心一整天。',
+    comment: '分量看心情，遇到手稳阿姨能开心一整天。',
   },
   {
-    id: 'tomato-egg-noodle',
-    canteenId: 'siyuan',
-    canteenName: '思源餐厅',
     name: '番茄鸡蛋面',
-    price: 14,
-    valueNote: '便宜管饱',
+    canteenId: 'minghu',
+    stall: '热汤面',
     rating: 4.3,
-    stamp: '踩雷',
-    monthlySales: 290,
-    tags: ['家常', '低负担', '热汤'],
-    image: tomatoBeefRiceImage,
-    description:
-      '味道比较家常，发挥不太稳定，属于“预算优先时可选”的那一档。',
     comment: '考试周压力大时，别对它期待太高。',
   },
   {
-    id: 'crispy-fish-rice',
-    canteenId: 'siyuan',
-    canteenName: '思源餐厅',
-    name: '香酥鱼排饭',
-    price: 19,
-    valueNote: '看炸功',
+    name: '酥皮鱼排饭',
+    canteenId: 'xuesi',
+    stall: '炸物窗口',
     rating: 4.4,
-    stamp: '踩雷',
-    monthlySales: 330,
-    tags: ['酥脆', '套餐', '饱腹'],
-    image: beefClaypotRiceImage,
-    description:
-      '炸衣和鱼肉分离度高时很好吃，翻车时会偏油，稳定性一般。',
     comment: '运气好是惊喜，运气差是复盘素材。',
   },
 ];
 
-export const HOME_RECOMMENDATION_IDS = [
-  'braised-beef-noodle',
-  'black-pepper-chicken',
-  'tomato-beef-rice',
-  'beef-claypot-rice',
-  'sour-soup-rice-noodle',
-  'spicy-hot-pot',
-  'mushroom-chicken-rice',
-  'vine-pepper-noodle',
-  'kungpao-chicken-rice',
-  'chicken-salad-bowl',
-  'crispy-fish-rice',
-];
+function getCanteenName(canteenId) {
+  return CANTEENS.find(canteen => canteen.id === canteenId)?.name ?? '未知餐厅';
+}
+
+function getDishImage(row, index) {
+  return DISH_IMAGE_BY_NAME[row.name] ?? DISH_IMAGES[index % DISH_IMAGES.length];
+}
+
+function createDish(row, index) {
+  return {
+    id: DISH_IDS[index] ?? `dish-${index + 1}`,
+    ...row,
+    canteenName: getCanteenName(row.canteenId),
+    image: getDishImage(row, index),
+    description: row.comment,
+    valueNote: row.stall,
+    price: null,
+    monthlySales: null,
+    tags: [],
+  };
+}
+
+export const DISHES = DISH_FORM_ROWS.map(createDish);
+
+export const HOME_RECOMMENDATION_IDS = DISHES.map(dish => dish.id);

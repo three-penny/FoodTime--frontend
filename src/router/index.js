@@ -16,6 +16,16 @@ export const routes = [
     component: HomeView,
   },
   {
+    path: '/canteens',
+    name: 'homeCanteenAnchor',
+    redirect: {
+      name: 'homeCanteenSelect',
+      query: {
+        section: 'canteens',
+      },
+    },
+  },
+  {
     path: '/canteens/:canteenId',
     name: 'canteenDetail',
     component: CanteenDetailView,
@@ -39,6 +49,11 @@ export const routes = [
     path: '/messages',
     name: 'messageCenter',
     component: MessageCenterView,
+  },
+  {
+    path: '/:pathMatch(.*)*',
+    name: 'notFoundRedirect',
+    redirect: '/',
   },
 ];
 

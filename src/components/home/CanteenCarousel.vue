@@ -22,10 +22,12 @@
       @pointermove="onPointerMove"
       @pointerup="onPointerEnd"
       @pointercancel="onPointerEnd"
+      @pointerleave="onPointerLeave"
+      @lostpointercapture="onLostPointerCapture"
     >
       <article
-        v-for="(item, index) in items"
-        :key="item.id"
+        v-for="(item, index) in displayItems"
+        :key="`${item.id}-${index}`"
         class="canteen-card"
         :class="`canteen-card--${index % 4}`"
         role="button"
@@ -47,18 +49,16 @@
 
         <div class="canteen-card__content">
           <p class="canteen-card__rant handwrite">
-            “{{ formatComment(item.comment, 20).text }}”
-            <span>（{{ formatComment(item.comment, 20).length }}字）</span>
+            <span class="canteen-card__rant-text">
+              “{{ formatComment(item.comment, 48).text }}”
+            </span>
+            <span class="canteen-card__count">（{{ formatComment(item.comment, 48).length }}字）</span>
           </p>
 
           <div class="canteen-card__title-row">
             <h3>{{ item.name }}</h3>
             <span class="zine-rating-stamp">{{ item.rating.toFixed(1) }}</span>
           </div>
-
-          <p class="canteen-card__votes handwrite">
-            （× {{ item.recommendVotes }} 人推荐）
-          </p>
 
           <div class="canteen-card__chips">
             <span
@@ -77,8 +77,9 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { computed, ref } from 'vue';
 import { useRouter } from 'vue-router';
+import { useAutoHorizontalScroll } from '../../composables/useAutoHorizontalScroll';
 import { useDragScroll } from '../../composables/useDragScroll';
 import { formatComment } from '../../utils/commentText';
 import { getRatingLabel } from '../../utils/ratingLabel';
@@ -97,8 +98,24 @@ const props = defineProps({
 const emit = defineEmits(['select']);
 const router = useRouter();
 const trackRef = ref(null);
-const { isDragging, wasDragged, onPointerDown, onPointerMove, onPointerEnd } =
-  useDragScroll(trackRef);
+const displayItems = computed(() =>
+  props.items.length > 1 ? [...props.items, ...props.items] : props.items
+);
+const {
+  isDragging,
+  wasDragged,
+  onPointerDown,
+  onPointerMove,
+  onPointerEnd,
+  onPointerLeave,
+  onLostPointerCapture,
+} = useDragScroll(trackRef);
+useAutoHorizontalScroll(trackRef, {
+  pauseWhen: isDragging,
+  loopItemCount: computed(() => props.items.length),
+  speed: 14,
+  pauseOnHover: true,
+});
 
 function imageFrameClass(index) {
   const classList = ['is-rotate-right', 'is-rotate-left', 'is-rotate-back', 'is-rotate-soft'];
@@ -110,12 +127,12 @@ function visibleChips(item) {
 }
 
 function handleSelect(canteenId) {
-  if (wasDragged.value) {
+  if (wasDragged.value || !canteenId) {
     return;
   }
 
   emit('select', canteenId);
-  router.push({ name: 'canteenDetail', params: { canteenId } });
+  router.push({ name: 'dishList', params: { canteenId } });
 }
 </script>
 
@@ -169,7 +186,7 @@ function handleSelect(canteenId) {
   position: relative;
   flex: 0 0 var(--zine-card-width);
   width: var(--zine-card-width);
-  height: var(--zine-card-height);
+  height: clamp(462px, 43vw, 528px);
   margin-right: -22px;
   border: 1px solid var(--ft-color-secondary);
   background:
@@ -177,7 +194,7 @@ function handleSelect(canteenId) {
     linear-gradient(180deg, var(--zine-paper-card) 0%, #f8efd9 100%);
   box-shadow: 6px 8px 0 rgb(58 36 24 / 12%);
   display: grid;
-  grid-template-rows: 60% 40%;
+  grid-template-rows: minmax(0, 60%) minmax(0, 40%);
   padding: 10px;
   scroll-snap-align: start;
   cursor: pointer;
@@ -272,22 +289,34 @@ function handleSelect(canteenId) {
 .canteen-card__content {
   position: relative;
   min-height: 0;
-  padding: 10px 2px 0;
+  padding: 14px 4px 0;
   display: grid;
-  grid-template-rows: auto auto auto 1fr;
-  gap: 5px;
+  grid-template-rows: minmax(78px, auto) auto 1fr;
+  gap: 10px;
 }
 
 .canteen-card__rant {
   margin: 0;
   color: var(--zine-stamp-red);
-  font-size: 19px;
-  line-height: 1.08;
+  font-size: 18px;
+  line-height: 1.22;
+  display: grid;
+  gap: 4px;
 }
 
-.canteen-card__rant span {
+.canteen-card__rant-text {
+  display: -webkit-box;
+  min-height: calc(1.22em * 3);
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+}
+
+.canteen-card__count {
+  display: block;
   color: var(--ft-color-text-muted);
-  font-size: 13px;
+  font-size: 12px;
+  line-height: 1;
 }
 
 .canteen-card__title-row {
@@ -300,16 +329,11 @@ function handleSelect(canteenId) {
 .canteen-card__title-row h3 {
   margin: 0;
   font-family: var(--zine-title-font);
-  font-size: 28px;
+  font-size: clamp(25px, 2.3vw, 30px);
   font-weight: 900;
-  line-height: 1;
-}
-
-.canteen-card__votes {
-  margin: 0;
-  color: var(--ft-color-text-muted);
-  font-size: 18px;
-  line-height: 1.1;
+  line-height: 1.05;
+  overflow-wrap: anywhere;
+  text-wrap: balance;
 }
 
 .canteen-card__chips {
@@ -333,7 +357,7 @@ function handleSelect(canteenId) {
   .canteen-card {
     flex-basis: min(76vw, 264px);
     width: min(76vw, 264px);
-    height: 374px;
+    height: 456px;
     margin-right: -14px;
   }
 }

@@ -23,8 +23,7 @@
           <span class="stamp">{{ stampLabel }}</span>
           <h1>{{ dish.name }}</h1>
           <p class="dish-main__meta">
-            评分 {{ dish.rating.toFixed(1) }} · 月售 {{ dish.monthlySales }} ·
-            ¥{{ dish.price }} / {{ dish.valueNote }}
+            评分 {{ dish.rating.toFixed(1) }} · {{ dish.canteenName }} · {{ dish.stall ?? dish.valueNote }}
           </p>
           <p class="dish-main__comment handwrite">
             “{{ formatComment(dish.comment, 42).text }}”
@@ -32,7 +31,7 @@
           </p>
 
           <div class="dish-main__essay">
-            <p class="dropcap">{{ dish.description }}</p>
+            <p class="dropcap">{{ dish.description ?? dish.comment }}</p>
             <p>
               在 {{ canteen.name }} 里，这道菜属于“犹豫时就点它”的那类。风味不追求花哨，
               但稳定度高，尤其适合晚课后急着吃饭的时段。
@@ -40,7 +39,7 @@
           </div>
 
           <div class="dish-main__tags">
-            <span v-for="tag in dish.tags" :key="tag">#{{ tag }}</span>
+            <span v-for="tag in safeTags" :key="tag">#{{ tag }}</span>
           </div>
 
           <div class="dish-main__actions">
@@ -114,6 +113,16 @@ const stampLabel = computed(() => {
     return '再议';
   }
   return getRatingLabel(dish.value.rating);
+});
+
+const safeTags = computed(() => {
+  if (!dish.value) {
+    return [];
+  }
+
+  return Array.isArray(dish.value.tags) && dish.value.tags.length > 0
+    ? dish.value.tags
+    : [getRatingLabel(dish.value.rating)];
 });
 
 const relatedDishes = computed(() =>

@@ -7,44 +7,318 @@ import canteenImage4 from '../assets/images/canteen/食堂4.png';
 import canteenImage5 from '../assets/images/canteen/食堂5.png';
 import canteenImage6 from '../assets/images/canteen/食堂6.png';
 
+const xueyiImg = canteenImage1;
+const minghuImg = canteenImage2;
+const dongkuaiImg = canteenImage3;
+const xueerImg = canteenImage4;
+const xuesanImg = canteenImage5;
+const qingzhenImg = canteenImage6;
+const xuesiImg = canteenImage1;
+const xuesiFengweiImg = canteenImage2;
+const liuyuanImg = canteenImage3;
+const jiaogongImg = canteenImage4;
+const xueyuanDahuoImg = canteenImage5;
+const xueyuanQingzhenImg = canteenImage6;
+const xueyuanXicanImg = canteenImage1;
+const dongquImg = canteenImage2;
+const dongquQingzhenImg = canteenImage3;
+const yiminImg = canteenImage4;
+
 export const CANTEENS = [
   {
-    id: 'xueyuan',
-    name: '学苑餐厅',
-    shortName: '学苑',
-    image: canteenImage1,
-    rating: 4.8,
-    stamp: '必吃',
-    location: '思源东楼一层',
+    id: 'xueyi',
+    name: '学一餐厅',
+    shortName: '学一',
+    image: xueyiImg,
+    rating: 4.6,
+    location: '明湖餐厅一层（十八号楼后）',
     openHours: '06:30 - 21:30',
-    avgPrice: '人均 ¥16 - ¥24',
-    peakQueue: '11:45 - 12:10（排队最长）',
-    bestTime: '11:20 前、12:30 后',
+    avgPrice: '人均 ¥12 - ¥18',
+    peakQueue: '11:45 - 12:15',
+    bestTime: '11:20 前、12:40 后',
     summary:
-      '窗口多、节奏快，适合课间冲刺。高峰虽然人多，但出餐效率在四家里最稳。',
-    rant: '阿姨手抖看脸，今天多打一勺全看你表情。',
-    features: ['高峰出餐快', '窗口品类多', '面食稳定', '盖饭不踩雷'],
-    signatureDishes: ['红烧牛肉面', '黑椒鸡腿饭', '铁板小炒'],
-    studentNotes: [
-      '周三红烧肉窗口常提前售罄。',
-      '排队时观察前两位点单速度，选快窗口更关键。',
-      '遇到新手打饭阿姨，份量波动会更大。',
-    ],
+      '学一餐厅在明湖一层，是很多同学早午晚都会顺路去的基础型食堂。整体风格偏家常，菜品不花哨但很适合日常吃饭，赶课前来一份热菜配米饭很稳。公开上新菜单里出现过二代水煮鱼、三鲜烩肉片这类低油健康菜，适合作为“稳定不踩雷”的首页食堂。',
+    rant:
+      '平时觉得普通、真赶时间又会第一个想起来的食堂。饭点排队不算轻松，但胜在出餐快。',
+    features: ['家常稳定', '出餐快', '价格友好', '适合赶课'],
+    signatureDishes: ['二代水煮鱼', '三鲜烩肉片'],
+    studentNotes: ['明湖一层比较好找', '午饭高峰建议提前十分钟', '适合日常正餐'],
     introBlocks: [
       {
-        title: '高峰建议',
-        content:
-          '11:45 - 12:10 是排队峰值。想十分钟内吃上饭，建议提前 15 分钟到。',
+        title: '食堂印象',
+        content: '学一更像交大学生的日常饭点，选择直接，吃完也不耽误后面的课。',
       },
       {
-        title: '口味稳定度',
-        content:
-          '这家属于“保底型”食堂，调味中规中矩，不容易翻车，适合连续打卡。',
+        title: '推荐菜品',
+        content: '二代水煮鱼、三鲜烩肉片都是公开上新中出现过的菜，适合放进招牌菜。',
       },
       {
-        title: '预算表现',
-        content:
-          '人均 20 左右能吃到比较完整的一餐，面食窗口是性价比上限。',
+        title: '排队建议',
+        content: '12 点左右人会明显变多，想舒服一点可以 11:20 前去。',
+      },
+    ],
+  },
+  {
+    id: 'minghu',
+    name: '明湖餐厅',
+    shortName: '明湖',
+    image: minghuImg,
+    rating: 4.7,
+    location: '明湖二层（十八号楼后）',
+    openHours: '10:30 - 21:30',
+    avgPrice: '人均 ¥14 - ¥20',
+    peakQueue: '11:45 - 12:40',
+    bestTime: '11:25 前、12:45 后',
+    summary:
+      '明湖餐厅在明湖二层，适合想换点面食、饼类或者风味小吃的同学。分为八个档口，整体比其他更有“今天想吃点不一样”的感觉。适合做菜品列表页里的风味类食堂。',
+    rant:
+      '明湖有时候会让人纠结，因为看着都想吃。缺点是高峰期上楼之后发现热门窗口已经排起来了。',
+    features: ['风味面食', '小吃丰富', '选择灵活', '适合换口味'],
+    signatureDishes: ['云南米线', '炒饭'],
+    studentNotes: ['云南米线特别正宗', '面食窗口适合晚饭', '热门小吃饭点排队明显'],
+    introBlocks: [
+      {
+        title: '食堂定位',
+        content: '明湖适合做风味餐厅，不只是吃饱，也适合用户来找特色菜。',
+      },
+      {
+        title: '推荐菜品',
+        content: '西北面食和牛肉汤都适合做详情页展示菜。',
+      },
+      {
+        title: '体验建议',
+        content: '想慢慢选窗口的话，尽量避开刚下课的时间。',
+      },
+    ],
+  },
+  {
+    id: 'dongkuai',
+    name: '东快餐厅',
+    shortName: '东快',
+    image: dongkuaiImg,
+    rating: 4.7,
+    location: '明湖二层（十八号楼后）',
+    openHours: '10:30 - 21:30',
+    avgPrice: '人均 ¥16 - ¥28',
+    peakQueue: '11:45 - 12:15',
+    bestTime: '11:20 前、12:40 后',
+    summary:
+      '东快餐厅位于明湖二层，名字听起来像快餐，但实际更偏风味窗口集合。公开上新里有木桶鱼、一纸鸡这类菜，适合想吃热乎、口味重一点的同学。它很适合放在项目里做“风味快餐型”食堂。',
+    rant:
+      '东快的问题是香味太明显，路过很难不被勾进去。钱包和减肥计划总有一个要妥协。',
+    features: ['风味快餐', '口味丰富', '适合聚餐', '菜量扎实'],
+    signatureDishes: ['木桶鱼', '一纸鸡'],
+    studentNotes: ['明湖二层', '适合想吃重口味时来', '鱼类窗口饭点可能排队'],
+    introBlocks: [
+      {
+        title: '整体印象',
+        content: '东快更适合想吃风味菜的同学，比普通打饭更有选择感。',
+      },
+      {
+        title: '推荐菜品',
+        content: '木桶鱼、一纸鸡是公开菜单中出现过的真实菜品。',
+      },
+      {
+        title: '使用场景',
+        content: '适合午晚餐，也适合朋友一起点不同窗口互相尝。',
+      },
+    ],
+  },
+  {
+    id: 'xueer',
+    name: '学二餐厅',
+    shortName: '学二',
+    image: xueerImg,
+    rating: 4.8,
+    location: '学活一层',
+    openHours: '06:30 - 22:00',
+    avgPrice: '人均 ¥13 - ¥24',
+    peakQueue: '11:40 - 12:20',
+    bestTime: '11:15 前、12:45 后',
+    summary:
+      '学二餐厅在学活一层，是学生活动中心附近最顺手的食堂之一。公开菜单里出现过红酸里脊和时蔬干拌面，既有下饭菜也有面食选择。这里适合做项目里的“人气主力食堂”，因为位置、容量和日常属性都很强。',
+    rant:
+      '学二真的方便，但方便的代价就是饭点人多。你以为自己来得挺早，结果大家都这么想。',
+    features: ['位置核心', '人气高', '窗口多', '适合日常'],
+    signatureDishes: ['红酸里脊', '时蔬干拌面'],
+    studentNotes: ['学活一层', '中午座位紧张', '适合赶活动或社团前吃'],
+    introBlocks: [
+      {
+        title: '食堂印象',
+        content: '学二是很典型的学生主力食堂，适合高频出现在首页推荐。',
+      },
+      {
+        title: '推荐菜品',
+        content: '红酸里脊适合配饭，时蔬干拌面适合想吃清爽一点的时候。',
+      },
+      {
+        title: '排队建议',
+        content: '11:40 后人流开始明显增加，12 点左右最挤。',
+      },
+    ],
+  },
+  {
+    id: 'xuesan',
+    name: '学生三餐厅',
+    shortName: '学三',
+    image: xuesanImg,
+    rating: 4.5,
+    location: '学活二层',
+    openHours: '10:30 - 21:30',
+    avgPrice: '人均 ¥14 - ¥25',
+    peakQueue: '11:45 - 12:15',
+    bestTime: '11:20 前、12:40 后',
+    summary:
+      '学生三餐厅在学活二层，后勤通知中也把它列为主校区餐厅。它适合和学二形成楼层联动：学二人多时可以上楼看看学三。项目里可以把它定位为学活区域的补充型风味餐厅。',
+    rant:
+      '有时候不是一开始就想去学三，而是学二太挤了才上楼。结果吃完发现，其实也挺香。',
+    features: ['学活二层', '风味补充', '选择灵活', '适合错峰'],
+    signatureDishes: ['风味盖饭', '干拌面', '小炒套餐'],
+    studentNotes: ['学二排队长时可上楼', '适合午晚餐', '具体窗口可后续再细分'],
+    introBlocks: [
+      {
+        title: '食堂定位',
+        content: '学三适合和学二一起作为学活片区的数据展示。',
+      },
+      {
+        title: '点餐建议',
+        content: '可以按窗口类型补充盖饭、面食、小炒等菜品。',
+      },
+      {
+        title: '数据备注',
+        content: '公开资料能确认餐厅存在和位置，具体菜品建议后续校内实拍补全。',
+      },
+    ],
+  },
+  {
+    id: 'qingzhen',
+    name: '清真餐厅',
+    shortName: '清真',
+    image: qingzhenImg,
+    rating: 4.7,
+    location: '学活三层',
+    openHours: '06:30 - 21:30',
+    avgPrice: '人均 ¥15 - ¥28',
+    peakQueue: '11:40 - 12:15',
+    bestTime: '11:15 前、12:40 后',
+    summary:
+      '清真餐厅位于学活三层，主要服务有清真饮食需求的师生，也适合想换口味的同学。位置和功能都很明确，项目里建议单独建食堂条目，不要混进普通学活餐厅。',
+    rant:
+      '清真餐厅属于目标很明确的选择，想吃的时候会专门上三层。饭点热门窗口也会排队。',
+    features: ['清真餐饮', '学活三层', '需求明确', '正餐友好'],
+    signatureDishes: ['牛肉类套餐', '羊肉丸子', '清真盖饭'],
+    studentNotes: ['尊重清真餐饮规范', '适合单独筛选', '饭点建议提前'],
+    introBlocks: [
+      {
+        title: '餐厅特色',
+        content: '清真餐厅适合有清真饮食需求的师生，也适合想换口味的人。',
+      },
+      {
+        title: '页面建议',
+        content: '建议在筛选项里增加“清真”标签，方便用户快速找到。',
+      },
+      {
+        title: '用餐提示',
+        content: '午饭高峰排队明显，建议提前或错峰。',
+      },
+    ],
+  },
+  {
+    id: 'xuesi',
+    name: '学四餐厅',
+    shortName: '学四',
+    image: xuesiImg,
+    rating: 4.7,
+    location: '嘉园东侧',
+    openHours: '06:30 - 21:30',
+    avgPrice: '人均 ¥13 - ¥25',
+    peakQueue: '11:45 - 12:10',
+    bestTime: '11:20 前、12:35 后',
+    summary:
+      '学四餐厅位于嘉园东侧，是宿舍区附近很有存在感的食堂。公开上新菜品里有墩子肉、菠萝鱼，风格偏家常但也有记忆点。适合做“宿舍附近常去”的食堂条目。',
+    rant:
+      '学四就是那种吃久了会有感情的地方。它不一定每次惊艳，但你饿的时候它很可靠。',
+    features: ['靠近嘉园', '家常实在', '学生常去', '性价比高'],
+    signatureDishes: ['墩子肉', '菠萝鱼'],
+    studentNotes: ['嘉园附近同学常去', '中午座位紧张', '晚饭体验更舒服'],
+    introBlocks: [
+      {
+        title: '食堂印象',
+        content: '学四适合写成“生活感很强”的食堂，真实感会比较好。',
+      },
+      {
+        title: '推荐菜品',
+        content: '墩子肉和菠萝鱼都来自公开上新菜单。',
+      },
+      {
+        title: '排队建议',
+        content: '中午高峰要么早点来，要么干脆 12:35 后再来。',
+      },
+    ],
+  },
+  {
+    id: 'xuesi_fengwei',
+    name: '学四风味餐厅',
+    shortName: '学四风味',
+    image: xuesiFengweiImg,
+    rating: 4.6,
+    location: '学四二层',
+    openHours: '10:30 - 21:30',
+    avgPrice: '人均 ¥15 - ¥28',
+    peakQueue: '11:45 - 12:15',
+    bestTime: '11:20 前、12:45 后',
+    summary:
+      '学四风味餐厅在后勤通知中出现，位置为学四二层。它适合和学四餐厅区分开：一层偏日常正餐，二层偏风味选择。项目里可以把它做成同一区域下的另一个食堂卡片。',
+    rant:
+      '学四风味适合“不想吃普通饭”的时候去。缺点是饭点上二层也不一定能逃过排队。',
+    features: ['风味窗口', '学四二层', '适合换口味', '选择多'],
+    signatureDishes: ['风味面食', '盖饭套餐', '特色小吃'],
+    studentNotes: ['和学四餐厅分开建数据', '适合晚饭', '菜品后续可按窗口补充'],
+    introBlocks: [
+      {
+        title: '数据定位',
+        content: '建议不要和学四餐厅合并，风味餐厅可以独立展示。',
+      },
+      {
+        title: '推荐场景',
+        content: '适合想换口味，但又不想走远的嘉园附近同学。',
+      },
+      {
+        title: '备注',
+        content: '具体菜品需要后续按窗口继续采集。',
+      },
+    ],
+  },
+  {
+    id: 'liuyuan',
+    name: '留园餐厅',
+    shortName: '留园',
+    image: liuyuanImg,
+    rating: 4.8,
+    location: '学四北侧',
+    openHours: '10:30 - 20:00',
+    avgPrice: '人均 ¥18 - ¥35',
+    peakQueue: '11:45 - 12:20',
+    bestTime: '12:45 后、17:30 前',
+    summary:
+      '留园餐厅位于学四北侧，它的菜品相对更精致，公开上新中出现过柠檬猪手、川味凉粉鸡。适合项目里做“品质更高、价格略高”的食堂。',
+    rant:
+      '留园好吃是好吃，就是钱包也会更有感觉。适合偶尔改善伙食，不太适合天天无脑冲。',
+    features: ['菜品精致', '环境较安静', '价格略高', '适合改善伙食'],
+    signatureDishes: ['柠檬猪手', '川味凉粉鸡'],
+    studentNotes: ['非常清淡', '中午只允许教工用餐', '适合错峰体验'],
+    introBlocks: [
+      {
+        title: '食堂印象',
+        content: '留园非常清淡、健康，但是价格较贵',
+      },
+      {
+        title: '推荐菜品',
+        content: '柠檬猪手和川味凉粉鸡都是公开上新菜品。',
+      },
+      {
+        title: '使用提示',
+        content: '注意：只有晚上给学生开放”。',
       },
     ],
   },
@@ -52,262 +326,282 @@ export const CANTEENS = [
     id: 'jiaogong',
     name: '教工餐厅',
     shortName: '教工',
-    image: canteenImage2,
-    rating: 4.6,
-    stamp: '再来',
-    location: '思源西楼二层',
-    openHours: '07:00 - 20:30',
-    avgPrice: '人均 ¥15 - ¥23',
-    peakQueue: '12:00 - 12:20',
-    bestTime: '12:35 后',
-    summary:
-      '口味偏轻，适合长期吃食堂。比起重口刺激，更强调“每天都能吃”。',
-    rant: '看着清淡，番茄肥牛却经常把人香迷糊。',
-    features: ['轻食友好', '低油少盐', '套餐更新快', '下午人少'],
-    signatureDishes: ['番茄肥牛饭', '香菇滑鸡饭', '鸡胸沙拉碗'],
-    studentNotes: [
-      '重口同学记得主动加辣，不然会觉得淡。',
-      '12:30 以后窗口切换更快，体验比高峰好很多。',
-      '适合和健身搭子拼单。',
-    ],
-    introBlocks: [
-      {
-        title: '口味特点',
-        content:
-          '调味克制，油感轻。更适合平日高频吃，不会出现“吃完昏沉”的情况。',
-      },
-      {
-        title: '排队体验',
-        content:
-          '午高峰比学苑略短，但窗口人手较少，建议挑队伍“短且快”的档口。',
-      },
-      {
-        title: '营养组合',
-        content:
-          '主食+蛋白+蔬菜搭配容易凑齐，对作息不稳定的同学很友好。',
-      },
-    ],
-  },
-  {
-    id: 'qinghe',
-    name: '清河餐厅',
-    shortName: '清河',
-    image: canteenImage3,
+    image: jiaogongImg,
     rating: 4.7,
-    stamp: '必吃',
-    location: '学活北侧一层',
-    openHours: '06:30 - 22:00',
-    avgPrice: '人均 ¥14 - ¥24',
-    peakQueue: '18:10 - 18:40',
-    bestTime: '20:30 后（夜宵友好）',
+    location: '留园北侧',
+    openHours: '10:30 - 20:00',
+    avgPrice: '人均 ¥18 - ¥36',
+    peakQueue: '11:40 - 12:20',
+    bestTime: '12:45 后、17:20 前',
     summary:
-      '夜宵时段最能打，汤面和小碗菜稳定，晚课后“续命指数”拉满。',
-    rant: '晚十点还有热汤，熬夜党把这里当食堂避风港。',
-    features: ['夜宵时段长', '汤面稳', '重口味友好', '小碗菜灵活'],
-    signatureDishes: ['酸汤米线', '藤椒拌面', '牛肉煲仔饭'],
-    studentNotes: [
-      '考试周 21:00 后人会突然变多。',
-      '想要锅气就盯现炒窗口，别走预制快线。',
-      '夜间档口更看师傅手感，稳定性有波动。',
-    ],
+      '教工餐厅位于留园北侧，属性上更偏教职工餐厅，但也适合做“精致健康、价格略高”的特殊餐厅展示。',
+    rant:
+      '教工餐厅看起来总有一种“今天吃得正式一点”的感觉。学生去之前最好先确认开放时间。',
+    features: ['偏教工属性', '菜品精致', '低油低盐', '价格略高'],
+    signatureDishes: ['泰汁鱼条', '鲁大仙鸡腿'],
+    studentNotes: ['留园北侧', '开放情况以校内通知为准', '适合改善伙食'],
     introBlocks: [
       {
-        title: '夜间优势',
-        content:
-          '21:30 后仍有稳定供应，是“晚课+自习”人群的补给点。',
+        title: '餐厅定位',
+        content: '教工餐厅建议在数据里标注为偏教工属性，避免学生误解为全天普通开放。',
       },
       {
-        title: '风味标签',
-        content:
-          '酸辣、麻香、锅气是这家的关键词，重口党满意度很高。',
+        title: '推荐菜品',
+        content: '泰汁鱼条、鲁大仙鸡腿可作为真实菜品展示。',
       },
       {
-        title: '预算建议',
-        content:
-          '16-20 元区间选择最多，想吃得更扎实可加主食或小碗菜。',
+        title: '页面提示',
+        content: '详情页可加入“部分时段可能面向教职工”的提示。',
       },
     ],
   },
   {
-    id: 'siyuan',
-    name: '思源餐厅',
-    shortName: '思源',
-    image: canteenImage4,
-    rating: 4.4,
-    stamp: '踩雷',
-    location: '思源楼地下一层',
-    openHours: '07:00 - 21:00',
-    avgPrice: '人均 ¥12 - ¥20',
-    peakQueue: '11:55 - 12:15',
-    bestTime: '17:20 - 17:50',
+    id: 'xueyuan_dahuo',
+    name: '学苑大伙餐厅',
+    shortName: '学苑大伙',
+    image: xueyuanDahuoImg,
+    rating: 4.8,
+    location: '学苑大门左拐',
+    openHours: '06:30 - 21:30',
+    avgPrice: '人均 ¥13 - ¥25',
+    peakQueue: '11:45 - 12:20',
+    bestTime: '11:20 前、12:50 后',
     summary:
-      '价格友好但出品波动较大，属于“看窗口吃饭”的食堂，熟客优势明显。',
-    rant: '周三红烧肉别错过，其它天就看缘分了。',
-    features: ['价格友好', '菜量足', '窗口波动大', '熟客优势明显'],
-    signatureDishes: ['宫保鸡丁盖饭', '番茄鸡蛋面', '香酥鱼排饭'],
-    studentNotes: [
-      '同一道菜不同窗口差异明显。',
-      '预算紧张时很顶，但别盲点新窗口。',
-      '高峰期换菜快，最好先看前人餐盘再下单。',
-    ],
+      '学苑大伙餐厅位于学苑大门左拐，是学苑片区的基础型食堂。公开上新菜单里出现过小碗杂粮饭、鲜果脆皮肉，既有健康主食也有酸甜口热菜。适合研究生、公寓区同学日常就餐。',
+    rant:
+      '学苑大伙就是那种住得近会经常吃的地方。菜不一定每天都惊喜，但离得近这件事太加分了。',
+    features: ['学苑片区', '日常正餐', '主食友好', '适合常吃'],
+    signatureDishes: ['小碗杂粮饭', '鲜果脆皮肉'],
+    studentNotes: ['学苑大门左拐', '适合学苑公寓同学', '饭点建议错峰'],
     introBlocks: [
       {
-        title: '省钱策略',
-        content:
-          '基础套餐覆盖面广，预算紧张时能稳定解决一餐。',
+        title: '食堂印象',
+        content: '学苑大伙适合做学苑片区的主力食堂。',
       },
       {
-        title: '避坑方式',
-        content:
-          '优先点熟悉窗口，首次尝试建议跟“高频回头客”同款。',
+        title: '推荐菜品',
+        content: '小碗杂粮饭和鲜果脆皮肉来自公开上新菜单。',
       },
       {
-        title: '评价分歧',
-        content:
-          '这家两极分化明显：有人每天来，也有人一周踩两次雷。',
+        title: '使用场景',
+        content: '适合日常三餐，尤其适合住在学苑附近的同学。',
+      },
+    ],
+  },
+  {
+    id: 'xueyuan_qingzhen',
+    name: '学苑清真餐厅',
+    shortName: '学苑清真',
+    image: xueyuanQingzhenImg,
+    rating: 4.8,
+    location: '学苑大门左拐',
+    openHours: '06:30 - 21:30',
+    avgPrice: '人均 ¥15 - ¥28',
+    peakQueue: '11:45 - 12:15',
+    bestTime: '11:20 前、12:45 后',
+    summary:
+      '学苑清真餐厅属于学苑片区的清真餐饮选择。公开菜单里出现过烩羊肉丸子和春饼套餐，适合有清真饮食需求的同学，也适合想在学苑附近换口味的人。',
+    rant:
+      '学苑清真很适合固定需求的同学收藏，住学苑附近的话会觉得特别方便。',
+    features: ['清真餐饮', '学苑片区', '正餐友好', '需求明确'],
+    signatureDishes: ['烩羊肉丸子', '春饼套餐'],
+    studentNotes: ['注意清真餐饮规范', '适合单独加标签', '饭点建议提前'],
+    introBlocks: [
+      {
+        title: '餐厅特色',
+        content: '学苑清真建议单独建数据，不要并入学苑大伙。',
+      },
+      {
+        title: '推荐菜品',
+        content: '烩羊肉丸子、春饼套餐可作为真实菜品。',
+      },
+      {
+        title: '页面建议',
+        content: '可以加“清真”“学苑片区”“正餐”三个标签。',
+      },
+    ],
+  },
+  {
+    id: 'xueyuan_xican',
+    name: '学苑西餐厅',
+    shortName: '学苑西餐',
+    image: xueyuanXicanImg,
+    rating: 4.6,
+    location: '学苑大门左拐',
+    openHours: '10:30 - 20:30',
+    avgPrice: '人均 ¥16 - ¥32',
+    peakQueue: '11:50 - 12:20',
+    bestTime: '11:30 前、13:00 后',
+    summary:
+      '学苑西餐厅位于学苑片区，公开上新菜单中出现过司康糕点、金牌黄油面包。它适合做轻食、面包、简餐类餐厅，和普通大伙饭区分明显。页面上可以做得更年轻一点。',
+    rant:
+      '学苑西餐适合想吃点“不像食堂饭”的时候去，但真饿的时候可能还是会想加点主食。',
+    features: ['西式简餐', '面包糕点', '适合轻食', '学苑片区'],
+    signatureDishes: ['司康糕点', '金牌黄油面包'],
+    studentNotes: ['适合下午加餐', '价格略高于普通大伙', '可以做轻食分类'],
+    introBlocks: [
+      {
+        title: '食堂定位',
+        content: '学苑西餐厅适合作为轻食/西式简餐类餐厅展示。',
+      },
+      {
+        title: '推荐菜品',
+        content: '司康糕点和金牌黄油面包是公开上新菜单中出现过的品类。',
+      },
+      {
+        title: '页面建议',
+        content: '可以在详情页里突出“下午加餐”“面包糕点”“轻食”。',
+      },
+    ],
+  },
+  {
+    id: 'dongqu',
+    name: '东区餐厅',
+    shortName: '东区',
+    image: dongquImg,
+    rating: 4.6,
+    location: '东区操场西侧',
+    openHours: '07:00 - 21:30',
+    avgPrice: '人均 ¥13 - ¥18',
+    peakQueue: '11:45 - 12:15',
+    bestTime: '11:20 前、12:40 后',
+    summary:
+      '东区餐厅位于东区操场西侧，是东校区同学最方便的日常食堂。热门档口有烤盘饭和小份菜，适合做东校区基础食堂。它的核心优势不是网红，而是近、快、稳定。',
+    rant:
+      '对东区同学来说就是刚需。不是每次都惊艳，但下楼能吃上热饭就很重要。',
+    features: ['东校区', '距离方便', '日常稳定', '正餐小吃都有'],
+    signatureDishes: ['蜜雪冰城', '麻辣烫'],
+    studentNotes: ['东区操场西侧', '适合东校区同学', '午饭高峰人多'],
+    introBlocks: [
+      {
+        title: '食堂印象',
+        content: '东区餐厅适合做东校区主力食堂，强调便利和稳定。',
+      },
+      {
+        title: '推荐菜品',
+        content: '小份菜味道不错，还有蜜雪冰城',
+      },
+      {
+        title: '使用场景',
+        content: '适合日常三餐，尤其适合不想跑主校区和点外卖的同学。',
+      },
+    ],
+  },
+  {
+    id: 'dongqu_qingzhen',
+    name: '东区清真餐厅',
+    shortName: '东区清真',
+    image: dongquQingzhenImg,
+    rating: 4.7,
+    location: '东区餐厅东北侧一层',
+    openHours: '06:30 - 21:30',
+    avgPrice: '人均 ¥15 - ¥28',
+    peakQueue: '11:45 - 12:15',
+    bestTime: '11:20 前、12:45 后',
+    summary:
+      '东区清真餐厅位于东区餐厅东北侧一层，是东区的清真餐饮选择。公开菜单里出现过豆花时蔬和牛肉爆三丁，适合做清真与东校区双标签。对于住在东区、有清真饮食需求的同学来说很实用。',
+    rant:
+      '东区清真胜在不用跨校区找清真餐。饭点排队有，但比跑远路强多了。',
+    features: ['东区清真', '位置明确', '牛肉菜品', '正餐友好'],
+    signatureDishes: ['豆花时蔬', '牛肉爆三丁'],
+    studentNotes: ['东区餐厅东北侧一层', '适合清真需求用户筛选', '午餐建议提前'],
+    introBlocks: [
+      {
+        title: '餐厅特色',
+        content: '东区清真餐厅适合在筛选里同时打上“东区”和“清真”标签。',
+      },
+      {
+        title: '推荐菜品',
+        content: '豆花时蔬、牛肉爆三丁可作为真实菜品展示。',
+      },
+      {
+        title: '页面提示',
+        content: '建议和东区餐厅分开建条目，方便用户按饮食需求查找。',
+      },
+    ],
+  },
+  {
+    id: 'yimin',
+    name: '益民餐厅',
+    shortName: '益民',
+    image: yiminImg,
+    rating: 4.4,
+    location: '明湖东侧家属区内 / 主校区东门外',
+    openHours: '10:30 - 19:30',
+    avgPrice: '人均 ¥16 - ¥30',
+    peakQueue: '11:45 - 12:30',
+    bestTime: '11:25 前、12:40 后',
+    summary:
+      '益民餐厅位置与家属区内，相较于学生食堂，更像社区型餐厅，有小吃和点菜两种形式，明档现钞、锅气十足',
+    rant:
+      '益民不是最热闹的学生食堂，但胜在人少一点、节奏慢一点。适合不想挤大食堂的时候去。',
+    features: ['家属区附近', '相对安静', '适合点菜', '人流较稳'],
+    signatureDishes: ['家常小炒', '盖饭套餐', '炸串'],
+    studentNotes: ['东北菜', '适合错峰', '位置别和明湖主楼混淆'],
+    introBlocks: [
+      {
+        title: '食堂定位',
+        content: '益民餐厅适合做家属区附近的补充型餐厅。',
+      },
+      {
+        title: '推荐菜品',
+        content: '有很多经典东北菜，锅包肉、溜肉段都很好吃',
+      },
+      {
+        title: '备注',
+        content: '点菜后记得报桌号',
       },
     ],
   },
 ];
 
-export const HOME_CANTEEN_SPOTS = [
-  {
-    id: 'xueyuan-lunch-rush',
-    canteenId: 'xueyuan',
-    name: '学苑 · 午高峰速战位',
-    image: canteenImage1,
-    rating: 4.8,
-    price: 20,
-    valueNote: '快且稳',
-    stamp: '必吃',
-    comment: '想 20 分钟吃完返教室，这个点最稳。',
-    recommendVotes: 126,
-    avoidVotes: 19,
-  },
-  {
-    id: 'xueyuan-noodle-night',
-    canteenId: 'xueyuan',
-    name: '学苑 · 面食夜补位',
-    image: canteenImage5,
-    rating: 4.7,
-    price: 18,
-    valueNote: '热汤顶饿',
-    stamp: '再来',
-    comment: '晚课后冲一碗，精神状态立刻回线。',
-    recommendVotes: 98,
-    avoidVotes: 14,
-  },
-  {
-    id: 'jiaogong-light-lunch',
-    canteenId: 'jiaogong',
-    name: '教工 · 轻食午餐位',
-    image: canteenImage2,
-    rating: 4.6,
-    price: 19,
-    valueNote: '控油友好',
-    stamp: '再来',
-    comment: '下午还有课的时候，这里吃完不会犯困。',
-    recommendVotes: 84,
-    avoidVotes: 17,
-  },
-  {
-    id: 'jiaogong-tomato-hit',
-    canteenId: 'jiaogong',
-    name: '教工 · 番茄肥牛档',
-    image: canteenImage6,
-    rating: 4.8,
-    price: 23,
-    valueNote: '酸甜稳妥',
-    stamp: '必吃',
-    comment: '挑不出毛病的一道，连吃三次都不腻。',
-    recommendVotes: 139,
-    avoidVotes: 22,
-  },
-  {
-    id: 'qinghe-midnight-noodle',
-    canteenId: 'qinghe',
-    name: '清河 · 夜宵米线位',
-    image: canteenImage3,
-    rating: 4.7,
-    price: 17,
-    valueNote: '夜宵首选',
-    stamp: '必吃',
-    comment: '图书馆闭馆后，几乎都在这儿偶遇熟人。',
-    recommendVotes: 152,
-    avoidVotes: 11,
-  },
-  {
-    id: 'qinghe-spicy-line',
-    canteenId: 'qinghe',
-    name: '清河 · 重口进攻位',
-    image: canteenImage5,
-    rating: 4.6,
-    price: 21,
-    valueNote: '辣得痛快',
-    stamp: '再来',
-    comment: '压力大时吃这一口，心态会变好。',
-    recommendVotes: 90,
-    avoidVotes: 26,
-  },
-  {
-    id: 'siyuan-budget-save',
-    canteenId: 'siyuan',
-    name: '思源 · 预算守护位',
-    image: canteenImage4,
-    rating: 4.4,
-    price: 16,
-    valueNote: '便宜管饱',
-    stamp: '再来',
-    comment: '月底钱包告急时，靠它撑住体面。',
-    recommendVotes: 76,
-    avoidVotes: 31,
-  },
-  {
-    id: 'siyuan-risk-window',
-    canteenId: 'siyuan',
-    name: '思源 · 看脸窗口位',
-    image: canteenImage6,
-    rating: 4.2,
-    price: 15,
-    valueNote: '波动很大',
-    stamp: '踩雷',
-    comment: '同一菜不同天像两家店，赌运气成分太高。',
-    recommendVotes: 43,
-    avoidVotes: 79,
-  },
-  {
-    id: 'xueyuan-iron-plate',
-    canteenId: 'xueyuan',
-    name: '学苑 · 铁板爆香位',
-    image: canteenImage1,
-    rating: 4.7,
-    price: 22,
-    valueNote: '锅气拉满',
-    stamp: '必吃',
-    comment: '听到铁板声就知道这顿饭稳了。',
-    recommendVotes: 117,
-    avoidVotes: 16,
-  },
-  {
-    id: 'qinghe-claypot-line',
-    canteenId: 'qinghe',
-    name: '清河 · 煲仔慢吃位',
-    image: canteenImage3,
-    rating: 4.6,
-    price: 24,
-    valueNote: '香但略贵',
-    stamp: '再来',
-    comment: '赶时间不建议，慢慢吃才有味道。',
-    recommendVotes: 68,
-    avoidVotes: 24,
-  },
+const HOME_CANTEEN_SPOT_IDS = [
+  'xueyi',
+  'minghu',
+  'dongkuai',
+  'xueer',
+  'qingzhen',
+  'xuesi',
+  'liuyuan',
+  'jiaogong',
+  'dongqu',
+  'yimin',
 ];
+
+function getLowestPrice(avgPrice) {
+  const matched = avgPrice.match(/¥(\d+)/);
+  return matched ? Number(matched[1]) : 0;
+}
+
+function createHomeCanteenSpot(canteen, index) {
+  return {
+    id: `${canteen.id}-spot`,
+    canteenId: canteen.id,
+    name: canteen.name,
+    image: canteen.image,
+    rating: canteen.rating,
+    price: getLowestPrice(canteen.avgPrice),
+    valueNote: canteen.features[1] ?? canteen.features[0],
+    stamp: '',
+    comment: canteen.rant,
+    recommendVotes: null,
+    avoidVotes: null,
+    sortOrder: index + 1,
+  };
+}
+
+export const HOME_CANTEEN_SPOTS = HOME_CANTEEN_SPOT_IDS.map((id, index) =>
+  {
+    const canteen = CANTEENS.find(item => item.id === id);
+    return canteen ? createHomeCanteenSpot(canteen, index) : null;
+  }
+).filter(Boolean);
 
 export const HOME_RANKINGS = [
   {
     rank: 1,
     dishId: 'braised-beef-noodle',
-    canteenId: 'xueyuan',
+    canteenId: 'xueer',
     dishName: '红烧牛肉面',
     score: 4.9,
     stamp: '必吃',
@@ -317,7 +611,7 @@ export const HOME_RANKINGS = [
   {
     rank: 2,
     dishId: 'black-pepper-chicken',
-    canteenId: 'xueyuan',
+    canteenId: 'dongkuai',
     dishName: '黑椒鸡腿饭',
     score: 4.8,
     stamp: '必吃',
@@ -337,70 +631,70 @@ export const HOME_RANKINGS = [
   {
     rank: 4,
     dishId: 'sour-soup-rice-noodle',
-    canteenId: 'qinghe',
+    canteenId: 'minghu',
     dishName: '酸汤米线',
     score: 4.7,
-    stamp: '再来',
+    stamp: '推荐',
     recommendVotes: 142,
     avoidVotes: 18,
   },
   {
     rank: 5,
     dishId: 'beef-claypot-rice',
-    canteenId: 'qinghe',
+    canteenId: 'liuyuan',
     dishName: '牛肉煲仔饭',
     score: 4.7,
-    stamp: '再来',
+    stamp: '推荐',
     recommendVotes: 130,
     avoidVotes: 22,
   },
   {
     rank: 6,
     dishId: 'spicy-hot-pot',
-    canteenId: 'xueyuan',
+    canteenId: 'xuesi',
     dishName: '麻辣香锅',
     score: 4.6,
-    stamp: '再来',
+    stamp: '推荐',
     recommendVotes: 124,
     avoidVotes: 33,
   },
   {
     rank: 7,
     dishId: 'mushroom-chicken-rice',
-    canteenId: 'jiaogong',
+    canteenId: 'xueyi',
     dishName: '香菇滑鸡饭',
     score: 4.6,
-    stamp: '再来',
+    stamp: '推荐',
     recommendVotes: 113,
     avoidVotes: 24,
   },
   {
     rank: 8,
     dishId: 'vine-pepper-noodle',
-    canteenId: 'qinghe',
+    canteenId: 'dongqu',
     dishName: '藤椒鸡丝拌面',
     score: 4.6,
-    stamp: '再来',
+    stamp: '推荐',
     recommendVotes: 108,
     avoidVotes: 28,
   },
   {
     rank: 9,
     dishId: 'kungpao-chicken-rice',
-    canteenId: 'siyuan',
+    canteenId: 'xueyuan_dahuo',
     dishName: '宫保鸡丁盖饭',
     score: 4.5,
-    stamp: '再来',
+    stamp: '推荐',
     recommendVotes: 95,
     avoidVotes: 39,
   },
   {
     rank: 10,
     dishId: 'chicken-salad-bowl',
-    canteenId: 'jiaogong',
+    canteenId: 'xueyuan_xican',
     dishName: '轻盈鸡胸沙拉碗',
     score: 4.5,
-    stamp: '再来',
+    stamp: '推荐',
     recommendVotes: 86,
     avoidVotes: 34,
   },

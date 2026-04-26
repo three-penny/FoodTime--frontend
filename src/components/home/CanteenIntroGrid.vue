@@ -69,6 +69,14 @@
           “{{ formatComment(canteen.rant, 38).text }}”
           <span>（{{ formatComment(canteen.rant, 38).length }}字）</span>
         </p>
+        <figure class="canteen-intro__photo-frame">
+          <img
+            class="canteen-intro__photo"
+            :src="canteen.image"
+            :alt="`${canteen.name} canteen photo`"
+            loading="lazy"
+          />
+        </figure>
         <button class="button-ink is-primary" type="button" @click="jumpToDishList(canteen.id)">
           去看菜品列表
         </button>
@@ -218,10 +226,10 @@ function jumpToDishList(canteenId) {
   border-left: 1px dashed rgb(58 36 24 / 35%);
   padding: 16px;
   background: var(--ft-color-surface-ink);
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  gap: 12px;
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  align-items: start;
+  gap: 14px;
 }
 
 .canteen-intro__rant {
@@ -233,6 +241,21 @@ function jumpToDishList(canteenId) {
 .canteen-intro__rant span {
   color: var(--ft-color-text-muted);
   font-size: 14px;
+}
+
+.canteen-intro__photo-frame {
+  margin: 0;
+  border: 1px solid var(--ft-color-secondary);
+  background: #fff;
+  padding: 8px 8px 16px;
+  box-shadow: 3px 3px 0 rgb(58 36 24 / 16%);
+}
+
+.canteen-intro__photo {
+  display: block;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
 }
 
 @media (max-width: 980px) {
@@ -249,6 +272,10 @@ function jumpToDishList(canteenId) {
   .canteen-intro__facts,
   .canteen-intro__grid {
     grid-template-columns: 1fr;
+  }
+
+  .canteen-intro__photo {
+    aspect-ratio: 16 / 9;
   }
 }
 </style>

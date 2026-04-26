@@ -41,7 +41,10 @@
           </div>
 
           <p class="ranking__meta">
-            {{ item.canteenName }} · ¥{{ item.price }} / {{ item.valueNote }}
+            {{ item.canteenName }} · {{ item.valueNote }}
+            <template v-if="Number.isFinite(Number(item.price)) && Number(item.price) > 0">
+              · ¥{{ item.price }}
+            </template>
           </p>
           <p class="ranking__comment handwrite">
             “{{ formatComment(item.comment, 30).text }}”

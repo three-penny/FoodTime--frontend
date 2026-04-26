@@ -22,7 +22,7 @@
       </div>
 
       <p v-if="showCanteen" class="dish-card__canteen">{{ dish.canteenName }}</p>
-      <p class="dish-card__desc">{{ dish.description }}</p>
+      <p class="dish-card__desc">{{ dish.description ?? dish.comment }}</p>
       <p class="dish-card__comment handwrite">
         “{{ formatComment(dish.comment ?? '今天这份还挺稳。', 34).text }}”
         <span>（{{ formatComment(dish.comment ?? '今天这份还挺稳。', 34).length }}字）</span>
@@ -30,10 +30,10 @@
 
       <div class="dish-card__meta">
         <span>评分 {{ dish.rating.toFixed(1) }}</span>
-        <span>月售 {{ dish.monthlySales }}</span>
+        <span v-if="hasMonthlySales">月售 {{ dish.monthlySales }}</span>
       </div>
 
-      <p class="dish-card__price">¥{{ dish.price }} / {{ dish.valueNote ?? '吃到撑' }}</p>
+      <p class="dish-card__price">{{ priceText }}</p>
 
       <div class="dish-card__tags">
         <span
@@ -85,10 +85,26 @@ const emit = defineEmits(['click']);
 const safeTags = computed(() =>
   Array.isArray(props.dish.tags) && props.dish.tags.length > 0
     ? props.dish.tags
-    : ['无标签']
+    : [getRatingLabel(props.dish.rating)]
 );
 
 const stampLabel = computed(() => getRatingLabel(props.dish.rating));
+
+const hasMonthlySales = computed(() =>
+  Number.isFinite(Number(props.dish.monthlySales)) &&
+  props.dish.monthlySales !== null
+);
+
+const priceText = computed(() => {
+  const stallText = props.dish.stall ?? props.dish.valueNote ?? '档口待补';
+  const price = Number(props.dish.price);
+
+  if (Number.isFinite(price) && price > 0) {
+    return `¥${price} / ${stallText}`;
+  }
+
+  return stallText;
+});
 
 const imageShapeClass = computed(() => {
   if (props.imageShape === 'polygon') {

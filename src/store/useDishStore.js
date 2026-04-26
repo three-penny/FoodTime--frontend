@@ -8,13 +8,19 @@ function applySort(list, sortBy) {
     return cloned.sort((a, b) => b.rating - a.rating);
   }
   if (sortBy === 'priceAsc') {
-    return cloned.sort((a, b) => a.price - b.price);
+    return cloned.sort(
+      (a, b) =>
+        Number(a.price ?? Number.MAX_SAFE_INTEGER) -
+        Number(b.price ?? Number.MAX_SAFE_INTEGER)
+    );
   }
   if (sortBy === 'priceDesc') {
-    return cloned.sort((a, b) => b.price - a.price);
+    return cloned.sort((a, b) => Number(b.price ?? 0) - Number(a.price ?? 0));
   }
   if (sortBy === 'sales') {
-    return cloned.sort((a, b) => b.monthlySales - a.monthlySales);
+    return cloned.sort(
+      (a, b) => Number(b.monthlySales ?? 0) - Number(a.monthlySales ?? 0)
+    );
   }
 
   return cloned;
@@ -48,7 +54,7 @@ export const useDishStore = defineStore('dish', {
     getTagsByCanteen: state => canteenId => {
       const tags = state.dishes
         .filter(dish => dish.canteenId === canteenId)
-        .flatMap(dish => dish.tags);
+        .flatMap(dish => (Array.isArray(dish.tags) ? dish.tags : []));
 
       return ['all', ...new Set(tags)];
     },
@@ -60,9 +66,12 @@ export const useDishStore = defineStore('dish', {
         const keywordMatched =
           !keyword ||
           dish.name.toLowerCase().includes(keyword) ||
-          dish.description.toLowerCase().includes(keyword);
+          String(dish.description ?? dish.comment ?? dish.stall ?? '')
+            .toLowerCase()
+            .includes(keyword);
         const tagMatched =
-          state.filters.tag === 'all' || dish.tags.includes(state.filters.tag);
+          state.filters.tag === 'all' ||
+          (Array.isArray(dish.tags) && dish.tags.includes(state.filters.tag));
 
         return keywordMatched && tagMatched;
       });

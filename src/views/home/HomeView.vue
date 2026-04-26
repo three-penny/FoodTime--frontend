@@ -24,7 +24,7 @@
     <div class="home-view__decor-bridge home-view__decor-bridge--ranking" aria-hidden="true"></div>
 
     <section id="canteen-detail" class="home-view__section home-view__section--canteen-detail">
-      <CanteenIntroGrid :canteens="canteens" />
+      <CanteenIntroGrid :canteens="detailCanteens" />
     </section>
     <div class="home-view__decor-bridge home-view__decor-bridge--detail" aria-hidden="true"></div>
 
@@ -58,16 +58,34 @@ const router = useRouter();
 const canteenStore = useCanteenStore();
 const dishStore = useDishStore();
 
+const DETAIL_CANTEEN_IDS = ['minghu', 'liuyuan', 'dongqu', 'yimin'];
+
 const canteens = computed(() => canteenStore.canteens);
-const canteenSpots = computed(() => canteenStore.homeCanteenSpots);
-const recommendations = computed(() => dishStore.homeRecommendations);
+const detailCanteens = computed(() =>
+  DETAIL_CANTEEN_IDS.map(id =>
+    canteens.value.find(canteen => canteen.id === id)
+  ).filter(Boolean)
+);
+const canteenSpots = computed(() =>
+  (canteenStore.homeCanteenSpots ?? []).filter(
+    item => item?.id && item?.canteenId
+  )
+);
+const recommendations = computed(() =>
+  (dishStore.homeRecommendations ?? []).filter(
+    item => item?.id && item?.canteenId
+  )
+);
 const rankings = computed(() =>
   canteenStore.rankings.map(item => ({
     ...item,
     canteenName: canteenStore.getCanteenById(item.canteenId)?.name ?? '未知食堂',
     image: dishStore.getDishById(item.dishId)?.image ?? '',
-    price: dishStore.getDishById(item.dishId)?.price ?? 0,
-    valueNote: dishStore.getDishById(item.dishId)?.valueNote ?? '性价比待补充',
+    price: dishStore.getDishById(item.dishId)?.price ?? null,
+    valueNote:
+      dishStore.getDishById(item.dishId)?.stall ??
+      dishStore.getDishById(item.dishId)?.valueNote ??
+      '档口待补',
     comment: dishStore.getDishById(item.dishId)?.comment ?? '同学评价待补充',
   }))
 );
