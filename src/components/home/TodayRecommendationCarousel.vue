@@ -22,10 +22,12 @@
       @pointermove="onPointerMove"
       @pointerup="onPointerEnd"
       @pointercancel="onPointerEnd"
+      @pointerleave="onPointerLeave"
+      @lostpointercapture="onLostPointerCapture"
     >
       <article
-        v-for="(item, index) in items"
-        :key="item.id"
+        v-for="(item, index) in displayItems"
+        :key="`${item.id}-${index}`"
         class="recommend-card"
         :class="`recommend-card--${index % 4}`"
         role="button"
@@ -47,7 +49,6 @@
         <div class="recommend-card__content">
           <p class="recommend-card__comment handwrite">
             “{{ formatComment(item.comment, 20).text }}”
-            <span>（{{ formatComment(item.comment, 20).length }}字）</span>
           </p>
 
           <div class="recommend-card__title-row">
@@ -56,19 +57,8 @@
           </div>
 
           <p class="recommend-card__meta">
-            {{ item.canteenName }} · ¥{{ item.price }} / {{ item.valueNote }}
+            {{ item.canteenName }} · {{ item.stall }}
           </p>
-
-          <div class="recommend-card__tags">
-            <span class="zine-chip">{{ getRatingLabel(item.rating) }}</span>
-            <span
-              v-for="tag in visibleTags(item.tags)"
-              :key="`${item.id}-${tag}`"
-              class="zine-chip"
-            >
-              {{ tag }}
-            </span>
-          </div>
 
         </div>
       </article>
@@ -77,11 +67,11 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { computed, ref } from 'vue';
 import { useRouter } from 'vue-router';
+import { useAutoHorizontalScroll } from '../../composables/useAutoHorizontalScroll';
 import { useDragScroll } from '../../composables/useDragScroll';
 import { formatComment } from '../../utils/commentText';
-import { getRatingLabel } from '../../utils/ratingLabel';
 
 defineOptions({
   name: 'TodayRecommendationCarousel',
@@ -96,20 +86,32 @@ const props = defineProps({
 
 const router = useRouter();
 const trackRef = ref(null);
-const { isDragging, wasDragged, onPointerDown, onPointerMove, onPointerEnd } =
-  useDragScroll(trackRef);
+const displayItems = computed(() =>
+  props.items.length > 1 ? [...props.items, ...props.items] : props.items
+);
+const {
+  isDragging,
+  wasDragged,
+  onPointerDown,
+  onPointerMove,
+  onPointerEnd,
+  onPointerLeave,
+  onLostPointerCapture,
+} = useDragScroll(trackRef);
+useAutoHorizontalScroll(trackRef, {
+  pauseWhen: isDragging,
+  loopItemCount: computed(() => props.items.length),
+  speed: 18,
+  pauseOnHover: true,
+});
 
 function imageFrameClass(index) {
   const classList = ['is-rotate-left', 'is-rotate-right', 'is-rotate-soft', 'is-rotate-back'];
   return classList[index % classList.length];
 }
 
-function visibleTags(tags) {
-  return Array.isArray(tags) ? tags.slice(0, 2) : [];
-}
-
 function jumpToDish(item) {
-  if (wasDragged.value) {
+  if (wasDragged.value || !item?.canteenId || !item?.id) {
     return;
   }
 
@@ -173,7 +175,7 @@ function jumpToDish(item) {
   position: relative;
   flex: 0 0 var(--zine-card-width);
   width: var(--zine-card-width);
-  height: var(--zine-card-height);
+  height: clamp(382px, 36vw, 418px);
   margin-right: -22px;
   border: 1px solid var(--ft-color-secondary);
   background:
@@ -269,20 +271,19 @@ function jumpToDish(item) {
   min-height: 0;
   padding: 10px 2px 0;
   display: grid;
-  grid-template-rows: auto auto auto 1fr;
-  gap: 5px;
+  grid-template-rows: minmax(42px, auto) auto auto;
+  gap: 7px;
 }
 
 .recommend-card__comment {
   margin: 0;
   color: var(--zine-stamp-red);
   font-size: 19px;
-  line-height: 1.08;
-}
-
-.recommend-card__comment span {
-  color: var(--ft-color-text-muted);
-  font-size: 13px;
+  line-height: 1.12;
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
 }
 
 .recommend-card__title-row {
@@ -298,21 +299,17 @@ function jumpToDish(item) {
   font-size: var(--zine-card-title-size);
   font-weight: 900;
   line-height: 1;
+  overflow-wrap: anywhere;
 }
 
 .recommend-card__meta {
   margin: 0;
-  color: var(--ft-color-text-muted);
-  font-size: 12px;
+  color: var(--ft-color-secondary);
+  font-family: var(--zine-title-font);
+  font-size: 15px;
+  font-weight: 900;
   line-height: 1.35;
-}
-
-.recommend-card__tags {
-  align-self: end;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 5px;
-  max-width: calc(100% - 60px);
+  text-wrap: balance;
 }
 
 @media (max-width: 768px) {
@@ -328,7 +325,7 @@ function jumpToDish(item) {
   .recommend-card {
     flex-basis: min(76vw, 264px);
     width: min(76vw, 264px);
-    height: 374px;
+    height: 396px;
     margin-right: -14px;
   }
 }

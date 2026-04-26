@@ -1,10 +1,13 @@
 <!-- @author Codex -->
 
 <template>
-  <section class="hero torn-edge" data-test="home-hero">
+  <section class="hero hero--wave-top" data-test="home-hero">
     <div class="hero__left">
       <span class="sticker sticker--r-2">食堂日志 · 2026</span>
-      <h1 class="hero__title">北交干饭吧</h1>
+      <h1 class="hero__title">
+        <span class="hero__title-line">北交</span>
+        <span class="hero__title-line">干饭吧</span>
+      </h1>
       <p class="hero__slogan handwrite">把每次排队、踩雷和真香都记下来。</p>
       <div class="hero__actions">
         <button class="button-ink hero__action is-primary" type="button" @click="emit('review')">
@@ -19,21 +22,17 @@
     <aside class="hero__right">
       <p class="hero__small">BEIJIAO CANTEEN FIELD NOTES</p>
       <p class="hero__desc">
-        这不是餐饮官网，是一群爱吃饭的同学在记笔记。我们关心排队时长、阿姨手抖程度、
-        周几最稳以及“今天值得冲吗”。
+        这不是餐饮官网，是一群爱吃饭的同学的美食笔记。我们关心菜品口味、排队时长
+        来决定“今天吃什么”
       </p>
       <p class="hero__desc">
-        每条推荐都保留原始情绪，评分之外还有“必吃 / 推荐 / 再议 / 踩雷”印章，方便你 30 秒做决定。
+        在北交，先吃饱再谈理想
       </p>
       <span class="sticker sticker--r2 hero__sticker">今日推荐已更新</span>
     </aside>
 
     <svg class="hero__decor hero__decor--chopsticks" viewBox="0 0 140 60" aria-hidden="true">
       <path class="decor-svg" d="M8 12l116 34M20 6l112 32" />
-    </svg>
-    <svg class="hero__decor hero__decor--aunt" viewBox="0 0 90 90" aria-hidden="true">
-      <circle class="decor-svg" cx="46" cy="22" r="10" />
-      <path class="decor-svg" d="M24 64c10-15 34-15 44 0M46 32v26M34 44h24" />
     </svg>
   </section>
 </template>
@@ -48,6 +47,7 @@ const emit = defineEmits(['review', 'recommend']);
 
 <style scoped lang="scss">
 .hero {
+  --hero-wave-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 430' preserveAspectRatio='none'%3E%3Cpath fill='black' d='M0%2030%20C75%2012%20165%2012%20240%2030%20C315%2048%20405%2048%20480%2030%20C555%2012%20645%2012%20720%2030%20C795%2048%20885%2048%20960%2030%20C1035%2012%201125%2012%201200%2030%20L1200%20430%20L0%20430%20Z'/%3E%3C/svg%3E");
   position: relative;
   border: 1px solid var(--ft-color-secondary);
   background: var(--ft-color-surface);
@@ -55,6 +55,61 @@ const emit = defineEmits(['review', 'recommend']);
   grid-template-columns: 1.25fr 0.75fr;
   min-height: 430px;
   overflow: hidden;
+  box-shadow:
+    0 12px 26px rgb(58 36 24 / 16%),
+    0 2px 0 rgb(255 255 255 / 34%) inset;
+}
+
+.hero--wave-top {
+  /* 回退：不支持 mask 时仍保留顶部波形轮廓 */
+  clip-path: polygon(
+    0 4.4%,
+    5% 4.1%,
+    10% 3.9%,
+    15% 4%,
+    20% 4.4%,
+    25% 4.8%,
+    30% 5.1%,
+    35% 4.8%,
+    40% 4.3%,
+    45% 3.9%,
+    50% 3.8%,
+    55% 4.1%,
+    60% 4.6%,
+    65% 5%,
+    70% 4.9%,
+    75% 4.4%,
+    80% 4%,
+    85% 3.8%,
+    90% 4.1%,
+    95% 4.5%,
+    100% 4.2%,
+    100% 100%,
+    0 100%
+  );
+}
+
+@supports ((-webkit-mask-image: url("")) or (mask-image: url(""))) {
+  .hero--wave-top {
+    /* 主方案：SVG path 遮罩，曲线连续平滑且随容器等比缩放 */
+    clip-path: none;
+    -webkit-mask-image: var(--hero-wave-mask);
+    mask-image: var(--hero-wave-mask);
+    -webkit-mask-repeat: no-repeat;
+    mask-repeat: no-repeat;
+    -webkit-mask-position: top center;
+    mask-position: top center;
+    -webkit-mask-size: 100% 100%;
+    mask-size: 100% 100%;
+  }
+}
+
+@media (hover: hover) {
+  .hero--wave-top:hover {
+    box-shadow:
+      0 14px 30px rgb(58 36 24 / 19%),
+      0 2px 0 rgb(255 255 255 / 36%) inset;
+  }
 }
 
 .hero__left {
@@ -138,11 +193,8 @@ const emit = defineEmits(['review', 'recommend']);
   transform: rotate(-9deg);
 }
 
-.hero__decor--aunt {
-  width: 86px;
-  right: 30px;
-  bottom: 20px;
-  transform: rotate(7deg);
+.hero__title-line {
+  display: block;
 }
 
 @media (max-width: 980px) {

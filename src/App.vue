@@ -46,6 +46,8 @@ import AppFooter from './components/layout/AppFooter.vue';
 }
 
 .app-page {
+  --app-page-wave-height: clamp(24px, 3.2vw, 38px);
+  --app-page-wave-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 56' preserveAspectRatio='none'%3E%3Cpath fill='black' d='M0 20 C75 6 165 6 240 20 C315 34 405 34 480 20 C555 6 645 6 720 20 C795 34 885 34 960 20 C1035 6 1125 6 1200 20 L1200 56 L0 56 Z'/%3E%3C/svg%3E");
   position: relative;
   width: min(100%, calc(var(--page-max-width) + var(--zine-page-padding) * 2));
   min-width: 0;
@@ -66,8 +68,19 @@ import AppFooter from './components/layout/AppFooter.vue';
   box-shadow:
     0 18px 48px var(--zine-paper-shadow),
     inset 0 0 80px rgb(58 36 24 / 5%);
-  clip-path: polygon(0 1%, 3% 0, 10% 0.8%, 18% 0, 26% 0.7%, 35% 0, 43% 0.9%, 54% 0, 62% 0.6%, 71% 0, 82% 0.8%, 91% 0, 100% 1%, 100% 100%, 0 100%);
   pointer-events: none;
+}
+
+@supports ((-webkit-mask-image: url("")) or (mask-image: url(""))) {
+  .app-page::before {
+    /* 顶部固定高度波浪：容器变高时振幅不被拉伸 */
+    -webkit-mask:
+      var(--app-page-wave-mask) top center / 100% var(--app-page-wave-height) no-repeat,
+      linear-gradient(#000 0 0) bottom / 100% calc(100% - var(--app-page-wave-height) + 1px) no-repeat;
+    mask:
+      var(--app-page-wave-mask) top center / 100% var(--app-page-wave-height) no-repeat,
+      linear-gradient(#000 0 0) bottom / 100% calc(100% - var(--app-page-wave-height) + 1px) no-repeat;
+  }
 }
 
 .desk-decor {

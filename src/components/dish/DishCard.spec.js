@@ -49,6 +49,28 @@ describe('DishCard', () => {
       },
     });
 
-    expect(wrapper.text()).toContain('#无标签');
+    expect(wrapper.text()).toContain('#必吃');
+  });
+
+  it('supports the minimal dish input fields', () => {
+    const wrapper = mount(DishCard, {
+      props: {
+        dish: {
+          id: 'dish-3',
+          name: '番茄肥牛饭',
+          comment: '酸甜稳定，课间冲过去也能很快吃上。',
+          canteenName: '教工餐厅',
+          stall: '酸甜稳妥',
+          rating: 4.8,
+          image: 'https://example.com/image.jpg',
+        },
+      },
+    });
+
+    expect(wrapper.text()).toContain('番茄肥牛饭');
+    expect(wrapper.text()).toContain('酸甜稳妥');
+    expect(wrapper.text()).toContain('评分 4.8');
+    expect(wrapper.text()).not.toContain('月售');
+    expect(wrapper.text()).not.toContain('¥undefined');
   });
 });
