@@ -1,3 +1,5 @@
+<!-- @author Codex -->
+
 <template>
   <section class="hero torn-edge" data-test="home-hero">
     <div class="hero__left">
@@ -5,10 +7,10 @@
       <h1 class="hero__title">北交干饭吧</h1>
       <p class="hero__slogan handwrite">把每次排队、踩雷和真香都记下来。</p>
       <div class="hero__actions">
-        <button class="button-ink is-primary" type="button" @click="emit('review')">
+        <button class="button-ink hero__action is-primary" type="button" @click="emit('review')">
           我要点评
         </button>
-        <button class="button-ink" type="button" @click="emit('recommend')">
+        <button class="button-ink hero__action" type="button" @click="emit('recommend')">
           美食推荐
         </button>
       </div>
@@ -21,7 +23,7 @@
         周几最稳以及“今天值得冲吗”。
       </p>
       <p class="hero__desc">
-        每条推荐都保留原始情绪，评分之外还有“必吃 / 再来 / 踩雷”印章，方便你 30 秒做决定。
+        每条推荐都保留原始情绪，评分之外还有“必吃 / 推荐 / 再议 / 踩雷”印章，方便你 30 秒做决定。
       </p>
       <span class="sticker sticker--r2 hero__sticker">今日推荐已更新</span>
     </aside>
@@ -76,10 +78,23 @@ const emit = defineEmits(['review', 'recommend']);
 }
 
 .hero__actions {
-  margin-top: 26px;
+  margin-top: 28px;
   display: flex;
   flex-wrap: wrap;
-  gap: 12px;
+  gap: 16px;
+}
+
+.hero__action {
+  min-width: 150px;
+  min-height: 62px;
+  padding: 16px 28px;
+  font-family: var(--ft-font-family-title);
+  font-size: 22px;
+  box-shadow: 4px 4px 0 var(--ft-color-secondary);
+}
+
+.hero__action:hover {
+  box-shadow: 7px 7px 0 var(--ft-color-secondary);
 }
 
 .hero__right {

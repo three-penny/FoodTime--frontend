@@ -1,3 +1,5 @@
+<!-- @author Codex -->
+
 <template>
   <section class="canteen-intro" data-test="canteen-intro">
     <div class="section-rule">
@@ -18,7 +20,7 @@
       <div class="canteen-intro__main">
         <div class="canteen-intro__line">
           <h3>{{ canteen.name }}</h3>
-          <span class="stamp">{{ canteen.stamp }}</span>
+          <span class="stamp">{{ getRatingLabel(canteen.rating) }}</span>
         </div>
         <p class="canteen-intro__score">
           评分 {{ canteen.rating.toFixed(1) }} · {{ canteen.avgPrice }}
@@ -63,7 +65,10 @@
       </div>
 
       <aside class="canteen-intro__side">
-        <p class="canteen-intro__rant handwrite">“{{ canteen.rant }}”</p>
+        <p class="canteen-intro__rant handwrite">
+          “{{ formatComment(canteen.rant, 38).text }}”
+          <span>（{{ formatComment(canteen.rant, 38).length }}字）</span>
+        </p>
         <button class="button-ink is-primary" type="button" @click="jumpToDishList(canteen.id)">
           去看菜品列表
         </button>
@@ -74,6 +79,8 @@
 
 <script setup>
 import { useRouter } from 'vue-router';
+import { formatComment } from '../../utils/commentText';
+import { getRatingLabel } from '../../utils/ratingLabel';
 
 defineOptions({
   name: 'CanteenIntroGrid',
@@ -221,6 +228,11 @@ function jumpToDishList(canteenId) {
   margin: 0;
   font-size: 26px;
   color: var(--ft-color-primary);
+}
+
+.canteen-intro__rant span {
+  color: var(--ft-color-text-muted);
+  font-size: 14px;
 }
 
 @media (max-width: 980px) {

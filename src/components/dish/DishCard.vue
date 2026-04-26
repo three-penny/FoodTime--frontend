@@ -1,3 +1,5 @@
+<!-- @author Codex -->
+
 <template>
   <article
     class="dish-card torn-edge"
@@ -16,12 +18,15 @@
     <div class="dish-card__content">
       <div class="dish-card__title-row">
         <h3>{{ dish.name }}</h3>
-        <span class="stamp">{{ dish.stamp ?? stampLabel }}</span>
+        <span class="stamp">{{ stampLabel }}</span>
       </div>
 
       <p v-if="showCanteen" class="dish-card__canteen">{{ dish.canteenName }}</p>
       <p class="dish-card__desc">{{ dish.description }}</p>
-      <p class="dish-card__comment handwrite">“{{ dish.comment ?? '今天这份还挺稳。' }}”</p>
+      <p class="dish-card__comment handwrite">
+        “{{ formatComment(dish.comment ?? '今天这份还挺稳。', 34).text }}”
+        <span>（{{ formatComment(dish.comment ?? '今天这份还挺稳。', 34).length }}字）</span>
+      </p>
 
       <div class="dish-card__meta">
         <span>评分 {{ dish.rating.toFixed(1) }}</span>
@@ -45,6 +50,8 @@
 
 <script setup>
 import { computed } from 'vue';
+import { formatComment } from '../../utils/commentText';
+import { getRatingLabel } from '../../utils/ratingLabel';
 
 defineOptions({
   name: 'DishCard',
@@ -81,15 +88,7 @@ const safeTags = computed(() =>
     : ['无标签']
 );
 
-const stampLabel = computed(() => {
-  if (props.dish.rating >= 4.7) {
-    return '必吃';
-  }
-  if (props.dish.rating >= 4.4) {
-    return '再来';
-  }
-  return '踩雷';
-});
+const stampLabel = computed(() => getRatingLabel(props.dish.rating));
 
 const imageShapeClass = computed(() => {
   if (props.imageShape === 'polygon') {
@@ -184,6 +183,11 @@ function handleClick() {
   margin: 0;
   color: var(--ft-color-primary);
   font-size: 22px;
+}
+
+.dish-card__comment span {
+  color: var(--ft-color-text-muted);
+  font-size: 13px;
 }
 
 .dish-card__meta {

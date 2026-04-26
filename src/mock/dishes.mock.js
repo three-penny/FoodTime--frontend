@@ -1,3 +1,11 @@
+// @author Codex
+
+import beefClaypotRiceImage from '../assets/images/dishs/煲仔饭.webp';
+import tomatoBeefRiceImage from '../assets/images/dishs/番茄肥牛饭.jpg';
+import braisedBeefNoodleImage from '../assets/images/dishs/红烧牛肉面.jpg';
+import sourSoupRiceNoodleImage from '../assets/images/dishs/酸汤米线.png';
+import blackPepperChickenImage from '../assets/images/dishs/黑胶鸡腿饭.png';
+
 export const DISHES = [
   {
     id: 'braised-beef-noodle',
@@ -10,8 +18,7 @@ export const DISHES = [
     stamp: '必吃',
     monthlySales: 680,
     tags: ['招牌', '热汤', '高蛋白'],
-    image:
-      'https://images.unsplash.com/photo-1612929633738-8fe44f7ec841?auto=format&fit=crop&w=1400&q=80',
+    image: braisedBeefNoodleImage,
     description:
       '牛腱炖得很烂，汤底不油但有厚度，冷天来一碗会觉得今天没白活。',
     comment: '阿姨今天给肉给得很实在，记住这班人。',
@@ -27,8 +34,7 @@ export const DISHES = [
     stamp: '必吃',
     monthlySales: 560,
     tags: ['畅销', '下饭', '现炒'],
-    image:
-      'https://images.unsplash.com/photo-1596797038530-2c107229654b?auto=format&fit=crop&w=1400&q=80',
+    image: blackPepperChickenImage,
     description:
       '鸡腿肉油润但不腻，黑椒汁挂得住饭，属于“吃完想再打包一份”的类型。',
     comment: '别在 12 点后去，晚 10 分钟就得排半小时。',
@@ -44,8 +50,7 @@ export const DISHES = [
     stamp: '再来',
     monthlySales: 430,
     tags: ['重口', '可自选', '人气'],
-    image:
-      'https://images.unsplash.com/photo-1625937750893-3e52f3f8f0a5?auto=format&fit=crop&w=1400&q=80',
+    image: beefClaypotRiceImage,
     description:
       '辣度可以细调，锅气稳定，想吃点刺激感的时候基本都能满足。',
     comment: '挑菜别贪多，称重那一刻会心痛。',
@@ -61,8 +66,7 @@ export const DISHES = [
     stamp: '再来',
     monthlySales: 510,
     tags: ['酸甜', '高人气', '暖胃'],
-    image:
-      'https://images.unsplash.com/photo-1512058564366-18510be2db19?auto=format&fit=crop&w=1400&q=80',
+    image: tomatoBeefRiceImage,
     description:
       '番茄汁的酸甜比例在线，肥牛片薄但量足，适合连吃三天不腻。',
     comment: '课间冲过去五分钟拿到，效率党福音。',
@@ -78,8 +82,7 @@ export const DISHES = [
     stamp: '再来',
     monthlySales: 360,
     tags: ['轻食', '低脂', '健身友好'],
-    image:
-      'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?auto=format&fit=crop&w=1400&q=80',
+    image: tomatoBeefRiceImage,
     description: '鸡胸肉口感不柴，酱汁可选，适合晚间不想吃太重口。',
     comment: '健身搭子聚会指定款。',
   },
@@ -94,8 +97,7 @@ export const DISHES = [
     stamp: '再来',
     monthlySales: 410,
     tags: ['家常', '软嫩', '经典'],
-    image:
-      'https://images.unsplash.com/photo-1516684732162-798a0062be99?auto=format&fit=crop&w=1400&q=80',
+    image: blackPepperChickenImage,
     description:
       '香菇香气足，鸡肉软嫩，米饭吸汁后很顶，属于“普适型安全牌”。',
     comment: '饿狠了就点这份，基本不会后悔。',
@@ -111,8 +113,7 @@ export const DISHES = [
     stamp: '必吃',
     monthlySales: 470,
     tags: ['夜宵', '开胃', '汤面'],
-    image:
-      'https://images.unsplash.com/photo-1585032226651-759b368d7246?auto=format&fit=crop&w=1400&q=80',
+    image: sourSoupRiceNoodleImage,
     description:
       '酸辣平衡，米线细滑，晚课后来一碗很解馋，分量刚好不会太撑。',
     comment: '考试周晚上最常见的“续命套餐”。',
@@ -128,8 +129,7 @@ export const DISHES = [
     stamp: '再来',
     monthlySales: 380,
     tags: ['麻香', '拌面', '晚餐推荐'],
-    image:
-      'https://images.unsplash.com/photo-1634864572865-1b35381f29ec?auto=format&fit=crop&w=1400&q=80',
+    image: sourSoupRiceNoodleImage,
     description:
       '藤椒香气很突出，鸡丝量中规中矩，拌匀后风味层次感明显。',
     comment: '第一口平平，后劲很上头。',
@@ -145,8 +145,7 @@ export const DISHES = [
     stamp: '再来',
     monthlySales: 340,
     tags: ['煲仔', '锅气', '推荐'],
-    image:
-      'https://images.unsplash.com/photo-1604908554007-0f8f0f430f45?auto=format&fit=crop&w=1400&q=80',
+    image: beefClaypotRiceImage,
     description:
       '锅巴香是亮点，牛肉片偏嫩，适合不赶时间的慢慢吃法。',
     comment: '锅底脆感看师傅手法，偶尔会翻车。',
@@ -162,8 +161,7 @@ export const DISHES = [
     stamp: '再来',
     monthlySales: 520,
     tags: ['经典', '高性价比', '微辣'],
-    image:
-      'https://images.unsplash.com/photo-1516684669134-de6f7c473a2a?auto=format&fit=crop&w=1400&q=80',
+    image: blackPepperChickenImage,
     description:
       '花生脆感和鸡丁嫩度都在线，口味稳定，是赶时间时的优先选项。',
     comment: '分量看心情，遇到手抖阿姨能开心一整天。',
@@ -179,8 +177,7 @@ export const DISHES = [
     stamp: '踩雷',
     monthlySales: 290,
     tags: ['家常', '低负担', '热汤'],
-    image:
-      'https://images.unsplash.com/photo-1589302168068-964664d93dc0?auto=format&fit=crop&w=1400&q=80',
+    image: tomatoBeefRiceImage,
     description:
       '味道比较家常，发挥不太稳定，属于“预算优先时可选”的那一档。',
     comment: '考试周压力大时，别对它期待太高。',
@@ -196,8 +193,7 @@ export const DISHES = [
     stamp: '踩雷',
     monthlySales: 330,
     tags: ['酥脆', '套餐', '饱腹'],
-    image:
-      'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=1400&q=80',
+    image: beefClaypotRiceImage,
     description:
       '炸衣和鱼肉分离度高时很好吃，翻车时会偏油，稳定性一般。',
     comment: '运气好是惊喜，运气差是复盘素材。',

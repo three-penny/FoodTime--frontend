@@ -1,3 +1,5 @@
+<!-- @author Codex -->
+
 <template>
   <section class="dish-detail-view">
     <article v-if="!dish || !canteen" class="empty torn-edge">
@@ -18,13 +20,16 @@
         </div>
 
         <div class="dish-main__content">
-          <span class="stamp">{{ dish.stamp ?? stampLabel }}</span>
+          <span class="stamp">{{ stampLabel }}</span>
           <h1>{{ dish.name }}</h1>
           <p class="dish-main__meta">
             评分 {{ dish.rating.toFixed(1) }} · 月售 {{ dish.monthlySales }} ·
             ¥{{ dish.price }} / {{ dish.valueNote }}
           </p>
-          <p class="dish-main__comment handwrite">“{{ dish.comment }}”</p>
+          <p class="dish-main__comment handwrite">
+            “{{ formatComment(dish.comment, 42).text }}”
+            <span>（{{ formatComment(dish.comment, 42).length }}字）</span>
+          </p>
 
           <div class="dish-main__essay">
             <p class="dropcap">{{ dish.description }}</p>
@@ -80,6 +85,8 @@ import { useRoute, useRouter } from 'vue-router';
 import DishCard from '../../components/dish/DishCard.vue';
 import { useCanteenStore } from '../../store/useCanteenStore';
 import { useDishStore } from '../../store/useDishStore';
+import { formatComment } from '../../utils/commentText';
+import { getRatingLabel } from '../../utils/ratingLabel';
 
 defineOptions({
   name: 'DishDetailView',
@@ -104,15 +111,9 @@ const dish = computed(() => {
 
 const stampLabel = computed(() => {
   if (!dish.value) {
-    return '再来';
+    return '再议';
   }
-  if (dish.value.rating >= 4.7) {
-    return '必吃';
-  }
-  if (dish.value.rating >= 4.4) {
-    return '再来';
-  }
-  return '踩雷';
+  return getRatingLabel(dish.value.rating);
 });
 
 const relatedDishes = computed(() =>
@@ -212,6 +213,11 @@ function toAnotherDish(targetDishId) {
   margin: 12px 0 0;
   color: var(--ft-color-primary);
   font-size: 24px;
+}
+
+.dish-main__comment span {
+  color: var(--ft-color-text-muted);
+  font-size: 14px;
 }
 
 .dish-main__essay {

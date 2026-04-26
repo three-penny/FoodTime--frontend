@@ -1,9 +1,13 @@
+// @author Codex
+
 import { createRouter, createWebHistory } from 'vue-router';
 
 const HomeView = () => import('../views/home/HomeView.vue');
 const CanteenDetailView = () => import('../views/canteen/CanteenDetailView.vue');
 const DishListView = () => import('../views/dish/DishListView.vue');
 const DishDetailView = () => import('../views/dish/DishDetailView.vue');
+const ReviewCreateView = () => import('../views/review/ReviewCreateView.vue');
+const MessageCenterView = () => import('../views/message/MessageCenterView.vue');
 
 export const routes = [
   {
@@ -25,6 +29,16 @@ export const routes = [
     path: '/canteens/:canteenId/dishes/:dishId',
     name: 'dishDetail',
     component: DishDetailView,
+  },
+  {
+    path: '/reviews/new',
+    name: 'reviewCreate',
+    component: ReviewCreateView,
+  },
+  {
+    path: '/messages',
+    name: 'messageCenter',
+    component: MessageCenterView,
   },
 ];
 

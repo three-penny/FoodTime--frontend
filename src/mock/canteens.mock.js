@@ -1,10 +1,18 @@
+// @author Codex
+
+import canteenImage1 from '../assets/images/canteen/食堂1.png';
+import canteenImage2 from '../assets/images/canteen/食堂2.png';
+import canteenImage3 from '../assets/images/canteen/食堂3.png';
+import canteenImage4 from '../assets/images/canteen/食堂4.png';
+import canteenImage5 from '../assets/images/canteen/食堂5.png';
+import canteenImage6 from '../assets/images/canteen/食堂6.png';
+
 export const CANTEENS = [
   {
     id: 'xueyuan',
     name: '学苑餐厅',
     shortName: '学苑',
-    image:
-      'https://images.unsplash.com/photo-1559339352-11d035aa65de?auto=format&fit=crop&w=1400&q=80',
+    image: canteenImage1,
     rating: 4.8,
     stamp: '必吃',
     location: '思源东楼一层',
@@ -44,8 +52,7 @@ export const CANTEENS = [
     id: 'jiaogong',
     name: '教工餐厅',
     shortName: '教工',
-    image:
-      'https://images.unsplash.com/photo-1559847844-5315695dadae?auto=format&fit=crop&w=1400&q=80',
+    image: canteenImage2,
     rating: 4.6,
     stamp: '再来',
     location: '思源西楼二层',
@@ -85,8 +92,7 @@ export const CANTEENS = [
     id: 'qinghe',
     name: '清河餐厅',
     shortName: '清河',
-    image:
-      'https://images.unsplash.com/photo-1555244162-803834f70033?auto=format&fit=crop&w=1400&q=80',
+    image: canteenImage3,
     rating: 4.7,
     stamp: '必吃',
     location: '学活北侧一层',
@@ -126,8 +132,7 @@ export const CANTEENS = [
     id: 'siyuan',
     name: '思源餐厅',
     shortName: '思源',
-    image:
-      'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&w=1400&q=80',
+    image: canteenImage4,
     rating: 4.4,
     stamp: '踩雷',
     location: '思源楼地下一层',
@@ -170,8 +175,7 @@ export const HOME_CANTEEN_SPOTS = [
     id: 'xueyuan-lunch-rush',
     canteenId: 'xueyuan',
     name: '学苑 · 午高峰速战位',
-    image:
-      'https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?auto=format&fit=crop&w=1400&q=80',
+    image: canteenImage1,
     rating: 4.8,
     price: 20,
     valueNote: '快且稳',
@@ -184,8 +188,7 @@ export const HOME_CANTEEN_SPOTS = [
     id: 'xueyuan-noodle-night',
     canteenId: 'xueyuan',
     name: '学苑 · 面食夜补位',
-    image:
-      'https://images.unsplash.com/photo-1555949258-eb67b1ef0ceb?auto=format&fit=crop&w=1400&q=80',
+    image: canteenImage5,
     rating: 4.7,
     price: 18,
     valueNote: '热汤顶饿',
@@ -198,8 +201,7 @@ export const HOME_CANTEEN_SPOTS = [
     id: 'jiaogong-light-lunch',
     canteenId: 'jiaogong',
     name: '教工 · 轻食午餐位',
-    image:
-      'https://images.unsplash.com/photo-1543353071-10c8ba85a904?auto=format&fit=crop&w=1400&q=80',
+    image: canteenImage2,
     rating: 4.6,
     price: 19,
     valueNote: '控油友好',
@@ -212,8 +214,7 @@ export const HOME_CANTEEN_SPOTS = [
     id: 'jiaogong-tomato-hit',
     canteenId: 'jiaogong',
     name: '教工 · 番茄肥牛档',
-    image:
-      'https://images.unsplash.com/photo-1473093295043-cdd812d0e601?auto=format&fit=crop&w=1400&q=80',
+    image: canteenImage6,
     rating: 4.8,
     price: 23,
     valueNote: '酸甜稳妥',
@@ -226,8 +227,7 @@ export const HOME_CANTEEN_SPOTS = [
     id: 'qinghe-midnight-noodle',
     canteenId: 'qinghe',
     name: '清河 · 夜宵米线位',
-    image:
-      'https://images.unsplash.com/photo-1550966871-3ed3cdb5ed0c?auto=format&fit=crop&w=1400&q=80',
+    image: canteenImage3,
     rating: 4.7,
     price: 17,
     valueNote: '夜宵首选',
@@ -240,8 +240,7 @@ export const HOME_CANTEEN_SPOTS = [
     id: 'qinghe-spicy-line',
     canteenId: 'qinghe',
     name: '清河 · 重口进攻位',
-    image:
-      'https://images.unsplash.com/photo-1604908176997-125f25cc6f3d?auto=format&fit=crop&w=1400&q=80',
+    image: canteenImage5,
     rating: 4.6,
     price: 21,
     valueNote: '辣得痛快',
@@ -254,8 +253,7 @@ export const HOME_CANTEEN_SPOTS = [
     id: 'siyuan-budget-save',
     canteenId: 'siyuan',
     name: '思源 · 预算守护位',
-    image:
-      'https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=1400&q=80',
+    image: canteenImage4,
     rating: 4.4,
     price: 16,
     valueNote: '便宜管饱',
@@ -268,8 +266,7 @@ export const HOME_CANTEEN_SPOTS = [
     id: 'siyuan-risk-window',
     canteenId: 'siyuan',
     name: '思源 · 看脸窗口位',
-    image:
-      'https://images.unsplash.com/photo-1525351484163-7529414344d8?auto=format&fit=crop&w=1400&q=80',
+    image: canteenImage6,
     rating: 4.2,
     price: 15,
     valueNote: '波动很大',
@@ -282,8 +279,7 @@ export const HOME_CANTEEN_SPOTS = [
     id: 'xueyuan-iron-plate',
     canteenId: 'xueyuan',
     name: '学苑 · 铁板爆香位',
-    image:
-      'https://images.unsplash.com/photo-1512058564366-18510be2db19?auto=format&fit=crop&w=1400&q=80',
+    image: canteenImage1,
     rating: 4.7,
     price: 22,
     valueNote: '锅气拉满',
@@ -296,8 +292,7 @@ export const HOME_CANTEEN_SPOTS = [
     id: 'qinghe-claypot-line',
     canteenId: 'qinghe',
     name: '清河 · 煲仔慢吃位',
-    image:
-      'https://images.unsplash.com/photo-1490645935967-10de6ba17061?auto=format&fit=crop&w=1400&q=80',
+    image: canteenImage3,
     rating: 4.6,
     price: 24,
     valueNote: '香但略贵',

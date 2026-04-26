@@ -1,3 +1,5 @@
+<!-- @author Codex -->
+
 <template>
   <section class="recommend" data-test="today-recommend">
     <div class="section-rule">
@@ -5,72 +7,69 @@
       <span class="section-rule__line"></span>
     </div>
     <header class="recommend__header">
-      <h2 class="section-title">今日推荐</h2>
-      <p class="section-subtitle">先看分，再看评，再看你要不要冲。</p>
+      <div>
+        <h2 class="section-title">今日推荐</h2>
+        <p class="section-subtitle">先看分，再看评，再看你要不要冲。</p>
+      </div>
+      <span class="recommend__hint handwrite">→ 划划看</span>
     </header>
 
     <div
       ref="trackRef"
       class="recommend__track"
-      @mouseenter="isPaused = true"
-      @mouseleave="isPaused = false"
+      :class="{ 'is-dragging': isDragging }"
+      @pointerdown="onPointerDown"
+      @pointermove="onPointerMove"
+      @pointerup="onPointerEnd"
+      @pointercancel="onPointerEnd"
     >
       <article
         v-for="(item, index) in items"
         :key="item.id"
-        class="recommend-card torn-edge"
-        :class="`recommend-card--${index % 3}`"
+        class="recommend-card"
+        :class="`recommend-card--${index % 4}`"
+        role="button"
+        tabindex="0"
+        @click="jumpToDish(item)"
+        @keydown.enter="jumpToDish(item)"
       >
-        <img
-          class="recommend-card__image"
-          :class="imageFrameClass(index)"
-          :src="item.image"
-          :alt="`${item.name}菜品图`"
-          loading="lazy"
-        />
+        <div class="recommend-card__media" :class="imageFrameClass(index)">
+          <span class="recommend-card__tape" :class="index % 2 === 0 ? 'is-left' : 'is-right'"></span>
+          <img
+            class="recommend-card__image"
+            :src="item.image"
+            :alt="`${item.name}菜品图`"
+            loading="lazy"
+            draggable="false"
+          />
+        </div>
 
         <div class="recommend-card__content">
-          <div class="recommend-card__line">
-            <span class="recommend-card__canteen">{{ item.canteenName }}</span>
-            <span class="stamp">{{ item.stamp ?? getStampByRating(item.rating) }}</span>
+          <p class="recommend-card__comment handwrite">
+            “{{ formatComment(item.comment, 20).text }}”
+            <span>（{{ formatComment(item.comment, 20).length }}字）</span>
+          </p>
+
+          <div class="recommend-card__title-row">
+            <h3>{{ item.name }}</h3>
+            <span class="zine-rating-stamp">{{ item.rating.toFixed(1) }}</span>
           </div>
 
-          <h3 class="recommend-card__title">{{ item.name }}</h3>
-          <p class="recommend-card__score">评分 {{ item.rating.toFixed(1) }}</p>
-          <p class="recommend-card__comment handwrite">“{{ item.comment }}”</p>
-          <p class="recommend-card__price">¥{{ item.price }} / {{ item.valueNote }}</p>
+          <p class="recommend-card__meta">
+            {{ item.canteenName }} · ¥{{ item.price }} / {{ item.valueNote }}
+          </p>
 
           <div class="recommend-card__tags">
+            <span class="zine-chip">{{ getRatingLabel(item.rating) }}</span>
             <span
-              v-for="tag in item.tags"
+              v-for="tag in visibleTags(item.tags)"
               :key="`${item.id}-${tag}`"
-              class="recommend-card__tag"
+              class="zine-chip"
             >
-              #{{ tag }}
+              {{ tag }}
             </span>
           </div>
 
-          <div class="recommend-card__actions">
-            <button
-              class="button-ink is-primary"
-              type="button"
-              :class="{ 'is-selected': voteMap[item.id]?.type === 'recommend' }"
-              @click="vote(item.id, 'recommend')"
-            >
-              推荐 {{ voteMap[item.id]?.recommend ?? baseRecommend(item) }}
-            </button>
-            <button
-              class="button-ink"
-              type="button"
-              :class="{ 'is-selected': voteMap[item.id]?.type === 'avoid' }"
-              @click="vote(item.id, 'avoid')"
-            >
-              避雷 {{ voteMap[item.id]?.avoid ?? baseAvoid(item) }}
-            </button>
-            <button class="button-ink recommend-card__detail" type="button" @click="jumpToDish(item)">
-              看详情
-            </button>
-          </div>
         </div>
       </article>
     </div>
@@ -78,8 +77,11 @@
 </template>
 
 <script setup>
-import { onBeforeUnmount, onMounted, reactive, ref } from 'vue';
+import { ref } from 'vue';
 import { useRouter } from 'vue-router';
+import { useDragScroll } from '../../composables/useDragScroll';
+import { formatComment } from '../../utils/commentText';
+import { getRatingLabel } from '../../utils/ratingLabel';
 
 defineOptions({
   name: 'TodayRecommendationCarousel',
@@ -94,64 +96,23 @@ const props = defineProps({
 
 const router = useRouter();
 const trackRef = ref(null);
-const isPaused = ref(false);
-const voteMap = reactive({});
-let timer = null;
-
-function getStampByRating(rating) {
-  if (rating >= 4.7) {
-    return '必吃';
-  }
-  if (rating >= 4.4) {
-    return '再来';
-  }
-  return '踩雷';
-}
+const { isDragging, wasDragged, onPointerDown, onPointerMove, onPointerEnd } =
+  useDragScroll(trackRef);
 
 function imageFrameClass(index) {
-  const classList = ['is-hard-cut', 'is-polygon', 'is-polaroid'];
+  const classList = ['is-rotate-left', 'is-rotate-right', 'is-rotate-soft', 'is-rotate-back'];
   return classList[index % classList.length];
 }
 
-function baseRecommend(item) {
-  return Math.max(24, Math.round(item.monthlySales / 4));
-}
-
-function baseAvoid(item) {
-  return Math.max(4, Math.round((5 - item.rating) * 18));
-}
-
-function vote(id, type) {
-  if (!voteMap[id]) {
-    const target = props.items.find(item => item.id === id);
-    voteMap[id] = {
-      type: null,
-      recommend: target ? baseRecommend(target) : 0,
-      avoid: target ? baseAvoid(target) : 0,
-    };
-  }
-
-  const current = voteMap[id];
-  if (current.type === type) {
-    return;
-  }
-
-  if (current.type === 'recommend') {
-    current.recommend -= 1;
-  }
-  if (current.type === 'avoid') {
-    current.avoid -= 1;
-  }
-
-  if (type === 'recommend') {
-    current.recommend += 1;
-  } else {
-    current.avoid += 1;
-  }
-  current.type = type;
+function visibleTags(tags) {
+  return Array.isArray(tags) ? tags.slice(0, 2) : [];
 }
 
 function jumpToDish(item) {
+  if (wasDragged.value) {
+    return;
+  }
+
   router.push({
     name: 'dishDetail',
     params: {
@@ -160,167 +121,215 @@ function jumpToDish(item) {
     },
   });
 }
-
-function startAutoSlide() {
-  timer = window.setInterval(() => {
-    if (isPaused.value) {
-      return;
-    }
-    const track = trackRef.value;
-    if (!track) {
-      return;
-    }
-
-    const step = track.clientWidth * 0.82;
-    const maxScrollLeft = track.scrollWidth - track.clientWidth;
-    if (track.scrollLeft >= maxScrollLeft - 4) {
-      track.scrollTo({ left: 0, behavior: 'smooth' });
-      return;
-    }
-
-    track.scrollBy({ left: step, behavior: 'smooth' });
-  }, 2800);
-}
-
-onMounted(() => {
-  startAutoSlide();
-});
-
-onBeforeUnmount(() => {
-  if (timer) {
-    window.clearInterval(timer);
-  }
-});
 </script>
 
 <style scoped lang="scss">
 .recommend {
   margin-top: var(--ft-space-5);
+  min-width: 0;
+  max-width: 100%;
 }
 
 .recommend__header {
   margin-bottom: var(--ft-space-2);
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  align-items: end;
+}
+
+.recommend__hint {
+  flex: 0 0 auto;
+  color: var(--zine-stamp-red);
+  font-size: 26px;
+  transform: rotate(-4deg);
 }
 
 .recommend__track {
-  --peek: clamp(72px, 14vw, 220px);
-  display: grid;
-  grid-auto-flow: column;
-  grid-auto-columns: calc(100% - var(--peek));
-  gap: var(--ft-space-2);
+  display: flex;
+  gap: 0;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
   overflow-x: auto;
-  padding-right: var(--peek);
-  padding-bottom: 6px;
-  scroll-snap-type: x mandatory;
-  scrollbar-width: thin;
+  overflow-y: hidden;
+  padding: 18px 34px 30px 2px;
+  scroll-snap-type: x proximity;
+  scrollbar-width: none;
+  cursor: grab;
+  touch-action: pan-x;
+  user-select: none;
+}
+
+.recommend__track::-webkit-scrollbar {
+  display: none;
+}
+
+.recommend__track.is-dragging {
+  cursor: grabbing;
 }
 
 .recommend-card {
+  position: relative;
+  flex: 0 0 var(--zine-card-width);
+  width: var(--zine-card-width);
+  height: var(--zine-card-height);
+  margin-right: -22px;
   border: 1px solid var(--ft-color-secondary);
-  background: var(--ft-color-surface);
-  padding: 12px;
+  background:
+    radial-gradient(circle at 16% 12%, rgb(183 47 28 / 6%) 0, transparent 24%),
+    linear-gradient(180deg, var(--zine-paper-card) 0%, #fdf6e8 100%);
+  box-shadow: 6px 8px 0 rgb(58 36 24 / 12%);
   display: grid;
-  gap: 10px;
-  min-height: 520px;
+  grid-template-rows: 60% 40%;
+  padding: 10px;
   scroll-snap-align: start;
+  cursor: pointer;
+  transition: transform var(--ft-transition-fast), box-shadow var(--ft-transition-fast);
+}
+
+.recommend-card:hover {
+  box-shadow: 9px 12px 0 rgb(58 36 24 / 17%);
 }
 
 .recommend-card--0 {
-  transform: translateY(0);
+  transform: rotate(-0.9deg) translateY(2px);
 }
 
 .recommend-card--1 {
-  transform: translateY(14px);
+  transform: rotate(0.7deg) translateY(16px);
 }
 
 .recommend-card--2 {
-  transform: translateY(-8px);
+  transform: rotate(-0.4deg) translateY(-7px);
+}
+
+.recommend-card--3 {
+  transform: rotate(1deg) translateY(9px);
+}
+
+.recommend-card__media {
+  position: relative;
+  min-height: 0;
+  border: 1px solid var(--ft-color-secondary);
+  background: #fff;
+  padding: 7px 7px 18px;
+  box-shadow: 3px 3px 0 rgb(58 36 24 / 22%);
+  transform-origin: center;
+}
+
+.recommend-card__media.is-rotate-left {
+  transform: rotate(-1.3deg);
+}
+
+.recommend-card__media.is-rotate-right {
+  transform: rotate(1.2deg);
+}
+
+.recommend-card__media.is-rotate-soft {
+  transform: rotate(-0.5deg);
+}
+
+.recommend-card__media.is-rotate-back {
+  transform: rotate(0.4deg);
+}
+
+.recommend-card__tape {
+  position: absolute;
+  top: -15px;
+  width: 88px;
+  height: 28px;
+  background: var(--zine-decor-tape-red) center / contain no-repeat;
+  opacity: 0.78;
+  z-index: 2;
+  mix-blend-mode: multiply;
+  pointer-events: none;
+}
+
+.recommend-card__tape.is-left {
+  left: 12px;
+  transform: rotate(-8deg);
+}
+
+.recommend-card__tape.is-right {
+  right: 10px;
+  background-image: var(--zine-decor-tape-blue);
+  transform: rotate(8deg);
 }
 
 .recommend-card__image {
   width: 100%;
-  height: 180px;
+  height: 100%;
   object-fit: cover;
+  pointer-events: none;
 }
 
-.recommend-card__image.is-hard-cut {
-  border: 1px solid var(--ft-color-secondary);
-}
-
-.recommend-card__image.is-polygon {
-  clip-path: polygon(0 0, 97% 0, 100% 88%, 84% 100%, 3% 100%, 0 12%);
-}
-
-.recommend-card__image.is-polaroid {
-  border: 8px solid #fff;
-  border-bottom-width: 24px;
-  box-shadow: 4px 4px 0 rgb(58 36 24 / 28%);
-}
-
-.recommend-card__line {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.recommend-card__canteen {
-  font-size: var(--ft-font-size-sm);
-  color: var(--ft-color-text-muted);
-}
-
-.recommend-card__title {
-  margin: 0;
-  font-family: var(--ft-font-family-title);
-  font-size: 32px;
-  font-weight: 900;
-  line-height: 1.05;
-}
-
-.recommend-card__score {
-  margin: 0;
-  color: var(--ft-color-primary);
-  font-family: var(--ft-font-family-title);
-  font-size: 28px;
-  font-weight: 900;
+.recommend-card__content {
+  position: relative;
+  min-height: 0;
+  padding: 10px 2px 0;
+  display: grid;
+  grid-template-rows: auto auto auto 1fr;
+  gap: 5px;
 }
 
 .recommend-card__comment {
   margin: 0;
-  color: var(--ft-color-primary);
-  font-size: 22px;
+  color: var(--zine-stamp-red);
+  font-size: 19px;
+  line-height: 1.08;
 }
 
-.recommend-card__price {
+.recommend-card__comment span {
+  color: var(--ft-color-text-muted);
+  font-size: 13px;
+}
+
+.recommend-card__title-row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 8px;
+  align-items: center;
+}
+
+.recommend-card__title-row h3 {
   margin: 0;
-  color: var(--ft-color-secondary-soft);
-  font-size: var(--ft-font-size-sm);
+  font-family: var(--zine-title-font);
+  font-size: var(--zine-card-title-size);
+  font-weight: 900;
+  line-height: 1;
+}
+
+.recommend-card__meta {
+  margin: 0;
+  color: var(--ft-color-text-muted);
+  font-size: 12px;
+  line-height: 1.35;
 }
 
 .recommend-card__tags {
+  align-self: end;
   display: flex;
   flex-wrap: wrap;
-  gap: 6px;
+  gap: 5px;
+  max-width: calc(100% - 60px);
 }
 
-.recommend-card__tag {
-  font-size: 12px;
-  border: 1px dashed rgb(58 36 24 / 40%);
-  padding: 3px 7px;
-}
+@media (max-width: 768px) {
+  .recommend__header {
+    align-items: start;
+  }
 
-.recommend-card__actions {
-  margin-top: auto;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-}
+  .recommend__track {
+    gap: 0;
+    padding-top: 12px;
+  }
 
-.button-ink.is-selected {
-  transform: translate(-2px, -2px);
-  box-shadow: 4px 4px 0 var(--ft-color-secondary);
-}
-
-.recommend-card__detail {
-  margin-left: auto;
+  .recommend-card {
+    flex-basis: min(76vw, 264px);
+    width: min(76vw, 264px);
+    height: 374px;
+    margin-right: -14px;
+  }
 }
 </style>

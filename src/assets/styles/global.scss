@@ -1,3 +1,5 @@
+/* @author Codex */
+
 @use './tokens.scss';
 @import url('https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&family=Noto+Sans+SC:wght@400;500;700;900&family=Noto+Serif+SC:wght@700;900&display=swap');
 
@@ -14,22 +16,30 @@ body,
   min-height: 100%;
 }
 
+#app {
+  position: relative;
+  z-index: 1;
+}
+
 body {
   font-family: var(--ft-font-family);
   font-size: var(--ft-font-size-md);
   color: var(--ft-color-text);
+  overflow-x: hidden;
   background:
-    radial-gradient(circle, rgb(58 36 24 / 8%) 0.8px, transparent 0.8px),
-    radial-gradient(circle, rgb(58 36 24 / 5%) 0.6px, transparent 0.6px),
-    linear-gradient(155deg, #f5f2e9 0%, #f2efe6 36%, #ece8dc 100%),
-    var(--ft-color-bg);
+    var(--zine-texture-kraft),
+    radial-gradient(circle at 14% 11%, rgb(106 75 58 / 18%) 0 1px, transparent 1.5px),
+    radial-gradient(circle at 82% 24%, rgb(58 36 24 / 10%) 0 1px, transparent 1.4px),
+    linear-gradient(138deg, var(--zine-paper-bg-soft) 0%, var(--zine-paper-bg) 54%, #cbb07a 100%);
   background-size:
-    13px 13px,
-    24px 24px,
+    600px 600px,
+    23px 23px,
+    31px 31px,
     100% 100%;
   background-position:
     0 0,
     8px 10px,
+    4px 7px,
     0 0;
   letter-spacing: 0.01em;
   line-height: 1.65;
@@ -42,33 +52,32 @@ body::after {
   position: fixed;
   inset: 0;
   pointer-events: none;
-  z-index: -1;
+  z-index: 0;
 }
 
 body::before {
-  background:
-    repeating-linear-gradient(
-      6deg,
-      rgb(58 36 24 / 4%) 0,
-      rgb(58 36 24 / 4%) 1px,
-      transparent 1px,
-      transparent 9px
-    ),
-    repeating-linear-gradient(
-      173deg,
-      rgb(58 36 24 / 3.6%) 0,
-      rgb(58 36 24 / 3.6%) 1px,
-      transparent 1px,
-      transparent 11px
-    );
-  opacity: 0.38;
+  background-image: var(--zine-texture-grain);
+  background-size: 200px 200px;
+  mix-blend-mode: multiply;
+  opacity: 0.28;
 }
 
 body::after {
   background:
-    radial-gradient(circle at 15% 18%, rgb(58 36 24 / 5%) 0, transparent 32%),
-    radial-gradient(circle at 84% 74%, rgb(58 36 24 / 5%) 0, transparent 30%);
-  opacity: 0.45;
+    var(--zine-decor-torn-edge) left -72px top 112px / 320px auto no-repeat,
+    var(--zine-decor-sticky-note-alt) right -48px bottom 18vh / 128px auto no-repeat,
+    var(--zine-decor-food-sketch-2) left 3vw bottom 18vh / 118px auto no-repeat,
+    radial-gradient(circle at 15% 18%, rgb(58 36 24 / 7%) 0, transparent 30%),
+    radial-gradient(circle at 84% 74%, rgb(58 36 24 / 8%) 0, transparent 28%),
+    repeating-linear-gradient(
+      6deg,
+      rgb(58 36 24 / 4.5%) 0,
+      rgb(58 36 24 / 4.5%) 1px,
+      transparent 1px,
+      transparent 10px
+    );
+  mix-blend-mode: multiply;
+  opacity: 0.58;
 }
 
 a {
@@ -91,6 +100,16 @@ img {
   text-transform: uppercase;
 }
 
+.section-title strong,
+.zine-highlight {
+  background: linear-gradient(
+    transparent 58%,
+    var(--zine-highlight-yellow) 58%,
+    var(--zine-highlight-yellow) 88%,
+    transparent 88%
+  );
+}
+
 .section-subtitle {
   margin: 6px 0 0;
   color: var(--ft-color-text-muted);
@@ -99,6 +118,7 @@ img {
 }
 
 .section-rule {
+  position: relative;
   display: grid;
   grid-template-columns: auto 1fr;
   align-items: center;
@@ -106,17 +126,39 @@ img {
   margin-bottom: var(--ft-space-2);
 }
 
+.section-rule::before {
+  content: '';
+  position: absolute;
+  left: -14px;
+  top: -14px;
+  width: 96px;
+  height: 26px;
+  background: var(--zine-decor-tape-red) center / contain no-repeat;
+  opacity: 0.72;
+  transform: rotate(-5deg);
+  pointer-events: none;
+  mix-blend-mode: multiply;
+}
+
 .section-rule__index {
   font-family: var(--ft-font-family-title);
-  font-size: 22px;
+  font-size: var(--zine-section-index-size);
   font-weight: 900;
-  color: var(--ft-color-primary);
+  line-height: 0.9;
+  color: transparent;
+  -webkit-text-stroke: 1.2px var(--zine-stamp-red);
+  text-shadow: 2px 2px 0 var(--zine-stamp-red-soft);
 }
 
 .section-rule__line {
-  height: 1px;
-  background: var(--ft-color-secondary);
-  opacity: 0.35;
+  height: 2px;
+  background:
+    repeating-linear-gradient(
+      90deg,
+      var(--ft-color-secondary) 0 12px,
+      transparent 12px 19px
+    );
+  opacity: 0.42;
 }
 
 .sticker {
@@ -125,7 +167,7 @@ img {
   justify-content: center;
   padding: 4px 10px;
   border: 1px solid var(--ft-color-secondary);
-  background: #faf7ef;
+  background: var(--zine-paper-card);
   box-shadow: 2px 2px 0 rgb(58 36 24 / 50%);
   font-size: 13px;
   font-weight: 700;
@@ -154,19 +196,31 @@ img {
 }
 
 .stamp {
+  position: relative;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-width: 54px;
-  height: 28px;
-  border: 2px solid #fff4f2;
-  background: var(--ft-color-primary);
-  color: #fef5f2;
-  font-size: 12px;
+  min-width: 58px;
+  height: 30px;
+  border: 2px solid var(--zine-stamp-red);
+  background: var(--zine-stamp-red-soft);
+  color: var(--zine-stamp-red);
+  font-size: 13px;
   font-weight: 800;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  box-shadow: 2px 2px 0 rgb(58 36 24 / 34%);
+  box-shadow: none;
+  transform: rotate(-4deg);
+  mix-blend-mode: multiply;
+}
+
+.stamp::after {
+  content: '';
+  position: absolute;
+  inset: 2px;
+  border: 1px dashed currentColor;
+  opacity: 0.32;
+  pointer-events: none;
 }
 
 .torn-edge {
@@ -212,6 +266,29 @@ img {
   }
 }
 
+.button-ink.is-stamp-red,
+.button-ink.is-stamp-blue {
+  position: relative;
+  border-width: 2px;
+  border-radius: var(--ft-radius-pill);
+  background: transparent;
+  box-shadow: none;
+  font-family: var(--zine-handwriting-font);
+  font-size: 19px;
+  line-height: 1;
+  mix-blend-mode: multiply;
+}
+
+.button-ink.is-stamp-red {
+  border-color: var(--zine-stamp-red);
+  color: var(--zine-stamp-red);
+}
+
+.button-ink.is-stamp-blue {
+  border-color: var(--zine-stamp-blue);
+  color: var(--zine-stamp-blue);
+}
+
 .button-ink.is-primary {
   border-color: var(--ft-color-primary);
   background: var(--ft-color-primary);
@@ -240,4 +317,93 @@ img {
   stroke-width: 2.2;
   stroke-linecap: round;
   stroke-linejoin: round;
+}
+
+.zine-rating-stamp,
+.zine-date-stamp {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  font-family: var(--zine-title-font);
+  font-weight: 900;
+  line-height: 1;
+  mix-blend-mode: multiply;
+}
+
+.zine-rating-stamp {
+  position: relative;
+  width: 54px;
+  height: 54px;
+  border: 3px double var(--zine-stamp-red);
+  color: var(--zine-stamp-red);
+  background: var(--zine-stamp-red-soft);
+  font-size: 21px;
+  transform: rotate(-5deg);
+}
+
+.zine-date-stamp {
+  width: 72px;
+  height: 72px;
+  border: 2px dashed var(--zine-stamp-blue);
+  color: var(--zine-stamp-blue);
+  background: var(--zine-stamp-blue-soft);
+  font-family: var(--zine-handwriting-font);
+  font-size: 17px;
+  text-align: center;
+  transform: rotate(var(--zine-rotate-stamp));
+}
+
+.zine-chip {
+  display: inline-flex;
+  align-items: center;
+  min-height: 24px;
+  border: 1px solid var(--zine-paper-edge);
+  border-radius: var(--ft-radius-pill);
+  padding: 2px 9px;
+  color: var(--ft-color-secondary-soft);
+  background: rgb(255 250 240 / 58%);
+  font-size: 12px;
+  line-height: 1.2;
+}
+
+.zine-hand-link {
+  appearance: none;
+  border: 0;
+  background: transparent;
+  color: var(--ft-color-secondary);
+  cursor: pointer;
+  font-family: var(--zine-handwriting-font);
+  font-size: 21px;
+  padding: 0 2px 2px;
+  text-decoration: underline;
+  text-decoration-style: dashed;
+  text-decoration-thickness: 1.5px;
+  text-underline-offset: 4px;
+}
+
+.zine-hand-link:hover {
+  color: var(--zine-stamp-red);
+  text-decoration-style: wavy;
+}
+
+@media (max-width: 768px) {
+  body::after {
+    background:
+      var(--zine-decor-torn-edge) left -112px top 128px / 240px auto no-repeat,
+      var(--zine-decor-food-sketch-3) left -30px bottom 24vh / 90px auto no-repeat,
+      radial-gradient(circle at 18% 20%, rgb(58 36 24 / 7%) 0, transparent 28%),
+      repeating-linear-gradient(
+        6deg,
+        rgb(58 36 24 / 4%) 0,
+        rgb(58 36 24 / 4%) 1px,
+        transparent 1px,
+        transparent 12px
+      );
+  }
+
+  .section-rule::before {
+    width: 72px;
+    left: -6px;
+  }
 }

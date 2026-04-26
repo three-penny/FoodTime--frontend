@@ -1,3 +1,5 @@
+<!-- @author Codex -->
+
 <template>
   <section class="canteen-detail-view">
     <article v-if="!canteen" class="empty torn-edge">
@@ -17,7 +19,10 @@
             {{ canteen.openHours }}
           </p>
           <p class="hero__summary dropcap">{{ canteen.summary }}</p>
-          <p class="hero__rant handwrite">学生吐槽：{{ canteen.rant }}</p>
+          <p class="hero__rant handwrite">
+            学生吐槽：{{ formatComment(canteen.rant, 42).text }}
+            <span>（{{ formatComment(canteen.rant, 42).length }}字）</span>
+          </p>
           <div class="hero__actions">
             <button class="button-ink is-primary" type="button" @click="toDishList">
               查看菜品列表
@@ -71,6 +76,7 @@ import { useRoute, useRouter } from 'vue-router';
 import DishCard from '../../components/dish/DishCard.vue';
 import { useCanteenStore } from '../../store/useCanteenStore';
 import { useDishStore } from '../../store/useDishStore';
+import { formatComment } from '../../utils/commentText';
 
 defineOptions({
   name: 'CanteenDetailView',
@@ -178,6 +184,11 @@ function toDishDetail(dishId) {
   margin: 14px 0 0;
   color: var(--ft-color-primary);
   font-size: 24px;
+}
+
+.hero__rant span {
+  color: var(--ft-color-text-muted);
+  font-size: 14px;
 }
 
 .hero__actions {
