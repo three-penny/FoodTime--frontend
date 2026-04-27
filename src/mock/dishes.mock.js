@@ -45,6 +45,8 @@ const DISH_IMAGE_BY_NAME = {
   酥皮鱼排饭: beefClaypotRiceImage,
 };
 
+const DISH_PRICES = [19, 22, 26, 18, 16, 17, 20, 15, 24, 18, 13, 21];
+
 // 用户后续录入菜品时，只需要维护这里的 5 个字段：
 // 菜名 name、所在餐厅 canteenId、档口 stall、打分 rating、点评 comment。
 const DISH_FORM_ROWS = [
@@ -135,11 +137,15 @@ const DISH_FORM_ROWS = [
 ];
 
 function getCanteenName(canteenId) {
-  return CANTEENS.find(canteen => canteen.id === canteenId)?.name ?? '未知餐厅';
+  return (
+    CANTEENS.find((canteen) => canteen.id === canteenId)?.name ?? '未知餐厅'
+  );
 }
 
 function getDishImage(row, index) {
-  return DISH_IMAGE_BY_NAME[row.name] ?? DISH_IMAGES[index % DISH_IMAGES.length];
+  return (
+    DISH_IMAGE_BY_NAME[row.name] ?? DISH_IMAGES[index % DISH_IMAGES.length]
+  );
 }
 
 function createDish(row, index) {
@@ -150,7 +156,7 @@ function createDish(row, index) {
     image: getDishImage(row, index),
     description: row.comment,
     valueNote: row.stall,
-    price: null,
+    price: DISH_PRICES[index] ?? null,
     monthlySales: null,
     tags: [],
   };
@@ -158,4 +164,4 @@ function createDish(row, index) {
 
 export const DISHES = DISH_FORM_ROWS.map(createDish);
 
-export const HOME_RECOMMENDATION_IDS = DISHES.map(dish => dish.id);
+export const HOME_RECOMMENDATION_IDS = DISHES.map((dish) => dish.id);

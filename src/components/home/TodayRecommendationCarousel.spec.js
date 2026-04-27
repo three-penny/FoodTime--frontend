@@ -32,6 +32,7 @@ function createItem(overrides = {}) {
     name: '番茄肥牛饭',
     image: 'https://example.com/dish.jpg',
     rating: 4.8,
+    price: 18,
     comment: '课间冲过去五分钟拿到，效率党福音。',
     tags: ['必吃'],
     ...overrides,
@@ -59,7 +60,9 @@ describe('TodayRecommendationCarousel', () => {
   it('renders canteen and stall without count or bottom tags', async () => {
     const { wrapper } = await mountCarousel();
 
-    expect(wrapper.find('.recommend-card__meta').text()).toBe('教工餐厅 · 酸甜稳妥');
+    expect(wrapper.find('.recommend-card__meta').text()).toBe(
+      '教工餐厅 · 酸甜稳妥 · ¥18',
+    );
     expect(wrapper.find('.recommend-card__comment span').exists()).toBe(false);
     expect(wrapper.find('.recommend-card__tags').exists()).toBe(false);
   });
