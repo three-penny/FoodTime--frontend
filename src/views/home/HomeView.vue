@@ -6,29 +6,59 @@
       @recommend="scrollToSection('recommend')"
       @review="goReviewPage"
     />
-    <div class="home-view__decor-bridge home-view__decor-bridge--hero" aria-hidden="true"></div>
+    <div
+      class="home-view__decor-bridge home-view__decor-bridge--hero"
+      aria-hidden="true"
+    ></div>
 
-    <section id="recommend" class="home-view__section home-view__section--recommend">
+    <section
+      id="recommend"
+      class="home-view__section home-view__section--recommend"
+    >
       <TodayRecommendationCarousel :items="recommendations" />
     </section>
-    <div class="home-view__decor-bridge home-view__decor-bridge--recommend" aria-hidden="true"></div>
+    <div
+      class="home-view__decor-bridge home-view__decor-bridge--recommend"
+      aria-hidden="true"
+    ></div>
 
-    <section id="canteens" class="home-view__section home-view__section--canteens">
+    <section
+      id="canteens"
+      class="home-view__section home-view__section--canteens"
+    >
       <CanteenCarousel :items="canteenSpots" @select="handleSelectCanteen" />
     </section>
-    <div class="home-view__decor-bridge home-view__decor-bridge--canteens" aria-hidden="true"></div>
+    <div
+      class="home-view__decor-bridge home-view__decor-bridge--canteens"
+      aria-hidden="true"
+    ></div>
 
-    <section id="ranking" class="home-view__section home-view__section--ranking">
+    <section
+      id="ranking"
+      class="home-view__section home-view__section--ranking"
+    >
       <HomeRankingList :rankings="rankings" />
     </section>
-    <div class="home-view__decor-bridge home-view__decor-bridge--ranking" aria-hidden="true"></div>
+    <div
+      class="home-view__decor-bridge home-view__decor-bridge--ranking"
+      aria-hidden="true"
+    ></div>
 
-    <section id="canteen-detail" class="home-view__section home-view__section--canteen-detail">
+    <section
+      id="canteen-detail"
+      class="home-view__section home-view__section--canteen-detail"
+    >
       <CanteenIntroGrid :canteens="detailCanteens" />
     </section>
-    <div class="home-view__decor-bridge home-view__decor-bridge--detail" aria-hidden="true"></div>
+    <div
+      class="home-view__decor-bridge home-view__decor-bridge--detail"
+      aria-hidden="true"
+    ></div>
 
-    <section id="message" class="home-view__section home-view__notice torn-edge">
+    <section
+      id="message"
+      class="home-view__section home-view__notice torn-edge"
+    >
       <h2>04 / 消息与吐槽墙</h2>
       <p class="dropcap">
         后续会接入“今日翻车播报”和“打饭成功率”实时投稿区。现在先保留入口位，
@@ -39,7 +69,7 @@
 </template>
 
 <script setup>
-import { computed, nextTick, watch } from 'vue';
+import { computed, nextTick, onBeforeUnmount, onMounted, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import CanteenCarousel from '../../components/home/CanteenCarousel.vue';
 import CanteenIntroGrid from '../../components/home/CanteenIntroGrid.vue';
@@ -62,24 +92,25 @@ const DETAIL_CANTEEN_IDS = ['minghu', 'liuyuan', 'dongqu', 'yimin'];
 
 const canteens = computed(() => canteenStore.canteens);
 const detailCanteens = computed(() =>
-  DETAIL_CANTEEN_IDS.map(id =>
-    canteens.value.find(canteen => canteen.id === id)
-  ).filter(Boolean)
+  DETAIL_CANTEEN_IDS.map((id) =>
+    canteens.value.find((canteen) => canteen.id === id),
+  ).filter(Boolean),
 );
 const canteenSpots = computed(() =>
   (canteenStore.homeCanteenSpots ?? []).filter(
-    item => item?.id && item?.canteenId
-  )
+    (item) => item?.id && item?.canteenId,
+  ),
 );
 const recommendations = computed(() =>
   (dishStore.homeRecommendations ?? []).filter(
-    item => item?.id && item?.canteenId
-  )
+    (item) => item?.id && item?.canteenId,
+  ),
 );
 const rankings = computed(() =>
-  canteenStore.rankings.map(item => ({
+  canteenStore.rankings.map((item) => ({
     ...item,
-    canteenName: canteenStore.getCanteenById(item.canteenId)?.name ?? '未知食堂',
+    canteenName:
+      canteenStore.getCanteenById(item.canteenId)?.name ?? '未知食堂',
     image: dishStore.getDishById(item.dishId)?.image ?? '',
     price: dishStore.getDishById(item.dishId)?.price ?? null,
     valueNote:
@@ -87,7 +118,7 @@ const rankings = computed(() =>
       dishStore.getDishById(item.dishId)?.valueNote ??
       '档口待补',
     comment: dishStore.getDishById(item.dishId)?.comment ?? '同学评价待补充',
-  }))
+  })),
 );
 
 function handleSelectCanteen(canteenId) {
@@ -124,14 +155,36 @@ function scrollToSection(sectionName) {
   });
 }
 
+function handleHomeSectionRequest(event) {
+  const section = event?.detail?.section;
+
+  if (typeof section === 'string') {
+    nextTick(() => scrollToSection(section));
+  }
+}
+
+onMounted(() => {
+  window.addEventListener(
+    'foodtime:home-section-request',
+    handleHomeSectionRequest,
+  );
+});
+
+onBeforeUnmount(() => {
+  window.removeEventListener(
+    'foodtime:home-section-request',
+    handleHomeSectionRequest,
+  );
+});
+
 watch(
   () => route.query.section,
-  section => {
+  (section) => {
     if (typeof section === 'string') {
       nextTick(() => scrollToSection(section));
     }
   },
-  { immediate: true }
+  { immediate: true },
 );
 </script>
 
