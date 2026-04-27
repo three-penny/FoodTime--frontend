@@ -36,7 +36,10 @@
         @keydown.enter="jumpToDish(item)"
       >
         <div class="recommend-card__media" :class="imageFrameClass(index)">
-          <span class="recommend-card__tape" :class="index % 2 === 0 ? 'is-left' : 'is-right'"></span>
+          <span
+            class="recommend-card__tape"
+            :class="index % 2 === 0 ? 'is-left' : 'is-right'"
+          ></span>
           <img
             class="recommend-card__image"
             :src="item.image"
@@ -57,9 +60,9 @@
           </div>
 
           <p class="recommend-card__meta">
-            {{ item.canteenName }} · {{ item.stall }}
+            {{ item.canteenName }} · {{ item.stall }} ·
+            {{ formatPrice(item.price) }}
           </p>
-
         </div>
       </article>
     </div>
@@ -87,7 +90,7 @@ const props = defineProps({
 const router = useRouter();
 const trackRef = ref(null);
 const displayItems = computed(() =>
-  props.items.length > 1 ? [...props.items, ...props.items] : props.items
+  props.items.length > 1 ? [...props.items, ...props.items] : props.items,
 );
 const {
   isDragging,
@@ -106,8 +109,23 @@ useAutoHorizontalScroll(trackRef, {
 });
 
 function imageFrameClass(index) {
-  const classList = ['is-rotate-left', 'is-rotate-right', 'is-rotate-soft', 'is-rotate-back'];
+  const classList = [
+    'is-rotate-left',
+    'is-rotate-right',
+    'is-rotate-soft',
+    'is-rotate-back',
+  ];
   return classList[index % classList.length];
+}
+
+function formatPrice(price) {
+  const value = Number(price);
+
+  if (Number.isFinite(value) && value > 0) {
+    return `¥${value}`;
+  }
+
+  return '价格待补';
 }
 
 function jumpToDish(item) {
@@ -187,7 +205,9 @@ function jumpToDish(item) {
   padding: 10px;
   scroll-snap-align: start;
   cursor: pointer;
-  transition: transform var(--ft-transition-fast), box-shadow var(--ft-transition-fast);
+  transition:
+    transform var(--ft-transition-fast),
+    box-shadow var(--ft-transition-fast);
 }
 
 .recommend-card:hover {

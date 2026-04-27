@@ -9,11 +9,7 @@
       </button>
 
       <nav class="nav">
-        <div
-          v-for="item in navItems"
-          :key="item.key"
-          class="nav__group"
-        >
+        <div v-for="item in navItems" :key="item.key" class="nav__group">
           <button
             class="nav__item"
             :class="{ 'is-active': activeKey === item.key }"
@@ -44,9 +40,18 @@
       </button>
     </div>
 
-    <span class="app-header__bg-decor app-header__bg-decor--stamp" aria-hidden="true"></span>
-    <span class="app-header__bg-decor app-header__bg-decor--food" aria-hidden="true"></span>
-    <span class="app-header__bg-decor app-header__bg-decor--tape" aria-hidden="true"></span>
+    <span
+      class="app-header__bg-decor app-header__bg-decor--stamp"
+      aria-hidden="true"
+    ></span>
+    <span
+      class="app-header__bg-decor app-header__bg-decor--food"
+      aria-hidden="true"
+    ></span>
+    <span
+      class="app-header__bg-decor app-header__bg-decor--tape"
+      aria-hidden="true"
+    ></span>
   </header>
 </template>
 
@@ -115,8 +120,24 @@ function goHome() {
   router.push({ name: 'homeCanteenSelect' });
 }
 
-function handleNavClick(item) {
-  router.push(item.to);
+async function handleNavClick(item) {
+  const targetSection = item.to?.query?.section;
+  const isSameHomeSection =
+    item.to?.name === 'homeCanteenSelect' &&
+    route.name === 'homeCanteenSelect' &&
+    route.query.section === targetSection;
+
+  await router.push(item.to);
+
+  if (isSameHomeSection && typeof targetSection === 'string') {
+    window.dispatchEvent(
+      new CustomEvent('foodtime:home-section-request', {
+        detail: {
+          section: targetSection,
+        },
+      }),
+    );
+  }
 }
 
 function goProfile() {
@@ -198,7 +219,9 @@ function goProfile() {
   align-items: center;
   justify-content: center;
   gap: 8px;
-  transition: transform var(--ft-transition-fast), border-color var(--ft-transition-fast);
+  transition:
+    transform var(--ft-transition-fast),
+    border-color var(--ft-transition-fast);
 
   &:hover {
     transform: translateY(-1px);
