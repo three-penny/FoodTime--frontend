@@ -1,4 +1,4 @@
-<!-- @author Codex -->
+<!-- @author XXXXX -->
 
 <template>
   <section class="message-view">

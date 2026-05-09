@@ -1,3 +1,5 @@
+<!-- @author XXXXX -->
+
 <template>
   <section class="dish-list-view">
     <article v-if="!canteen" class="empty torn-edge">
@@ -58,6 +60,7 @@
             v-for="stall in stallSections"
             :key="stall.id"
             :stall="stall"
+            @dish-click="toDishDetail"
           />
         </div>
       </section>
@@ -104,6 +107,16 @@ watch(
 
 function goHome() {
   router.push({ name: 'homeCanteenSelect' });
+}
+
+function toDishDetail(dish) {
+  router.push({
+    name: 'dishDetail',
+    params: {
+      canteenId: canteenId.value,
+      dishId: dish.id,
+    },
+  });
 }
 </script>
 
@@ -207,7 +220,39 @@ function goHome() {
     grid-template-columns: 1fr;
   }
 
+  .hero__image {
+    min-height: 280px;
+    clip-path: none;
+  }
+
   .hero__facts {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 520px) {
+  .empty {
+    padding: 18px;
+  }
+
+  .hero__image {
+    min-height: 220px;
+  }
+
+  .hero__content {
+    padding: 18px 16px;
+
+    h1 {
+      font-size: clamp(38px, 13vw, 52px);
+    }
+  }
+
+  .hero__rant {
+    font-size: 21px;
+  }
+
+  .hero__actions {
+    display: grid;
     grid-template-columns: 1fr;
   }
 }

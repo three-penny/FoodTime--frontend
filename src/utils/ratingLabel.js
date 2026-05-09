@@ -1,4 +1,4 @@
-// @author Codex
+// @author XXXXX
 
 /**
  * 根据评分返回统一的印章标签。

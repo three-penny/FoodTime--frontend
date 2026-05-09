@@ -1,4 +1,4 @@
-<!-- @author Codex -->
+<!-- @author XXXXX -->
 
 <template>
   <div class="home-view" data-test="home-view">
@@ -59,11 +59,31 @@
       id="message"
       class="home-view__section home-view__notice torn-edge"
     >
-      <h2>04 / 消息与吐槽墙</h2>
-      <p class="dropcap">
-        后续会接入“今日翻车播报”和“打饭成功率”实时投稿区。现在先保留入口位，
-        保证导航结构稳定，避免你收藏的页面链接失效。
-      </p>
+      <div class="home-view__notice-head">
+        <div>
+          <h2>04 / 今日吐槽墙</h2>
+          <p class="dropcap">
+            实时收集今天同学们对排队、口味、价格和服务的吐槽，先看别人怎么说，
+            再决定这一顿要不要冲。
+          </p>
+        </div>
+        <button class="button-ink is-primary" type="button" @click="goRantWall">
+          进入吐槽墙
+        </button>
+      </div>
+
+      <div class="home-view__rant-preview" data-test="home-rant-preview">
+        <article
+          v-for="rant in rantPreview"
+          :key="rant.id"
+          class="home-view__rant-card"
+          @click="goRantWall"
+        >
+          <span>{{ rant.createdAt }} · {{ rant.tag }}</span>
+          <strong>{{ rant.canteenName }}</strong>
+          <p>{{ rant.content }}</p>
+        </article>
+      </div>
     </section>
   </div>
 </template>
@@ -78,6 +98,7 @@ import HomeRankingList from '../../components/home/HomeRankingList.vue';
 import TodayRecommendationCarousel from '../../components/home/TodayRecommendationCarousel.vue';
 import { useCanteenStore } from '../../store/useCanteenStore';
 import { useDishStore } from '../../store/useDishStore';
+import { useRantStore } from '../../store/useRantStore';
 
 defineOptions({
   name: 'HomeView',
@@ -87,6 +108,7 @@ const route = useRoute();
 const router = useRouter();
 const canteenStore = useCanteenStore();
 const dishStore = useDishStore();
+const rantStore = useRantStore();
 
 const DETAIL_CANTEEN_IDS = ['minghu', 'liuyuan', 'dongqu', 'yimin'];
 
@@ -120,6 +142,7 @@ const rankings = computed(() =>
     comment: dishStore.getDishById(item.dishId)?.comment ?? '同学评价待补充',
   })),
 );
+const rantPreview = computed(() => rantStore.todayPreview);
 
 function handleSelectCanteen(canteenId) {
   canteenStore.setActiveCanteen(canteenId);
@@ -127,6 +150,10 @@ function handleSelectCanteen(canteenId) {
 
 function goReviewPage() {
   router.push({ name: 'reviewCreate' });
+}
+
+function goRantWall() {
+  router.push({ name: 'rantWall' });
 }
 
 function scrollToSection(sectionName) {
@@ -349,6 +376,53 @@ watch(
   }
 }
 
+.home-view__notice-head {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.home-view__rant-preview {
+  margin-top: 16px;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.home-view__rant-card {
+  border: 1px dashed rgb(58 36 24 / 34%);
+  background: rgb(255 250 240 / 64%);
+  cursor: pointer;
+  padding: 12px;
+  transition:
+    transform var(--ft-transition-fast),
+    box-shadow var(--ft-transition-fast);
+}
+
+.home-view__rant-card:hover {
+  box-shadow: 3px 3px 0 rgb(58 36 24 / 16%);
+  transform: translate(-1px, -1px);
+}
+
+.home-view__rant-card span {
+  color: var(--zine-stamp-red);
+  font-size: 12px;
+}
+
+.home-view__rant-card strong {
+  display: block;
+  margin-top: 5px;
+  font-family: var(--zine-title-font);
+  font-size: 22px;
+}
+
+.home-view__rant-card p {
+  margin: 8px 0 0;
+  color: var(--ft-color-secondary-soft);
+  font-size: 14px;
+}
+
 @media (max-width: 768px) {
   .home-view__decor-bridge {
     min-height: 18px;
@@ -357,6 +431,33 @@ watch(
   .home-view__decor-bridge::before,
   .home-view__decor-bridge::after {
     display: none;
+  }
+
+  .home-view__notice-head {
+    align-items: start;
+    display: grid;
+  }
+
+  .home-view__rant-preview {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 520px) {
+  .home-view__notice {
+    padding: 16px;
+
+    h2 {
+      font-size: 26px;
+    }
+  }
+
+  .home-view__notice-head .button-ink {
+    width: 100%;
+  }
+
+  .home-view__rant-card {
+    padding: 11px;
   }
 }
 </style>

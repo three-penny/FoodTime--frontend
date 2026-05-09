@@ -1,4 +1,4 @@
-// @author Codex
+// @author XXXXX
 
 /**
  * 格式化评论，显示字数并在超长时截断。

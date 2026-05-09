@@ -1,4 +1,4 @@
-// @author Codex
+// @author XXXXX
 
 import beefClaypotRiceImage from '../assets/images/dishs/煲仔饭.webp';
 import tomatoBeefRiceImage from '../assets/images/dishs/番茄肥牛饭.jpg';

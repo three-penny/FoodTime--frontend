@@ -1,4 +1,4 @@
-// @author Codex
+// @author XXXXX
 
 import stallImage1 from '../assets/images/stalls/档口01.webp';
 import stallImage2 from '../assets/images/stalls/档口02.jpg';

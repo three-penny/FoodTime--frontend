@@ -1,5 +1,24 @@
 import { defineStore } from 'pinia';
 import { DISHES, HOME_RECOMMENDATION_IDS } from '../mock/dishes.mock';
+import { CANTEENS } from '../mock/canteens.mock';
+import { createDefaultCanteenStalls } from '../mock/stalls.mock';
+
+const STALL_DISHES = CANTEENS.flatMap(canteen =>
+  createDefaultCanteenStalls(canteen).flatMap(stall => stall.dishes)
+);
+
+const INITIAL_DISH_REVIEWS = {
+  'braised-beef-noodle': [
+    {
+      id: 'review-braised-beef-noodle-001',
+      dishId: 'braised-beef-noodle',
+      rating: 5,
+      comment: '汤底比较厚，牛肉分量稳定，适合午饭正餐。',
+      reviewer: '匿名同学',
+      createdAt: '2026-05-09 10:20',
+    },
+  ],
+};
 
 function applySort(list, sortBy) {
   const cloned = [...list];
@@ -28,15 +47,17 @@ function applySort(list, sortBy) {
 
 /**
  * useDishStore
- * 职责：管理菜品数据、筛选排序状态与详情查询能力。
- * 作者：FoodTime Frontend Team
+ * 职责：管理菜品数据、筛选排序状态、详情查询能力与用户点评状态。
+ * 作者：XXXXX
  * 创建时间：2026-04-25
- * 使用场景：首页推荐、菜品列表页、菜品详情页。
+ * 使用场景：首页推荐、菜品列表页、菜品详情页、菜品点评表单。
  * 依赖：Pinia、dishes.mock.js
+ * 设计说明：当前阶段使用 store 保存前端临时点评，后续接入后端时可替换为 API 数据源。
  */
 export const useDishStore = defineStore('dish', {
   state: () => ({
-    dishes: DISHES,
+    dishes: [...DISHES, ...STALL_DISHES],
+    reviewsByDishId: { ...INITIAL_DISH_REVIEWS },
     filters: {
       keyword: '',
       sortBy: 'default',
@@ -51,6 +72,7 @@ export const useDishStore = defineStore('dish', {
     },
     getDishById: state => dishId =>
       state.dishes.find(dish => dish.id === dishId) ?? null,
+    getReviewsByDishId: state => dishId => state.reviewsByDishId[dishId] ?? [],
     getTagsByCanteen: state => canteenId => {
       const tags = state.dishes
         .filter(dish => dish.canteenId === canteenId)
@@ -80,6 +102,38 @@ export const useDishStore = defineStore('dish', {
     },
   },
   actions: {
+    /**
+     * 新增菜品点评。
+     * @param {Object} payload 点评表单数据。
+     * @param {string} payload.dishId 菜品 ID。
+     * @param {number} payload.rating 用户选择的星级，范围 1 到 5。
+     * @param {string} payload.comment 用户文字评论。
+     * @param {string=} payload.reviewer 点评人展示名。
+     * @returns {Object} 返回创建后的点评记录。
+     */
+    createDishReview(payload) {
+      const safeRating = Math.min(5, Math.max(1, Number(payload.rating) || 1));
+      const nextReview = {
+        id: `review-${payload.dishId}-${Date.now()}`,
+        dishId: payload.dishId,
+        rating: safeRating,
+        comment: payload.comment,
+        reviewer: payload.reviewer || '匿名同学',
+        createdAt: new Date().toLocaleString('zh-CN', {
+          hour12: false,
+        }),
+      };
+
+      this.reviewsByDishId = {
+        ...this.reviewsByDishId,
+        [payload.dishId]: [
+          nextReview,
+          ...(this.reviewsByDishId[payload.dishId] ?? []),
+        ],
+      };
+
+      return nextReview;
+    },
     /**
      * 设置菜品筛选条件。
      * @param {Object} payload 筛选参数

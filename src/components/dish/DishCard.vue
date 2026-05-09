@@ -1,4 +1,4 @@
-<!-- @author Codex -->
+<!-- @author XXXXX -->
 
 <template>
   <article
@@ -230,5 +230,37 @@ function handleClick() {
   border: 1px dashed rgb(58 36 24 / 34%);
   padding: 2px 7px;
   font-size: 12px;
+}
+
+@media (max-width: 520px) {
+  .dish-card {
+    transform: none;
+  }
+
+  .dish-card.is-tilt {
+    transform: none;
+  }
+
+  .dish-card__image {
+    height: 180px;
+  }
+
+  .dish-card__title-row {
+    display: grid;
+    gap: 8px;
+
+    h3 {
+      font-size: 28px;
+    }
+  }
+
+  .dish-card__title-row .stamp {
+    justify-self: start;
+  }
+
+  .dish-card__meta {
+    flex-wrap: wrap;
+    gap: 6px;
+  }
 }
 </style>

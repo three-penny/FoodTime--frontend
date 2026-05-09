@@ -1,4 +1,4 @@
-<!-- @author Codex -->
+<!-- @author XXXXX -->
 
 <template>
   <section class="dish-detail-view">
@@ -53,6 +53,12 @@
         </div>
       </article>
 
+      <DishReviewPanel
+        :dish-name="dish.name"
+        :reviews="dishReviews"
+        @review="toReviewPage"
+      />
+
       <section class="related">
         <div class="section-rule">
           <span class="section-rule__index">07</span>
@@ -82,6 +88,7 @@
 import { computed, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import DishCard from '../../components/dish/DishCard.vue';
+import DishReviewPanel from '../../components/dish/DishReviewPanel.vue';
 import { useCanteenStore } from '../../store/useCanteenStore';
 import { useDishStore } from '../../store/useDishStore';
 import { formatComment } from '../../utils/commentText';
@@ -132,6 +139,8 @@ const relatedDishes = computed(() =>
     .slice(0, 3)
 );
 
+const dishReviews = computed(() => dishStore.getReviewsByDishId(dishId.value));
+
 watch(
   canteenId,
   id => {
@@ -158,6 +167,16 @@ function toAnotherDish(targetDishId) {
     params: {
       canteenId: canteenId.value,
       dishId: targetDishId,
+    },
+  });
+}
+
+function toReviewPage() {
+  router.push({
+    name: 'reviewCreate',
+    query: {
+      canteenId: canteenId.value,
+      dishId: dishId.value,
     },
   });
 }
@@ -285,8 +304,45 @@ function toAnotherDish(targetDishId) {
     border-bottom: 1px dashed rgb(58 36 24 / 35%);
   }
 
+  .dish-main__image {
+    min-height: 300px;
+    clip-path: none;
+  }
+
   .dish-main__essay {
     column-count: 1;
+  }
+}
+
+@media (max-width: 520px) {
+  .empty {
+    padding: 18px;
+  }
+
+  .crumb {
+    font-size: 20px;
+    overflow-wrap: anywhere;
+  }
+
+  .dish-main__image {
+    min-height: 230px;
+  }
+
+  .dish-main__content {
+    padding: 18px 16px;
+
+    h1 {
+      font-size: clamp(38px, 13vw, 54px);
+    }
+  }
+
+  .dish-main__comment {
+    font-size: 21px;
+  }
+
+  .dish-main__actions {
+    display: grid;
+    grid-template-columns: 1fr;
   }
 }
 </style>
