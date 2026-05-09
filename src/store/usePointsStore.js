@@ -64,11 +64,21 @@ export const usePointsStore = defineStore('points', {
     },
     currentUserStats() {
       const history = this.currentUserHistory;
+      const earnedRecords = history.filter(item => item.amount.startsWith('+'));
+      const spentRecords = history.filter(item => item.amount.startsWith('-'));
 
       return {
         checkInDays: history.filter(item => item.type === 'daily').length,
         reviewCount: history.filter(item => item.type === 'review').length,
         uploadCount: history.filter(item => item.type === 'upload').length,
+        earnedPoints: earnedRecords.reduce(
+          (sum, item) => sum + Math.abs(Number(item.amount)),
+          0
+        ),
+        spentPoints: spentRecords.reduce(
+          (sum, item) => sum + Math.abs(Number(item.amount)),
+          0
+        ),
       };
     },
     /**

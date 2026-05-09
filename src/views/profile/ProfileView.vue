@@ -7,110 +7,154 @@
       <span class="section-rule__line"></span>
     </div>
 
-    <header class="profile-hero torn-edge">
-      <div class="profile-hero__identity">
-        <span class="sticker sticker--r-1">我的档案</span>
-        <h1>{{ authStore.displayName }}</h1>
-        <p class="handwrite">
-          {{ roleLabel }} · 查看积分、签到记录和积分获取明细。
-        </p>
+    <header class="profile-header torn-edge">
+      <div>
+        <span class="sticker sticker--r-1">我的</span>
+        <h1>个人中心</h1>
+        <p class="handwrite">管理账号资料、查看积分流水和个人投稿入口。</p>
       </div>
-
-      <div class="points-stamp" aria-label="当前积分">
-        <strong>{{ pointsStore.currentUserPoints }}</strong>
-        <span>积分</span>
-      </div>
+      <span class="profile-header__mark" aria-hidden="true">FOODTIME</span>
     </header>
 
-    <section class="profile-grid">
-      <article class="points-panel torn-edge">
-        <div class="points-panel__head">
-          <span class="sticker sticker--r1">积分等级</span>
-          <strong>{{ pointsStore.currentUserLevel.name }}</strong>
-        </div>
+    <section class="profile-layout">
+      <aside class="profile-card torn-edge">
+        <div class="avatar-stamp">{{ avatarText }}</div>
+        <h2>{{ nickname }}</h2>
+        <p>{{ roleLabel }}</p>
 
-        <div class="level-track" aria-hidden="true">
-          <span :style="{ width: `${levelProgress}%` }"></span>
-        </div>
-
-        <p>
-          距离下一等级还差
-          <strong>{{ nextLevelGap }}</strong>
-          分。
-        </p>
-
-        <button
-          class="button-ink is-primary"
-          type="button"
-          :disabled="isCheckedInToday"
-          @click="handleCheckIn"
-        >
-          {{ checkInButtonText }}
-        </button>
-      </article>
-
-      <article class="stats-panel torn-edge">
-        <span class="sticker sticker--r-2">积分统计</span>
-        <div class="stats-grid">
+        <dl class="identity-list">
           <div>
-            <strong>{{ pointsStore.currentUserStats.checkInDays }}</strong>
-            <span>签到天数</span>
+            <dt>账号</dt>
+            <dd>{{ account }}</dd>
           </div>
           <div>
-            <strong>{{ pointsStore.currentUserStats.reviewCount }}</strong>
-            <span>点评奖励</span>
+            <dt>昵称</dt>
+            <dd>{{ nickname }}</dd>
           </div>
           <div>
-            <strong>{{ pointsStore.currentUserStats.uploadCount }}</strong>
-            <span>投稿奖励</span>
+            <dt>身份</dt>
+            <dd>{{ roleLabel }}</dd>
           </div>
-        </div>
-      </article>
-    </section>
+        </dl>
+      </aside>
 
-    <section class="profile-detail-grid">
-      <article class="history-panel torn-edge">
-        <div class="panel-title">
-          <span class="sticker sticker--r-1">积分明细</span>
-          <h2>最近记录</h2>
-        </div>
-
-        <div v-if="pointsStore.currentUserHistory.length === 0" class="empty-state">
-          还没有积分记录，签到、点评和投稿通过后都会写到这里。
-        </div>
-
-        <div v-else class="history-list">
-          <div
-            v-for="record in pointsStore.currentUserHistory"
-            :key="record.id"
-            class="history-item"
+      <article class="profile-panel torn-edge">
+        <nav class="profile-tabs" aria-label="个人中心选项">
+          <button
+            v-for="tab in tabs"
+            :key="tab.key"
+            type="button"
+            :class="{ 'is-active': activeTab === tab.key }"
+            @click="activeTab = tab.key"
           >
-            <div>
-              <strong>{{ record.reason }}</strong>
-              <span>{{ record.timestamp }}</span>
-            </div>
-            <em :class="{ 'is-negative': record.amount.startsWith('-') }">
-              {{ record.amount }}
-            </em>
+            <span>{{ tab.index }}</span>
+            {{ tab.label }}
+          </button>
+        </nav>
+
+        <section v-if="activeTab === 'account'" class="tab-section">
+          <div class="panel-title">
+            <span class="sticker sticker--r1">账号信息</span>
+            <h2>基础资料</h2>
           </div>
-        </div>
-      </article>
 
-      <article class="rules-panel torn-edge">
-        <div class="panel-title">
-          <span class="sticker sticker--r2">积分规则</span>
-          <h2>如何获得积分</h2>
-        </div>
-
-        <ul class="rules-list">
-          <li v-for="rule in pointRules" :key="rule.title">
-            <span>{{ rule.points }}</span>
-            <div>
-              <strong>{{ rule.title }}</strong>
-              <p>{{ rule.description }}</p>
+          <div class="info-grid">
+            <div v-for="item in accountInfo" :key="item.label">
+              <span>{{ item.label }}</span>
+              <strong>{{ item.value }}</strong>
             </div>
-          </li>
-        </ul>
+          </div>
+        </section>
+
+        <section v-else-if="activeTab === 'points'" class="tab-section">
+          <div class="panel-title">
+            <span class="sticker sticker--r-2">积分</span>
+            <h2>积分明细</h2>
+          </div>
+
+          <div class="points-summary">
+            <div>
+              <span>当前积分</span>
+              <strong>{{ pointsStore.currentUserPoints }}</strong>
+            </div>
+            <div>
+              <span>获得积分</span>
+              <strong>+{{ pointsStore.currentUserStats.earnedPoints }}</strong>
+            </div>
+            <div>
+              <span>使用积分</span>
+              <strong>-{{ pointsStore.currentUserStats.spentPoints }}</strong>
+            </div>
+          </div>
+
+          <div class="point-actions">
+            <button
+              class="button-ink is-primary"
+              type="button"
+              :disabled="isCheckedInToday"
+              @click="handleCheckIn"
+            >
+              {{ checkInButtonText }}
+            </button>
+            <button
+              class="button-ink"
+              type="button"
+              :disabled="pointsStore.currentUserPoints < 20"
+              @click="handleExchange"
+            >
+              兑换优惠券 -20
+            </button>
+          </div>
+
+          <div class="ledger-grid">
+            <section>
+              <h3>获得来源</h3>
+              <div v-if="earnedRecords.length === 0" class="empty-state">
+                暂无获得记录。
+              </div>
+              <div v-else class="ledger-list">
+                <div v-for="record in earnedRecords" :key="record.id">
+                  <div>
+                    <strong>{{ record.reason }}</strong>
+                    <span>{{ record.timestamp }}</span>
+                  </div>
+                  <em>{{ record.amount }}</em>
+                </div>
+              </div>
+            </section>
+
+            <section>
+              <h3>使用来源</h3>
+              <div v-if="spentRecords.length === 0" class="empty-state">
+                暂无使用记录。
+              </div>
+              <div v-else class="ledger-list">
+                <div v-for="record in spentRecords" :key="record.id">
+                  <div>
+                    <strong>{{ record.reason }}</strong>
+                    <span>{{ record.timestamp }}</span>
+                  </div>
+                  <em class="is-negative">{{ record.amount }}</em>
+                </div>
+              </div>
+            </section>
+          </div>
+        </section>
+
+        <section v-else class="tab-section">
+          <div class="panel-title">
+            <span class="sticker sticker--r2">常用入口</span>
+            <h2>我的内容</h2>
+          </div>
+          <div class="quick-actions">
+            <button class="button-ink" type="button" @click="goSubmissions">
+              查看投稿进度
+            </button>
+            <button class="button-ink" type="button" @click="goUpload">
+              上传新菜品
+            </button>
+          </div>
+        </section>
       </article>
     </section>
   </section>
@@ -119,11 +163,11 @@
 <script setup>
 /**
  * ProfileView
- * 职责：展示当前用户的个人信息、积分总览、签到状态和积分明细。
- * 使用场景：顶部头像入口进入“我的”页面。
- * 依赖：Pinia、useAuthStore、usePointsStore。
+ * 职责：展示个人中心账号资料，并提供积分明细等独立选项。
+ * 依赖：Pinia、Vue Router、useAuthStore、usePointsStore。
  */
-import { computed } from 'vue';
+import { computed, ref } from 'vue';
+import { useRouter } from 'vue-router';
 import { useAuthStore } from '../../store/useAuthStore';
 import { usePointsStore } from '../../store/usePointsStore';
 
@@ -131,34 +175,36 @@ defineOptions({
   name: 'ProfileView',
 });
 
+const router = useRouter();
 const authStore = useAuthStore();
 const pointsStore = usePointsStore();
+const activeTab = ref('account');
 
-const pointRules = [
-  {
-    title: '每日签到',
-    points: '+5',
-    description: '每天首次进入个人中心后可以签到一次。',
-  },
-  {
-    title: '发表点评',
-    points: '+10',
-    description: '对菜品发表有效点评后获得积分。',
-  },
-  {
-    title: '菜品投稿',
-    points: '+20',
-    description: '提交新菜品并通过管理员审核后发放。',
-  },
-  {
-    title: '吐槽发布',
-    points: '+3',
-    description: '吐槽内容审核通过后计入积分。',
-  },
+const tabs = [
+  { key: 'account', index: '01', label: '账号信息' },
+  { key: 'points', index: '02', label: '积分明细' },
+  { key: 'content', index: '03', label: '我的内容' },
 ];
 
+const account = computed(() => authStore.session?.account || '未登录');
+const nickname = computed(() => authStore.session?.nickname || account.value);
 const roleLabel = computed(() =>
   authStore.currentRole === 'admin' ? '管理员' : '普通用户'
+);
+const avatarText = computed(() => nickname.value.slice(0, 1).toUpperCase());
+
+const accountInfo = computed(() => [
+  { label: '登录账号', value: account.value },
+  { label: '显示昵称', value: nickname.value },
+  { label: '账号身份', value: roleLabel.value },
+  { label: '账号状态', value: '正常' },
+]);
+
+const earnedRecords = computed(() =>
+  pointsStore.currentUserHistory.filter(item => item.amount.startsWith('+'))
+);
+const spentRecords = computed(() =>
+  pointsStore.currentUserHistory.filter(item => item.amount.startsWith('-'))
 );
 
 const isCheckedInToday = computed(() => {
@@ -178,33 +224,20 @@ const checkInButtonText = computed(() =>
   isCheckedInToday.value ? '今日已签到' : '每日签到 +5'
 );
 
-const nextLevelGap = computed(() => {
-  const points = pointsStore.currentUserPoints;
-
-  if (points >= 1000) {
-    return 0;
-  }
-  if (points >= 500) {
-    return 1000 - points;
-  }
-  if (points >= 200) {
-    return 500 - points;
-  }
-  return 200 - points;
-});
-
-const levelProgress = computed(() => {
-  const points = pointsStore.currentUserPoints;
-  const nextTarget =
-    points >= 1000 ? 1000 : points >= 500 ? 1000 : points >= 200 ? 500 : 200;
-  const previousTarget = points >= 500 ? 500 : points >= 200 ? 200 : 0;
-  const span = nextTarget - previousTarget || 1;
-
-  return Math.min(100, Math.round(((points - previousTarget) / span) * 100));
-});
-
 function handleCheckIn() {
   pointsStore.dailyCheckIn();
+}
+
+function handleExchange() {
+  pointsStore.consumePoints(20, '兑换食堂优惠券');
+}
+
+function goSubmissions() {
+  router.push({ name: 'userSubmissions' });
+}
+
+function goUpload() {
+  router.push({ name: 'dishUpload' });
 }
 </script>
 
@@ -213,151 +246,154 @@ function handleCheckIn() {
   min-width: 0;
 }
 
-.profile-hero,
-.points-panel,
-.stats-panel,
-.history-panel,
-.rules-panel {
+.profile-header,
+.profile-card,
+.profile-panel {
   border: 1px solid var(--ft-color-secondary);
   background: var(--zine-paper-card);
 }
 
-.profile-hero {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
+.profile-header {
+  display: flex;
   align-items: center;
+  justify-content: space-between;
   gap: 20px;
   padding: clamp(18px, 4vw, 34px);
 }
 
-.profile-hero h1 {
+.profile-header h1 {
   margin: 16px 0 0;
   font-family: var(--zine-title-font);
   font-size: clamp(50px, 7vw, 90px);
   line-height: 0.9;
 }
 
-.profile-hero p {
+.profile-header p {
   margin: 14px 0 0;
   color: var(--zine-stamp-red);
   font-size: 26px;
 }
 
-.points-stamp {
-  width: 128px;
-  height: 128px;
-  border: 3px double var(--zine-stamp-blue);
-  border-radius: 50%;
-  display: grid;
-  place-items: center;
-  align-content: center;
+.profile-header__mark {
+  border: 2px dashed var(--zine-stamp-blue);
   color: var(--zine-stamp-blue);
   background: var(--zine-stamp-blue-soft);
-  transform: rotate(-6deg);
+  font-family: var(--zine-title-font);
+  font-weight: 900;
+  padding: 18px 14px;
+  transform: rotate(6deg);
   mix-blend-mode: multiply;
 }
 
-.points-stamp strong {
-  font-family: var(--zine-title-font);
-  font-size: 42px;
-  line-height: 1;
-}
-
-.points-stamp span {
-  font-weight: 800;
-  letter-spacing: 0.08em;
-}
-
-.profile-grid,
-.profile-detail-grid {
+.profile-layout {
   display: grid;
-  gap: 16px;
+  grid-template-columns: minmax(240px, 300px) minmax(0, 1fr);
+  gap: 18px;
   margin-top: var(--ft-space-3);
-}
-
-.profile-grid {
-  grid-template-columns: minmax(0, 1.1fr) minmax(280px, 0.9fr);
-}
-
-.profile-detail-grid {
-  grid-template-columns: minmax(0, 1fr) minmax(280px, 0.82fr);
   align-items: start;
 }
 
-.points-panel,
-.stats-panel,
-.history-panel,
-.rules-panel {
+.profile-card,
+.profile-panel {
   padding: 18px;
   box-shadow: 4px 5px 0 rgb(58 36 24 / 12%);
 }
 
-.points-panel {
+.profile-card {
   background: var(--zine-paper-card-alt);
+  position: sticky;
+  top: 104px;
 }
 
-.points-panel__head {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-}
-
-.points-panel__head strong {
-  font-family: var(--zine-title-font);
-  font-size: 34px;
-  color: var(--ft-color-primary);
-}
-
-.level-track {
-  height: 14px;
-  border: 1px solid var(--ft-color-secondary);
-  background: rgb(255 250 240 / 74%);
-  margin-top: 16px;
-  overflow: hidden;
-}
-
-.level-track span {
-  display: block;
-  height: 100%;
-  background:
-    repeating-linear-gradient(
-      -45deg,
-      rgb(183 47 28 / 88%) 0 8px,
-      rgb(183 47 28 / 64%) 8px 15px
-    );
-}
-
-.points-panel p {
-  margin: 12px 0 14px;
-  color: var(--ft-color-secondary-soft);
-}
-
-.stats-grid {
+.avatar-stamp {
+  width: 88px;
+  height: 88px;
+  border: 3px double var(--zine-stamp-red);
+  border-radius: 50%;
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 10px;
-  margin-top: 14px;
-}
-
-.stats-grid div {
-  border: 1px dashed rgb(58 36 24 / 36%);
-  background: rgb(255 250 240 / 62%);
-  padding: 12px;
-}
-
-.stats-grid strong {
-  display: block;
+  place-items: center;
+  color: var(--zine-stamp-red);
+  background: var(--zine-stamp-red-soft);
   font-family: var(--zine-title-font);
-  font-size: 32px;
-  line-height: 1;
-  color: var(--ft-color-primary);
+  font-size: 38px;
+  font-weight: 900;
+  transform: rotate(-6deg);
+  mix-blend-mode: multiply;
 }
 
-.stats-grid span {
+.profile-card h2 {
+  margin: 18px 0 0;
+  font-family: var(--zine-title-font);
+  font-size: 36px;
+  line-height: 1;
+}
+
+.profile-card p {
+  margin: 8px 0 0;
+  color: var(--ft-color-text-muted);
+}
+
+.identity-list {
+  display: grid;
+  gap: 10px;
+  margin: 18px 0 0;
+}
+
+.identity-list div,
+.info-grid div,
+.points-summary div {
+  border: 1px dashed rgb(58 36 24 / 34%);
+  background: rgb(255 250 240 / 62%);
+  padding: 10px 12px;
+}
+
+.identity-list dt,
+.info-grid span,
+.points-summary span {
   color: var(--ft-color-text-muted);
   font-size: 13px;
+}
+
+.identity-list dd {
+  margin: 2px 0 0;
+  color: var(--ft-color-secondary);
+  font-weight: 800;
+  overflow-wrap: anywhere;
+}
+
+.profile-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  border-bottom: 1px dashed rgb(58 36 24 / 28%);
+  padding-bottom: 12px;
+}
+
+.profile-tabs button {
+  border: 1px solid var(--ft-color-secondary);
+  background: var(--ft-color-surface);
+  color: var(--ft-color-secondary);
+  cursor: pointer;
+  font: inherit;
+  font-weight: 800;
+  padding: 9px 12px;
+  box-shadow: 2px 2px 0 rgb(58 36 24 / 25%);
+}
+
+.profile-tabs button.is-active {
+  border-color: var(--ft-color-primary);
+  color: var(--ft-color-primary);
+  transform: rotate(-1deg);
+}
+
+.profile-tabs span {
+  margin-right: 6px;
+  color: rgb(58 36 24 / 55%);
+  font-size: 12px;
+}
+
+.tab-section {
+  margin-top: 18px;
 }
 
 .panel-title h2 {
@@ -367,90 +403,36 @@ function handleCheckIn() {
   line-height: 1;
 }
 
-.empty-state {
+.info-grid,
+.points-summary {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
   margin-top: 16px;
-  border: 1px dashed rgb(58 36 24 / 36%);
-  background: rgb(255 250 240 / 62%);
-  color: var(--ft-color-text-muted);
-  padding: 18px;
 }
 
-.history-list {
-  display: grid;
+.info-grid strong,
+.points-summary strong {
+  display: block;
+  margin-top: 2px;
+  color: var(--ft-color-secondary);
+  font-family: var(--zine-title-font);
+  font-size: 26px;
+  line-height: 1.1;
+  overflow-wrap: anywhere;
+}
+
+.points-summary strong {
+  color: var(--ft-color-primary);
+  font-size: 34px;
+}
+
+.point-actions,
+.quick-actions {
+  display: flex;
+  flex-wrap: wrap;
   gap: 10px;
   margin-top: 16px;
-}
-
-.history-item {
-  display: flex;
-  justify-content: space-between;
-  gap: 12px;
-  border-bottom: 1px dashed rgb(58 36 24 / 24%);
-  padding-bottom: 10px;
-}
-
-.history-item:last-child {
-  border-bottom: 0;
-  padding-bottom: 0;
-}
-
-.history-item div {
-  min-width: 0;
-}
-
-.history-item strong,
-.rules-list strong {
-  display: block;
-  color: var(--ft-color-secondary);
-}
-
-.history-item span,
-.rules-list p {
-  color: var(--ft-color-text-muted);
-  font-size: 13px;
-}
-
-.history-item em {
-  color: var(--ft-color-accent);
-  font-family: var(--zine-title-font);
-  font-size: 24px;
-  font-style: normal;
-  font-weight: 900;
-}
-
-.history-item em.is-negative {
-  color: var(--zine-stamp-red);
-}
-
-.rules-list {
-  list-style: none;
-  padding: 0;
-  margin: 16px 0 0;
-  display: grid;
-  gap: 12px;
-}
-
-.rules-list li {
-  display: grid;
-  grid-template-columns: 48px minmax(0, 1fr);
-  gap: 12px;
-  align-items: start;
-}
-
-.rules-list li > span {
-  border: 2px solid var(--zine-stamp-red);
-  color: var(--zine-stamp-red);
-  background: var(--zine-stamp-red-soft);
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 34px;
-  font-weight: 900;
-  transform: rotate(-3deg);
-}
-
-.rules-list p {
-  margin: 3px 0 0;
 }
 
 button:disabled {
@@ -459,41 +441,108 @@ button:disabled {
   transform: none;
 }
 
+.ledger-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+  margin-top: 18px;
+}
+
+.ledger-grid h3 {
+  margin: 0 0 10px;
+  font-family: var(--zine-title-font);
+  font-size: 26px;
+}
+
+.ledger-list {
+  display: grid;
+  gap: 10px;
+}
+
+.ledger-list > div {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  border-bottom: 1px dashed rgb(58 36 24 / 24%);
+  padding-bottom: 10px;
+}
+
+.ledger-list > div:last-child {
+  border-bottom: 0;
+  padding-bottom: 0;
+}
+
+.ledger-list strong {
+  display: block;
+  color: var(--ft-color-secondary);
+}
+
+.ledger-list span {
+  color: var(--ft-color-text-muted);
+  font-size: 13px;
+}
+
+.ledger-list em {
+  color: var(--ft-color-accent);
+  font-family: var(--zine-title-font);
+  font-size: 24px;
+  font-style: normal;
+  font-weight: 900;
+}
+
+.ledger-list em.is-negative {
+  color: var(--zine-stamp-red);
+}
+
+.empty-state {
+  border: 1px dashed rgb(58 36 24 / 34%);
+  background: rgb(255 250 240 / 62%);
+  color: var(--ft-color-text-muted);
+  padding: 14px;
+}
+
 @media (max-width: 860px) {
-  .profile-hero,
-  .profile-grid,
-  .profile-detail-grid {
+  .profile-header,
+  .profile-layout,
+  .ledger-grid {
     grid-template-columns: 1fr;
+  }
+
+  .profile-layout {
+    display: grid;
+  }
+
+  .profile-card {
+    position: static;
   }
 }
 
 @media (max-width: 560px) {
-  .profile-hero,
-  .points-panel,
-  .stats-panel,
-  .history-panel,
-  .rules-panel {
+  .profile-header,
+  .profile-card,
+  .profile-panel {
     padding: 16px;
   }
 
-  .profile-hero h1 {
+  .profile-header {
+    display: grid;
+  }
+
+  .profile-header h1 {
     font-size: clamp(40px, 13vw, 54px);
   }
 
-  .profile-hero p {
+  .profile-header p {
     font-size: 22px;
   }
 
-  .points-stamp {
-    width: 104px;
-    height: 104px;
-  }
-
-  .stats-grid {
+  .info-grid,
+  .points-summary {
     grid-template-columns: 1fr;
   }
 
-  .points-panel .button-ink {
+  .point-actions .button-ink,
+  .quick-actions .button-ink {
     width: 100%;
   }
 }
