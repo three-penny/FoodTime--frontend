@@ -3,7 +3,7 @@
 <template>
   <section class="profile-view">
     <div class="section-rule">
-      <span class="section-rule__index">07</span>
+      <span class="section-rule__index">00</span>
       <span class="section-rule__line"></span>
     </div>
 
@@ -362,34 +362,66 @@ function goUpload() {
 }
 
 .profile-tabs {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
   border-bottom: 1px dashed rgb(58 36 24 / 28%);
-  padding-bottom: 12px;
+  padding-bottom: 16px;
 }
 
 .profile-tabs button {
-  border: 1px solid var(--ft-color-secondary);
-  background: var(--ft-color-surface);
+  position: relative;
+  min-height: 58px;
+  border: 1px solid rgb(58 36 24 / 42%);
+  background:
+    linear-gradient(90deg, rgb(255 255 255 / 18%), transparent 72%),
+    var(--zine-paper-card-alt);
   color: var(--ft-color-secondary);
   cursor: pointer;
   font: inherit;
   font-weight: 800;
-  padding: 9px 12px;
-  box-shadow: 2px 2px 0 rgb(58 36 24 / 25%);
+  padding: 12px 14px;
+  text-align: left;
+  box-shadow: 3px 3px 0 rgb(58 36 24 / 16%);
+  transition:
+    transform var(--ft-transition-fast),
+    border-color var(--ft-transition-fast),
+    box-shadow var(--ft-transition-fast);
+}
+
+.profile-tabs button:hover {
+  transform: translate(-1px, -1px);
+  box-shadow: 4px 4px 0 rgb(58 36 24 / 22%);
 }
 
 .profile-tabs button.is-active {
   border-color: var(--ft-color-primary);
   color: var(--ft-color-primary);
-  transform: rotate(-1deg);
+  background: var(--zine-paper-card);
+  box-shadow: 4px 4px 0 rgb(58 36 24 / 34%);
+  transform: rotate(-0.7deg);
+}
+
+.profile-tabs button.is-active::after {
+  content: '';
+  position: absolute;
+  right: 10px;
+  top: 9px;
+  width: 42px;
+  height: 24px;
+  border: 2px solid var(--zine-stamp-red);
+  border-radius: 50%;
+  opacity: 0.28;
+  transform: rotate(-12deg);
+  pointer-events: none;
 }
 
 .profile-tabs span {
-  margin-right: 6px;
-  color: rgb(58 36 24 / 55%);
+  display: block;
+  margin: 0 0 2px;
+  color: rgb(58 36 24 / 54%);
   font-size: 12px;
+  letter-spacing: 0.08em;
 }
 
 .tab-section {
@@ -537,7 +569,8 @@ button:disabled {
   }
 
   .info-grid,
-  .points-summary {
+  .points-summary,
+  .profile-tabs {
     grid-template-columns: 1fr;
   }
 

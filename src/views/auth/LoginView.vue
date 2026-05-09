@@ -69,14 +69,13 @@
  * 依赖：Pinia、Vue Router、useAuthStore。
  */
 import { reactive, ref } from 'vue';
-import { useRoute, useRouter } from 'vue-router';
+import { useRouter } from 'vue-router';
 import { useAuthStore } from '../../store/useAuthStore';
 
 defineOptions({
   name: 'LoginView',
 });
 
-const route = useRoute();
 const router = useRouter();
 const authStore = useAuthStore();
 const message = ref('');
@@ -96,9 +95,7 @@ function handleLogin() {
     account: form.account,
     role: form.role,
   });
-  router.push(
-    String(route.query.redirect || (form.role === 'admin' ? '/admin/audit' : '/')),
-  );
+  router.push({ name: 'homeCanteenSelect' });
 }
 
 function goRegister() {
