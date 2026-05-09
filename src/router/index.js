@@ -16,6 +16,7 @@ const DishUploadView = () => import('../views/submission/DishUploadView.vue');
 const UserSubmissionView = () =>
   import('../views/submission/UserSubmissionView.vue');
 const AdminAuditView = () => import('../views/admin/AdminAuditView.vue');
+const ProfileView = () => import('../views/profile/ProfileView.vue');
 
 export const routes = [
   {
@@ -84,6 +85,12 @@ export const routes = [
     path: '/messages',
     name: 'messageCenter',
     component: MessageCenterView,
+    meta: { requiresAuth: true },
+  },
+  {
+    path: '/profile',
+    name: 'profile',
+    component: ProfileView,
     meta: { requiresAuth: true },
   },
   {

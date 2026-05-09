@@ -16,6 +16,7 @@ describe('core routes', () => {
     expect(routeMap.register).toBe('/register');
     expect(routeMap.dishUpload).toBe('/dishes/upload');
     expect(routeMap.userSubmissions).toBe('/submissions');
+    expect(routeMap.profile).toBe('/profile');
     expect(routeMap.rantWall).toBe('/rants');
     expect(routeMap.adminAudit).toBe('/admin/audit');
     expect(routeMap.notFoundRedirect).toBe('/:pathMatch(.*)*');
@@ -44,6 +45,7 @@ describe('core routes', () => {
       'dishUpload',
       'userSubmissions',
       'messageCenter',
+      'profile',
       'rantWall',
     ];
 

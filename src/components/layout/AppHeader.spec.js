@@ -34,6 +34,11 @@ function createRouterForTest() {
         component: { template: '<main />' },
       },
       {
+        path: '/profile',
+        name: 'profile',
+        component: { template: '<main />' },
+      },
+      {
         path: '/login',
         name: 'login',
         component: { template: '<main />' },
@@ -88,7 +93,7 @@ describe('AppHeader', () => {
     });
   });
 
-  it('navigates profile button to user submissions', async () => {
+  it('navigates profile button to profile page', async () => {
     const router = createRouterForTest();
     await router.push({ name: 'homeCanteenSelect' });
     await router.isReady();
@@ -102,7 +107,7 @@ describe('AppHeader', () => {
     await wrapper.find('.profile').trigger('click');
     await flushPromises();
 
-    expect(router.currentRoute.value.name).toBe('userSubmissions');
+    expect(router.currentRoute.value.name).toBe('profile');
   });
 
   it('hides platform navigation on auth pages', async () => {

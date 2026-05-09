@@ -133,6 +133,9 @@ const activeKey = computed(() => {
   if (route.name === 'adminAudit') {
     return 'admin';
   }
+  if (route.name === 'profile') {
+    return '';
+  }
   if (route.name === 'login' || route.name === 'register') {
     return 'login';
   }
@@ -174,7 +177,7 @@ async function handleNavClick(item) {
 }
 
 function goProfile() {
-  router.push({ name: 'userSubmissions' });
+  router.push({ name: 'profile' });
 }
 
 function handleLogout() {
