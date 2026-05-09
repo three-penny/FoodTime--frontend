@@ -92,16 +92,13 @@ function handleLogin() {
     return;
   }
 
-  if (form.role === 'admin') {
-    message.value = '管理员端暂未开放，请先使用用户身份体验用户侧功能。';
-    return;
-  }
-
   authStore.login({
     account: form.account,
-    role: 'user',
+    role: form.role,
   });
-  router.push(String(route.query.redirect || '/'));
+  router.push(
+    String(route.query.redirect || (form.role === 'admin' ? '/admin/audit' : '/')),
+  );
 }
 
 function goRegister() {

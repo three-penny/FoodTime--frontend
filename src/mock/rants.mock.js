@@ -9,6 +9,8 @@ export const TODAY_RANTS = [
     content: '午高峰队伍移动很快，但座位真的紧张，端着餐盘转了两圈。',
     tag: '排队',
     createdAt: '09:42',
+    status: 'approved',
+    reason: '',
   },
   {
     id: 'rant-002',
@@ -18,6 +20,8 @@ export const TODAY_RANTS = [
     content: '酸汤米线今天汤底在线，就是窗口前面同学选择困难，排队被迫读完一章书。',
     tag: '口味',
     createdAt: '11:18',
+    status: 'approved',
+    reason: '',
   },
   {
     id: 'rant-003',
@@ -27,6 +31,8 @@ export const TODAY_RANTS = [
     content: '烤盘饭香味很强，路过不买有点需要意志力。',
     tag: '香味',
     createdAt: '12:06',
+    status: 'approved',
+    reason: '',
   },
   {
     id: 'rant-004',
@@ -36,5 +42,18 @@ export const TODAY_RANTS = [
     content: '晚上人少一点，环境舒服，但价格也确实更有存在感。',
     tag: '价格',
     createdAt: '18:25',
+    status: 'approved',
+    reason: '',
+  },
+  {
+    id: 'rant-005',
+    canteenId: 'dongqu',
+    canteenName: '东区餐厅',
+    author: '2024211033',
+    content: '二楼某窗口今天出餐慢了不少，希望能补一个预计等待时间提示。',
+    tag: '服务',
+    createdAt: '19:10',
+    status: 'pending',
+    reason: '',
   },
 ];

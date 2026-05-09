@@ -9,7 +9,7 @@
       </button>
 
       <nav v-if="!isAuthPage" class="nav">
-        <div v-for="item in navItems" :key="item.key" class="nav__group">
+        <div v-for="item in visibleNavItems" :key="item.key" class="nav__group">
           <button
             class="nav__item"
             :class="{ 'is-active': activeKey === item.key }"
@@ -103,9 +103,19 @@ const navItems = [
     label: '投稿',
     to: { name: 'dishUpload' },
   },
+  {
+    key: 'admin',
+    index: '06',
+    label: '审核台',
+    to: { name: 'adminAudit' },
+    adminOnly: true,
+  },
 ];
 
 const previewMessages = CANTEEN_MESSAGES.slice(0, 4);
+const visibleNavItems = computed(() =>
+  navItems.filter(item => !item.adminOnly || authStore.currentRole === 'admin')
+);
 const isAuthPage = computed(
   () => route.name === 'login' || route.name === 'register'
 );
@@ -119,6 +129,9 @@ const activeKey = computed(() => {
   }
   if (route.name === 'dishUpload' || route.name === 'userSubmissions') {
     return 'upload';
+  }
+  if (route.name === 'adminAudit') {
+    return 'admin';
   }
   if (route.name === 'login' || route.name === 'register') {
     return 'login';

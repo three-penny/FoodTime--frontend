@@ -99,7 +99,7 @@ const form = reactive({
 });
 
 const canteens = computed(() => canteenStore.canteens);
-const rants = computed(() => rantStore.rants);
+const rants = computed(() => rantStore.visibleRants);
 const selectedCanteen = computed(() =>
   canteenStore.getCanteenById(form.canteenId)
 );
@@ -128,7 +128,7 @@ function handleSubmit() {
     content: form.content,
     author: authStore.displayName,
   });
-  message.value = '';
+  message.value = '已提交审核，通过后会展示在吐槽墙。';
   resetForm();
 }
 </script>

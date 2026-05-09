@@ -18,7 +18,26 @@ export const useRantStore = defineStore('rant', {
   }),
   getters: {
     todayPreview(state) {
-      return state.rants.slice(0, 3);
+      return state.rants.filter(item => item.status === 'approved').slice(0, 3);
+    },
+    visibleRants(state) {
+      return state.rants.filter(item => item.status === 'approved');
+    },
+    pendingCount(state) {
+      return state.rants.filter(item => item.status === 'pending').length;
+    },
+    approvedCount(state) {
+      return state.rants.filter(item => item.status === 'approved').length;
+    },
+    rejectedCount(state) {
+      return state.rants.filter(item => item.status === 'rejected').length;
+    },
+    statusLabels() {
+      return {
+        pending: '待审核',
+        approved: '已通过',
+        rejected: '已驳回',
+      };
     },
     totalCount(state) {
       return state.rants.length;
@@ -48,10 +67,26 @@ export const useRantStore = defineStore('rant', {
           minute: '2-digit',
           hour12: false,
         }),
+        status: 'pending',
+        reason: '',
       };
 
       this.rants.unshift(nextRant);
       return nextRant;
+    },
+    approveRant(rantId) {
+      const target = this.rants.find(item => item.id === rantId);
+      if (target) {
+        target.status = 'approved';
+        target.reason = '内容已通过审核，已展示到今日吐槽墙。';
+      }
+    },
+    rejectRant(rantId, reason = '内容不符合发布规范，请调整后重新提交。') {
+      const target = this.rants.find(item => item.id === rantId);
+      if (target) {
+        target.status = 'rejected';
+        target.reason = reason;
+      }
     },
   },
 });

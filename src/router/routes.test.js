@@ -17,7 +17,7 @@ describe('core routes', () => {
     expect(routeMap.dishUpload).toBe('/dishes/upload');
     expect(routeMap.userSubmissions).toBe('/submissions');
     expect(routeMap.rantWall).toBe('/rants');
-    expect(routeMap.dishAuditList).toBeUndefined();
+    expect(routeMap.adminAudit).toBe('/admin/audit');
     expect(routeMap.notFoundRedirect).toBe('/:pathMatch(.*)*');
   });
 
@@ -54,5 +54,14 @@ describe('core routes', () => {
 
     expect(routes.find(item => item.name === 'login').meta).toBeUndefined();
     expect(routes.find(item => item.name === 'register').meta).toBeUndefined();
+  });
+
+  it('marks admin audit route as admin-only', () => {
+    const adminAudit = routes.find(item => item.name === 'adminAudit');
+
+    expect(adminAudit.meta).toEqual({
+      requiresAuth: true,
+      requiresAdmin: true,
+    });
   });
 });

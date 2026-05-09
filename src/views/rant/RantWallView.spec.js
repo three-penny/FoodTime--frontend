@@ -21,6 +21,8 @@ describe('RantWallView', () => {
 
     const rantStore = useRantStore();
     expect(rantStore.rants[0].tag).toBe('环境');
-    expect(wrapper.text()).toContain('今天座位区收拾得很快。');
+    expect(rantStore.rants[0].status).toBe('pending');
+    expect(wrapper.text()).toContain('已提交审核');
+    expect(wrapper.text()).not.toContain('今天座位区收拾得很快。');
   });
 });

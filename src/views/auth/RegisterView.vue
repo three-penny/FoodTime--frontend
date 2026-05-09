@@ -12,7 +12,7 @@
         <span class="sticker sticker--r1">账号登记</span>
         <h1>注册账号</h1>
         <p class="handwrite">
-          用户注册后可进入用户侧；管理员注册需要邀请码，但管理侧页面暂不开放。
+          用户注册后可进入用户侧；管理员注册需要邀请码，审核台用于处理投稿和吐槽墙内容。
         </p>
       </div>
 
@@ -122,7 +122,7 @@ function handleRegister() {
 
   message.value =
     form.role === 'admin'
-      ? '管理员注册信息已校验，管理侧暂未开放，请返回登录。'
+      ? '管理员注册信息已校验，请返回登录进入审核台。'
       : '用户注册成功，请返回登录。';
   router.push({ name: 'login' });
 }

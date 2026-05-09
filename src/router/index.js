@@ -15,6 +15,7 @@ const RegisterView = () => import('../views/auth/RegisterView.vue');
 const DishUploadView = () => import('../views/submission/DishUploadView.vue');
 const UserSubmissionView = () =>
   import('../views/submission/UserSubmissionView.vue');
+const AdminAuditView = () => import('../views/admin/AdminAuditView.vue');
 
 export const routes = [
   {
@@ -92,6 +93,12 @@ export const routes = [
     meta: { requiresAuth: true },
   },
   {
+    path: '/admin/audit',
+    name: 'adminAudit',
+    component: AdminAuditView,
+    meta: { requiresAuth: true, requiresAdmin: true },
+  },
+  {
     path: '/:pathMatch(.*)*',
     name: 'notFoundRedirect',
     redirect: '/',
@@ -116,6 +123,10 @@ router.beforeEach((to) => {
         redirect: to.fullPath,
       },
     };
+  }
+
+  if (to.meta.requiresAdmin && authStore.currentRole !== 'admin') {
+    return { name: 'homeCanteenSelect' };
   }
 
   if (
