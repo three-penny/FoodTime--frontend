@@ -12,6 +12,12 @@ describe('core routes', () => {
     expect(routeMap.dishList).toBe('/canteens/:canteenId/dishes');
     expect(routeMap.dishDetail).toBe('/canteens/:canteenId/dishes/:dishId');
     expect(routeMap.homeCanteenAnchor).toBe('/canteens');
+    expect(routeMap.login).toBe('/login');
+    expect(routeMap.register).toBe('/register');
+    expect(routeMap.dishUpload).toBe('/dishes/upload');
+    expect(routeMap.userSubmissions).toBe('/submissions');
+    expect(routeMap.rantWall).toBe('/rants');
+    expect(routeMap.dishAuditList).toBeUndefined();
     expect(routeMap.notFoundRedirect).toBe('/:pathMatch(.*)*');
   });
 
@@ -26,5 +32,27 @@ describe('core routes', () => {
       },
     });
     expect(notFound.redirect).toBe('/');
+  });
+
+  it('marks platform routes as authenticated pages except auth entry pages', () => {
+    const protectedRouteNames = [
+      'homeCanteenSelect',
+      'canteenDetail',
+      'dishList',
+      'dishDetail',
+      'reviewCreate',
+      'dishUpload',
+      'userSubmissions',
+      'messageCenter',
+      'rantWall',
+    ];
+
+    protectedRouteNames.forEach((name) => {
+      const target = routes.find(item => item.name === name);
+      expect(target.meta).toEqual({ requiresAuth: true });
+    });
+
+    expect(routes.find(item => item.name === 'login').meta).toBeUndefined();
+    expect(routes.find(item => item.name === 'register').meta).toBeUndefined();
   });
 });

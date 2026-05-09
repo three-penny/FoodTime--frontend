@@ -1,4 +1,4 @@
-// @author Codex
+// @author XXXXX
 
 /**
  * 首页消息中心的静态速览数据。

@@ -1,4 +1,4 @@
-// @author Codex
+// @author XXXXX
 
 import canteenImage1 from '../assets/images/canteen/食堂1.png';
 import canteenImage2 from '../assets/images/canteen/食堂2.png';

@@ -1,4 +1,4 @@
-<!-- @author Codex -->
+<!-- @author XXXXX -->
 
 <template>
   <footer class="app-footer torn-edge">
@@ -109,6 +109,9 @@ defineOptions({
 @media (max-width: 768px) {
   .app-footer__inner {
     padding-inline: var(--zine-page-padding-mobile);
+    align-items: flex-start;
+    display: grid;
+    gap: 8px;
   }
 
   .app-footer__bg-decor--doodle,

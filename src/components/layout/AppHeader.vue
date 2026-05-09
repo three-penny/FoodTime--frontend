@@ -1,4 +1,4 @@
-<!-- @author Codex -->
+<!-- @author XXXXX -->
 
 <template>
   <header class="app-header torn-edge">
@@ -8,7 +8,7 @@
         <span class="brand__sub handwrite">今天食堂不开盲盒</span>
       </button>
 
-      <nav class="nav">
+      <nav v-if="!isAuthPage" class="nav">
         <div v-for="item in navItems" :key="item.key" class="nav__group">
           <button
             class="nav__item"
@@ -34,10 +34,13 @@
         </div>
       </nav>
 
-      <button class="profile" type="button" @click="goProfile">
-        <span class="profile__avatar">饭</span>
-        <span class="profile__label handwrite">个人中心</span>
-      </button>
+      <div v-if="!isAuthPage" class="account-actions">
+        <button class="profile" type="button" @click="goProfile">
+          <span class="profile__avatar">饭</span>
+          <span class="profile__label handwrite">{{ authStore.displayName }}</span>
+        </button>
+        <button class="logout" type="button" @click="handleLogout">退出</button>
+      </div>
     </div>
 
     <span
@@ -59,6 +62,7 @@
 import { computed } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { CANTEEN_MESSAGES } from '../../constants/messages';
+import { useAuthStore } from '../../store/useAuthStore';
 
 defineOptions({
   name: 'AppHeader',
@@ -66,6 +70,7 @@ defineOptions({
 
 const route = useRoute();
 const router = useRouter();
+const authStore = useAuthStore();
 
 const navItems = [
   {
@@ -92,16 +97,31 @@ const navItems = [
     label: '消息',
     to: { name: 'messageCenter' },
   },
+  {
+    key: 'upload',
+    index: '05',
+    label: '投稿',
+    to: { name: 'dishUpload' },
+  },
 ];
 
 const previewMessages = CANTEEN_MESSAGES.slice(0, 4);
+const isAuthPage = computed(
+  () => route.name === 'login' || route.name === 'register'
+);
 
 const activeKey = computed(() => {
   if (route.name === 'reviewCreate') {
     return 'review';
   }
-  if (route.name === 'messageCenter') {
+  if (route.name === 'messageCenter' || route.name === 'rantWall') {
     return 'message';
+  }
+  if (route.name === 'dishUpload' || route.name === 'userSubmissions') {
+    return 'upload';
+  }
+  if (route.name === 'login' || route.name === 'register') {
+    return 'login';
   }
   if (route.name !== 'homeCanteenSelect') {
     return 'canteen';
@@ -141,7 +161,12 @@ async function handleNavClick(item) {
 }
 
 function goProfile() {
-  router.push({ name: 'homeCanteenSelect', query: { section: 'message' } });
+  router.push({ name: 'userSubmissions' });
+}
+
+function handleLogout() {
+  authStore.logout();
+  router.push({ name: 'login' });
 }
 </script>
 
@@ -163,7 +188,7 @@ function goProfile() {
   margin: 0 auto;
   min-height: 82px;
   display: grid;
-  grid-template-columns: 1fr auto auto;
+  grid-template-columns: 1fr auto auto auto;
   gap: var(--ft-space-2);
   align-items: center;
   padding: 6px var(--zine-page-padding);
@@ -208,9 +233,9 @@ function goProfile() {
 .nav__item {
   border: 1px solid transparent;
   background: transparent;
-  min-width: 94px;
+  min-width: 76px;
   min-height: 48px;
-  padding: 9px 16px;
+  padding: 9px 12px;
   cursor: pointer;
   color: var(--ft-color-secondary);
   font: inherit;
@@ -317,6 +342,24 @@ function goProfile() {
   padding: 0;
 }
 
+.account-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+
+.logout {
+  border: 1px solid var(--ft-color-secondary);
+  background: var(--ft-color-surface);
+  color: var(--ft-color-secondary);
+  cursor: pointer;
+  font: inherit;
+  font-weight: 700;
+  padding: 8px 12px;
+  box-shadow: 2px 2px 0 var(--ft-color-secondary);
+}
+
 .profile__avatar {
   width: 34px;
   height: 34px;
@@ -387,11 +430,58 @@ function goProfile() {
   .nav {
     border-left: 0;
     padding-left: 0;
-    flex-wrap: wrap;
+    gap: 6px;
+    overflow-x: auto;
+    overscroll-behavior-inline: contain;
+    padding-bottom: 4px;
+    scrollbar-width: none;
+    white-space: nowrap;
   }
 
-  .profile {
-    justify-self: end;
+  .nav::-webkit-scrollbar {
+    display: none;
+  }
+
+  .nav__item {
+    min-width: 68px;
+    min-height: 42px;
+    padding: 8px 10px;
+  }
+
+  .account-actions {
+    justify-self: start;
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .profile__label {
+    max-width: min(58vw, 240px);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}
+
+@media (max-width: 520px) {
+  .brand__title {
+    font-size: 28px;
+  }
+
+  .brand__sub {
+    font-size: 15px;
+  }
+
+  .nav__item {
+    min-width: 62px;
+    padding-inline: 9px;
+  }
+
+  .account-actions {
+    gap: 8px;
+  }
+
+  .logout {
+    padding: 7px 10px;
   }
 }
 </style>

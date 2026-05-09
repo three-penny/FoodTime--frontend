@@ -1,4 +1,4 @@
-<!-- @author Codex -->
+<!-- @author XXXXX -->
 
 <template>
   <article
@@ -8,12 +8,7 @@
   >
     <div class="canteen-stall-card__info">
       <span class="canteen-stall-card__photo-frame">
-        <img
-          class="canteen-stall-card__photo"
-          :src="stall.image"
-          :alt="`${stall.name}档口图`"
-          loading="lazy"
-        />
+        <img class="canteen-stall-card__photo" :src="stall.image" :alt="`${stall.name}档口图`" loading="lazy" />
       </span>
       <span class="canteen-stall-card__copy">
         <span class="sticker sticker--r-1">档口</span>
@@ -28,10 +23,12 @@
     </div>
 
     <div class="canteen-stall-card__dishes">
-      <article
+      <button
         v-for="dish in visibleDishes"
         :key="dish.id"
         class="canteen-stall-card__dish"
+        type="button"
+        @click="emit('dish-click', dish)"
       >
         <div class="canteen-stall-card__dish-body">
           <div class="canteen-stall-card__dish-title">
@@ -44,7 +41,7 @@
           </div>
           <p>真实评价：{{ dish.comment }}</p>
         </div>
-      </article>
+      </button>
 
       <button
         v-if="hiddenCount > 0"
@@ -63,6 +60,7 @@
 /**
  * CanteenStallCard
  * 职责：展示食堂详情页中的单个档口，并按评分展示前三个菜品，其余菜品折叠。
+ * 作者：XXXXX
  * 使用场景：食堂详细页档口展开列表。
  * 依赖：Vue 局部状态、全局 zine 视觉类。
  * 注意：展开状态属于当前卡片交互，不进入 Pinia，避免污染跨页面状态。
@@ -79,6 +77,7 @@ const props = defineProps({
     required: true,
   },
 });
+const emit = defineEmits(['dish-click']);
 
 const expanded = ref(false);
 
@@ -120,9 +119,7 @@ function toggleExpanded() {
   gap: 12px;
   padding: 14px;
   text-align: left;
-  transition:
-    background var(--ft-transition-fast),
-    transform var(--ft-transition-fast);
+  transition: background var(--ft-transition-fast), transform var(--ft-transition-fast);
 }
 
 .canteen-stall-card__info:hover {
@@ -207,10 +204,21 @@ function toggleExpanded() {
 }
 
 .canteen-stall-card__dish {
+  appearance: none;
   border: 1px solid var(--ft-color-secondary);
   background: var(--zine-paper-card);
+  color: inherit;
+  cursor: pointer;
+  font: inherit;
   min-width: 0;
+  padding: 0;
+  text-align: left;
   box-shadow: 3px 3px 0 rgb(58 36 24 / 12%);
+  transition: transform var(--ft-transition-fast), box-shadow var(--ft-transition-fast);
+}
+
+.canteen-stall-card__dish:hover {
+  box-shadow: 5px 5px 0 rgb(58 36 24 / 18%);
 }
 
 .canteen-stall-card__dish:nth-child(2n) {
@@ -283,6 +291,34 @@ function toggleExpanded() {
 
   .canteen-stall-card__dish-title {
     align-items: start;
+  }
+}
+
+@media (max-width: 520px) {
+  .canteen-stall-card__info,
+  .canteen-stall-card__dishes {
+    padding: 12px;
+  }
+
+  .canteen-stall-card__photo-frame {
+    transform: none;
+  }
+
+  .canteen-stall-card__copy strong {
+    font-size: clamp(30px, 10vw, 40px);
+  }
+
+  .canteen-stall-card__dish-title {
+    display: grid;
+    justify-content: stretch;
+  }
+
+  .canteen-stall-card__dish-title .stamp {
+    justify-self: start;
+  }
+
+  .canteen-stall-card__toggle {
+    width: 100%;
   }
 }
 </style>

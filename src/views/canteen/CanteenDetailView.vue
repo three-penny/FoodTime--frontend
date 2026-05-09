@@ -1,4 +1,4 @@
-<!-- @author Codex -->
+<!-- @author XXXXX -->
 
 <template>
   <section class="canteen-detail-view">
@@ -67,6 +67,7 @@
             v-for="stall in stallSections"
             :key="stall.id"
             :stall="stall"
+            @dish-click="toDishDetail"
           />
         </div>
       </section>
@@ -119,6 +120,16 @@ function toDishList() {
   router.push({
     name: 'dishList',
     params: { canteenId: canteenId.value },
+  });
+}
+
+function toDishDetail(dish) {
+  router.push({
+    name: 'dishDetail',
+    params: {
+      canteenId: canteenId.value,
+      dishId: dish.id,
+    },
   });
 }
 </script>
@@ -234,7 +245,43 @@ function toDishList() {
     grid-template-columns: 1fr;
   }
 
+  .hero__image {
+    min-height: 280px;
+    clip-path: none;
+  }
+
   .hero__facts {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 520px) {
+  .empty {
+    padding: 18px;
+
+    h1 {
+      font-size: 34px;
+    }
+  }
+
+  .hero__image {
+    min-height: 220px;
+  }
+
+  .hero__content {
+    padding: 18px 16px;
+
+    h1 {
+      font-size: clamp(38px, 13vw, 52px);
+    }
+  }
+
+  .hero__rant {
+    font-size: 21px;
+  }
+
+  .hero__actions {
+    display: grid;
     grid-template-columns: 1fr;
   }
 }

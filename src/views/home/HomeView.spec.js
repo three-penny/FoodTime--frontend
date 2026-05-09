@@ -20,6 +20,11 @@ describe('HomeView', () => {
           name: 'homeCanteenSelect',
           component: HomeView,
         },
+        {
+          path: '/rants',
+          name: 'rantWall',
+          component: { template: '<div />' },
+        },
       ],
     });
     await router.push('/');
@@ -43,6 +48,7 @@ describe('HomeView', () => {
     expect(wrapper.find('#canteens').exists()).toBe(true);
     expect(wrapper.find('#ranking').exists()).toBe(true);
     expect(wrapper.find('#message').exists()).toBe(true);
+    expect(wrapper.find('[data-test="home-rant-preview"]').exists()).toBe(true);
   });
 
   it('uses the requested four canteens for the detailed intro section', async () => {

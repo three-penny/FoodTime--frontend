@@ -89,4 +89,31 @@ describe('CanteenStallCard', () => {
     expect(wrapper.text()).toContain('¥16');
     expect(wrapper.text()).toContain('真实评价：');
   });
+
+  it('emits selected dish when a dish row is clicked', async () => {
+    const wrapper = mount(CanteenStallCard, {
+      props: {
+        stall: {
+          id: 'stall-3',
+          name: '可点档口',
+          image: 'https://example.com/stall.jpg',
+          avgPrice: '¥10 - ¥20',
+          bestTime: '12:40 后',
+          summary: '测试档口说明',
+          dishes: [
+            {
+              ...baseDish,
+              id: 'dish-clickable',
+              name: '可点击菜',
+              rating: 4.8,
+            },
+          ],
+        },
+      },
+    });
+
+    await wrapper.find('.canteen-stall-card__dish').trigger('click');
+
+    expect(wrapper.emitted('dish-click')?.[0][0].id).toBe('dish-clickable');
+  });
 });

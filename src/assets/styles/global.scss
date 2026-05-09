@@ -1,4 +1,4 @@
-/* @author Codex */
+﻿/* @author XXXXX */
 
 @use './tokens.scss';
 @import url('https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&family=Noto+Sans+SC:wght@400;500;700;900&family=Noto+Serif+SC:wght@700;900&display=swap');
@@ -14,6 +14,11 @@ body,
 #app {
   margin: 0;
   min-height: 100%;
+  min-width: 0;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
 }
 
 #app {
@@ -88,6 +93,14 @@ a {
 img {
   max-width: 100%;
   display: block;
+}
+
+button,
+input,
+select,
+textarea {
+  max-width: 100%;
+  min-width: 0;
 }
 
 .section-title {
@@ -388,6 +401,35 @@ img {
 }
 
 @media (max-width: 768px) {
+  body {
+    font-size: 15px;
+    text-wrap: auto;
+  }
+
+  input,
+  select,
+  textarea {
+    font-size: 16px;
+  }
+
+  .button-ink {
+    min-height: 42px;
+    overflow-wrap: anywhere;
+  }
+
+  .section-title {
+    font-size: clamp(28px, 8vw, 38px);
+  }
+
+  .section-rule {
+    grid-template-columns: auto minmax(0, 1fr);
+    column-gap: 10px;
+  }
+
+  .section-subtitle {
+    font-size: 14px;
+  }
+
   body::after {
     background:
       var(--zine-decor-torn-edge) left -112px top 128px / 240px auto no-repeat,
