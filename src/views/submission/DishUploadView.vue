@@ -68,7 +68,9 @@
 
         <p v-if="message" class="upload-form__message">{{ message }}</p>
         <div class="upload-form__actions">
-          <button class="button-ink is-primary" type="submit">提交审核</button>
+          <button class="button-ink is-primary" type="submit" :disabled="submitting">
+            {{ submitting ? '提交中...' : '提交审核' }}
+          </button>
           <button class="button-ink" type="button" @click="goSubmissions">
             查看我的投稿
           </button>
@@ -81,15 +83,16 @@
 <script setup>
 /**
  * DishUploadView
- * 职责：提供用户上传菜品信息的表单，并把投稿写入前端投稿状态池。
+ * 职责：提供用户上传菜品信息的表单，支持图片上传并提交至后端审核。
  * 作者：XXXXX
  * 使用场景：普通用户提交新增菜品、补充食堂菜品信息。
- * 依赖：Pinia、Vue Router、useCanteenStore、useSubmissionStore。
+ * 依赖：Pinia、Vue Router、useCanteenStore、useAuthStore、submission.api.js。
  */
 import { computed, reactive, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { useCanteenStore } from '../../store/useCanteenStore';
-import { useSubmissionStore } from '../../store/useSubmissionStore';
+import { useAuthStore } from '../../store/useAuthStore';
+import { createSubmission } from '../../api/submission.api';
 
 defineOptions({
   name: 'DishUploadView',
@@ -97,9 +100,11 @@ defineOptions({
 
 const router = useRouter();
 const canteenStore = useCanteenStore();
-const submissionStore = useSubmissionStore();
+const authStore = useAuthStore();
 const message = ref('');
+const submitting = ref(false);
 const tagText = ref('校园推荐,新菜');
+const imageFile = ref(null);
 
 const form = reactive({
   dishName: '',
@@ -121,11 +126,17 @@ function getTags() {
 
 function handleImageChange(event) {
   const [file] = Array.from(event.target.files ?? []);
-  form.imageName = file?.name ?? '';
+  if (file) {
+    imageFile.value = file;
+    form.imageName = file.name;
+  } else {
+    imageFile.value = null;
+    form.imageName = '';
+  }
   message.value = '';
 }
 
-function handleSubmit() {
+async function handleSubmit() {
   if (!form.dishName || !form.canteenName || !form.stallName) {
     message.value = '请至少填写菜名、食堂和档口。';
     return;
@@ -136,12 +147,37 @@ function handleSubmit() {
     return;
   }
 
-  submissionStore.createSubmission({
-    ...form,
-    tags: getTags(),
-  });
-  message.value = '已提交审核，可以在我的投稿中查看进度。';
-  router.push({ name: 'userSubmissions' });
+  if (!authStore.session?.account) {
+    message.value = '请先登录后再提交菜品。';
+    return;
+  }
+
+  submitting.value = true;
+  message.value = '';
+
+  try {
+    const fd = new FormData();
+    fd.append('dish_name', form.dishName);
+    fd.append('canteen_name', form.canteenName);
+    fd.append('stall_name', form.stallName);
+    fd.append('price', String(form.price || ''));
+    fd.append('description', form.description);
+    fd.append('tags', getTags().join(','));
+    fd.append('submitter_account', authStore.session.account);
+    if (imageFile.value) {
+      fd.append('image', imageFile.value);
+    }
+
+    await createSubmission(fd);
+    message.value = '已提交审核，可以在我的投稿中查看进度。';
+    setTimeout(() => {
+      router.push({ name: 'userSubmissions' });
+    }, 800);
+  } catch (e) {
+    message.value = e.message || '提交失败，请稍后重试。';
+  } finally {
+    submitting.value = false;
+  }
 }
 
 function goSubmissions() {
