@@ -20,8 +20,8 @@ function loadSession() {
  * 作者：XXXXX
  * 创建时间：2026-05-09
  * 使用场景：登录页、注册页、路由守卫、顶部导航。
- * 依赖：Pinia、localStorage
- * 设计说明：当前阶段使用前端本地会话模拟 B/S 登录态，后续应替换为后端 token。
+ * 依赖：Pinia、localStorage、auth.api.js
+ * 设计说明：登录态通过后端 API 验证后存入 localStorage，后续迁移为后端 token。
  */
 export const useAuthStore = defineStore('auth', {
   state: () => ({
@@ -41,15 +41,19 @@ export const useAuthStore = defineStore('auth', {
   actions: {
     /**
      * 写入登录态。
-     * @param {Object} payload 登录表单数据。
+     * @param {Object} payload 用户数据（由后端登录/注册接口返回）。
      * @param {string} payload.account 账号。
-     * @param {string} payload.role 身份，支持 user、admin。
-     * @param {string=} payload.nickname 昵称。
+     * @param {string} payload.role 身份。
+     * @param {string} [payload.email] 邮箱。
+     * @param {string} [payload.nickname] 昵称。
+     * @param {string} [payload.id] 用户 ID。
      * @returns {void}
      */
     login(payload) {
       this.session = {
+        id: payload.id,
         account: payload.account,
+        email: payload.email || '',
         role: payload.role,
         nickname: payload.nickname || payload.account,
       };

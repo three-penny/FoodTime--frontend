@@ -37,8 +37,8 @@
         </div>
 
         <label>
-          <span>{{ form.role === 'admin' ? '管理员账号' : '学号 / 手机号' }}</span>
-          <input v-model.trim="form.account" type="text" autocomplete="username" />
+          <span>邮箱 / 账号</span>
+          <input v-model.trim="form.loginId" type="text" autocomplete="username" />
         </label>
         <label>
           <span>密码</span>
@@ -50,7 +50,9 @@
         </label>
         <p v-if="message" class="auth-form__message">{{ message }}</p>
         <div class="auth-form__actions">
-          <button class="button-ink is-primary" type="submit">登录</button>
+          <button class="button-ink is-primary" type="submit" :disabled="submitting">
+            {{ submitting ? '登录中...' : '登录' }}
+          </button>
           <button class="button-ink" type="button" @click="goRegister">
             注册账号
           </button>
@@ -63,14 +65,15 @@
 <script setup>
 /**
  * LoginView
- * 职责：作为平台最前置入口，区分用户和管理员登录身份。
+ * 职责：作为平台最前置入口，区分用户和管理员登录身份，调用后端接口完成认证。
  * 作者：XXXXX
  * 使用场景：所有业务页面访问前的登录校验入口。
- * 依赖：Pinia、Vue Router、useAuthStore。
+ * 依赖：Pinia、Vue Router、useAuthStore、auth.api.js。
  */
 import { reactive, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { useAuthStore } from '../../store/useAuthStore';
+import { login as loginApi } from '../../api/auth.api';
 
 defineOptions({
   name: 'LoginView',
@@ -79,23 +82,39 @@ defineOptions({
 const router = useRouter();
 const authStore = useAuthStore();
 const message = ref('');
+const submitting = ref(false);
 const form = reactive({
   role: 'user',
-  account: '',
+  loginId: '',
   password: '',
 });
 
-function handleLogin() {
-  if (!form.account || !form.password) {
+async function handleLogin() {
+  if (!form.loginId || !form.password) {
     message.value = '请填写账号和密码。';
     return;
   }
 
-  authStore.login({
-    account: form.account,
-    role: form.role,
-  });
-  router.push({ name: 'homeCanteenSelect' });
+  submitting.value = true;
+  message.value = '';
+  try {
+    const res = await loginApi({
+      login_id: form.loginId,
+      password: form.password,
+    });
+    authStore.login({
+      account: res.data.account,
+      email: res.data.email,
+      nickname: res.data.nickname,
+      role: res.data.role,
+      id: res.data.id,
+    });
+    router.push({ name: 'homeCanteenSelect' });
+  } catch (e) {
+    message.value = e.message || '登录失败，请稍后重试。';
+  } finally {
+    submitting.value = false;
+  }
 }
 
 function goRegister() {

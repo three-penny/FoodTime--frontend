@@ -41,9 +41,18 @@
           <input v-model.trim="form.nickname" type="text" autocomplete="nickname" />
         </label>
         <label>
-          <span>{{ form.role === 'admin' ? '管理员账号' : '学号' }}</span>
-          <input v-model.trim="form.account" type="text" />
+          <span>邮箱</span>
+          <input v-model.trim="form.email" type="text" autocomplete="email" placeholder="20240001@bjtu.edu.cn" />
         </label>
+        <div class="auth-form__code-row">
+          <label class="auth-form__code-label">
+            <span>验证码</span>
+            <input v-model.trim="form.verificationCode" type="text" maxlength="6" placeholder="6位验证码" />
+          </label>
+          <button class="button-ink auth-form__code-btn" type="button" :disabled="codeSending" @click="sendCode">
+            {{ codeSending ? '发送中...' : '发送验证码' }}
+          </button>
+        </div>
         <label v-if="form.role === 'admin'">
           <span>管理员邀请码</span>
           <input v-model.trim="form.inviteCode" type="text" />
@@ -66,7 +75,9 @@
         </label>
         <p v-if="message" class="auth-form__message">{{ message }}</p>
         <div class="auth-form__actions">
-          <button class="button-ink is-primary" type="submit">完成注册</button>
+          <button class="button-ink is-primary" type="submit" :disabled="submitting">
+            {{ submitting ? '注册中...' : '完成注册' }}
+          </button>
           <button class="button-ink" type="button" @click="goLogin">
             返回登录
           </button>
@@ -79,34 +90,71 @@
 <script setup>
 /**
  * RegisterView
- * 职责：提供用户和管理员两类注册入口，并对管理员邀请码做前端校验。
+ * 职责：提供用户和管理员两类注册入口，校验邮箱格式与验证码，调用后端注册接口。
  * 作者：XXXXX
- * 使用场景：新用户首次进入 FoodTime 用户侧前登记账号。
- * 依赖：Pinia、Vue Router、useAuthStore。
+ * 使用场景：新用户首次进入 FoodTime 前登记账号。
+ * 依赖：Pinia、Vue Router、useAuthStore、auth.api.js。
  */
 import { reactive, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { useAuthStore } from '../../store/useAuthStore';
+import { register as registerApi, sendVerificationCode } from '../../api/auth.api';
 
 defineOptions({
   name: 'RegisterView',
 });
 
+const EMAIL_REGEX = /^\d+@bjtu\.edu\.cn$/;
+
 const router = useRouter();
 const authStore = useAuthStore();
 const message = ref('');
+const submitting = ref(false);
+const codeSending = ref(false);
 const form = reactive({
   role: 'user',
   nickname: '',
-  account: '',
+  email: '',
+  verificationCode: '',
   inviteCode: '',
   password: '',
   confirmPassword: '',
 });
 
-function handleRegister() {
-  if (!form.nickname || !form.account || !form.password) {
-    message.value = '请补全昵称、账号和密码。';
+async function sendCode() {
+  if (!form.email) {
+    message.value = '请先输入邮箱地址。';
+    return;
+  }
+  if (!EMAIL_REGEX.test(form.email)) {
+    message.value = '邮箱格式不正确，必须为 <数字>@bjtu.edu.cn。';
+    return;
+  }
+  codeSending.value = true;
+  message.value = '';
+  try {
+    await sendVerificationCode(form.email);
+    message.value = '验证码已发送（默认000000）。';
+  } catch (e) {
+    message.value = e.message || '验证码发送失败。';
+  } finally {
+    codeSending.value = false;
+  }
+}
+
+async function handleRegister() {
+  if (!form.nickname || !form.email || !form.password) {
+    message.value = '请补全昵称、邮箱和密码。';
+    return;
+  }
+
+  if (!EMAIL_REGEX.test(form.email)) {
+    message.value = '邮箱格式不正确，必须为 <数字>@bjtu.edu.cn。';
+    return;
+  }
+
+  if (!form.verificationCode) {
+    message.value = '请输入验证码。';
     return;
   }
 
@@ -120,11 +168,25 @@ function handleRegister() {
     return;
   }
 
-  message.value =
-    form.role === 'admin'
-      ? '管理员注册信息已校验，请返回登录进入食堂首页。'
-      : '用户注册成功，请返回登录。';
-  router.push({ name: 'login' });
+  submitting.value = true;
+  message.value = '';
+  try {
+    await registerApi({
+      email: form.email,
+      password: form.password,
+      nickname: form.nickname,
+      verification_code: form.verificationCode,
+      role: form.role,
+    });
+    message.value = '注册成功，请返回登录。';
+    setTimeout(() => {
+      router.push({ name: 'login' });
+    }, 800);
+  } catch (e) {
+    message.value = e.message || '注册失败，请稍后重试。';
+  } finally {
+    submitting.value = false;
+  }
 }
 
 function goLogin() {
@@ -202,6 +264,41 @@ function goLogin() {
   font: inherit;
   padding: 12px 14px;
   outline: none;
+}
+
+.auth-form__code-row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 10px;
+  align-items: end;
+}
+
+.auth-form__code-label {
+  display: grid;
+  gap: 6px;
+  color: var(--ft-color-text-muted);
+  font-size: 14px;
+}
+
+.auth-form__code-btn {
+  white-space: nowrap;
+  padding: 12px 16px;
+  font-size: 14px;
+  border: 1px solid var(--ft-color-secondary);
+  background: var(--ft-color-surface);
+  color: var(--ft-color-secondary);
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+
+  &:hover:not(:disabled) {
+    background: var(--ft-color-secondary);
+    color: #fff;
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
 }
 
 .auth-form__message {
