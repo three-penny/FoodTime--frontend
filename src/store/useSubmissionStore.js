@@ -40,13 +40,14 @@ function mapSubmission(item) {
  * 创建时间：2026-05-09
  * 使用场景：用户上传菜品页、用户投稿页、菜品审核列表页。
  * 依赖：Pinia、submission.api.js
- * 设计说明：对接后端 API 获取真实数据，保留本地 createSubmission 作为上传后的即时追加。
+ * 设计说明：对接后端 API 获取真实数据，上传成功后本地即时追加。
  */
 export const useSubmissionStore = defineStore('submission', {
   state: () => ({
     submissions: [],
     activeStatus: 'all',
     loading: false,
+    error: '',
   }),
   getters: {
     statusLabels() {
@@ -73,12 +74,10 @@ export const useSubmissionStore = defineStore('submission', {
       return state.submissions.filter((item) => item.status === 'pending').length;
     },
     approvedCount(state) {
-      return state.submissions.filter((item) => item.status === 'approved')
-        .length;
+      return state.submissions.filter((item) => item.status === 'approved').length;
     },
     rejectedCount(state) {
-      return state.submissions.filter((item) => item.status === 'rejected')
-        .length;
+      return state.submissions.filter((item) => item.status === 'rejected').length;
     },
   },
   actions: {
@@ -90,12 +89,24 @@ export const useSubmissionStore = defineStore('submission', {
     async loadSubmissions(account) {
       if (!account) return;
       this.loading = true;
+      this.error = '';
       try {
         const res = await fetchMySubmissions(account);
         this.submissions = (res.data.items || []).map(mapSubmission);
+      } catch (e) {
+        this.error = e.message || '加载投稿列表失败';
+        this.submissions = [];
       } finally {
         this.loading = false;
       }
+    },
+    /**
+     * 用后端返回的数据直接追加一条投稿到列表头部（上传成功后即时展示）。
+     * @param {Object} item 后端返回的提报记录
+     * @returns {void}
+     */
+    appendSubmission(item) {
+      this.submissions.unshift(mapSubmission(item));
     },
     /**
      * 新增一条菜品投稿（本地即时追加，用于上传成功后无需重新加载）。

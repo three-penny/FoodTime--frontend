@@ -92,6 +92,7 @@ import { computed, reactive, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { useCanteenStore } from '../../store/useCanteenStore';
 import { useAuthStore } from '../../store/useAuthStore';
+import { useSubmissionStore } from '../../store/useSubmissionStore';
 import { createSubmission } from '../../api/submission.api';
 
 defineOptions({
@@ -101,6 +102,7 @@ defineOptions({
 const router = useRouter();
 const canteenStore = useCanteenStore();
 const authStore = useAuthStore();
+const submissionStore = useSubmissionStore();
 const message = ref('');
 const submitting = ref(false);
 const tagText = ref('校园推荐,新菜');
@@ -169,6 +171,20 @@ async function handleSubmit() {
     }
 
     await createSubmission(fd);
+    // 即时写入 store，避免依赖后续 refetch
+    submissionStore.appendSubmission({
+      dish_name: form.dishName,
+      canteen_name: form.canteenName,
+      stall_name: form.stallName,
+      price: form.price || null,
+      image_url: '',
+      description: form.description,
+      tags: getTags(),
+      submitter_account: authStore.session.account,
+      status: 'pending',
+      audit_reason: '',
+      created_at: new Date().toISOString(),
+    });
     message.value = '已提交审核，可以在我的投稿中查看进度。';
     setTimeout(() => {
       router.push({ name: 'userSubmissions' });

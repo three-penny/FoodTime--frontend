@@ -28,6 +28,11 @@
       <p class="submission-loading">加载中...</p>
     </div>
 
+    <div v-else-if="submissionStore.error" class="submission-list">
+      <p class="submission-loading submission-error">{{ submissionStore.error }}</p>
+      <button class="button-ink" type="button" @click="retry">重新加载</button>
+    </div>
+
     <div v-else-if="!submissions.length" class="submission-list">
       <p class="submission-loading">暂无投稿记录，快去上传新菜品吧。</p>
     </div>
@@ -93,6 +98,13 @@ function statusLabel(status) {
 function goUpload() {
   router.push({ name: 'dishUpload' });
 }
+
+function retry() {
+  const account = authStore.session?.account;
+  if (account) {
+    submissionStore.loadSubmissions(account);
+  }
+}
 </script>
 
 <style scoped lang="scss">
@@ -145,6 +157,10 @@ function goUpload() {
   color: var(--ft-color-text-muted);
   text-align: center;
   padding: 32px 0;
+}
+
+.submission-error {
+  color: var(--zine-stamp-red);
 }
 
 .submission-card {
