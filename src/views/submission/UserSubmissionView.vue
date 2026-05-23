@@ -24,7 +24,15 @@
       <span>已驳回 {{ submissionStore.rejectedCount }}</span>
     </div>
 
-    <div class="submission-list">
+    <div v-if="submissionStore.loading" class="submission-list">
+      <p class="submission-loading">加载中...</p>
+    </div>
+
+    <div v-else-if="!submissions.length" class="submission-list">
+      <p class="submission-loading">暂无投稿记录，快去上传新菜品吧。</p>
+    </div>
+
+    <div v-else class="submission-list">
       <article
         v-for="item in submissions"
         :key="item.id"
@@ -33,7 +41,7 @@
         <div>
           <span class="stamp">{{ statusLabel(item.status) }}</span>
           <h2>{{ item.dishName }}</h2>
-          <p>{{ item.canteenName }} · {{ item.stallName }} · ¥{{ item.price }}</p>
+          <p>{{ item.canteenName }} · {{ item.stallName }} · &yen;{{ item.price }}</p>
         </div>
         <p class="submission-card__desc">{{ item.description }}</p>
         <div class="submission-card__meta">
@@ -52,14 +60,15 @@
 <script setup>
 /**
  * UserSubmissionView
- * 职责：展示当前用户菜品投稿记录和审核结果。
+ * 职责：展示当前用户菜品投稿记录和审核结果，对接后端 API。
  * 作者：XXXXX
  * 使用场景：用户提交菜品后查看状态、继续新增投稿。
- * 依赖：Pinia、Vue Router、useSubmissionStore。
+ * 依赖：Pinia、Vue Router、useSubmissionStore、useAuthStore。
  */
-import { computed } from 'vue';
+import { computed, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { useSubmissionStore } from '../../store/useSubmissionStore';
+import { useAuthStore } from '../../store/useAuthStore';
 
 defineOptions({
   name: 'UserSubmissionView',
@@ -67,7 +76,15 @@ defineOptions({
 
 const router = useRouter();
 const submissionStore = useSubmissionStore();
+const authStore = useAuthStore();
 const submissions = computed(() => submissionStore.submissions);
+
+onMounted(() => {
+  const account = authStore.session?.account;
+  if (account) {
+    submissionStore.loadSubmissions(account);
+  }
+});
 
 function statusLabel(status) {
   return submissionStore.statusLabels[status] ?? '未知';
@@ -122,6 +139,12 @@ function goUpload() {
   margin-top: var(--ft-space-3);
   display: grid;
   gap: 16px;
+}
+
+.submission-loading {
+  color: var(--ft-color-text-muted);
+  text-align: center;
+  padding: 32px 0;
 }
 
 .submission-card {
