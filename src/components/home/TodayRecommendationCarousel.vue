@@ -133,13 +133,17 @@ function jumpToDish(item) {
     return;
   }
 
-  router.push({
-    name: 'dishDetail',
-    params: {
-      canteenId: item.canteenId,
-      dishId: item.id,
-    },
-  });
+  try {
+    router.push({
+      name: 'dishDetail',
+      params: {
+        canteenId: item.canteenId,
+        dishId: item.id,
+      },
+    });
+  } catch (e) {
+    console.error('[NavErr] TodayRecCarousel push failed:', e);
+  }
 }
 </script>
 

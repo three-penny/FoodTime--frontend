@@ -69,10 +69,9 @@
 </template>
 
 <script setup>
-import { computed, watch } from 'vue';
+import { computed, ref, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import CanteenStallCard from '../../components/canteen/CanteenStallCard.vue';
-import { createDefaultCanteenStalls } from '../../mock/stalls.mock';
 import { useCanteenStore } from '../../store/useCanteenStore';
 import { formatComment } from '../../utils/commentText';
 
@@ -86,7 +85,7 @@ const canteenStore = useCanteenStore();
 
 const canteenId = computed(() => String(route.params.canteenId ?? ''));
 const canteen = computed(() => canteenStore.getCanteenById(canteenId.value));
-const stallSections = computed(() => createDefaultCanteenStalls(canteen.value));
+const stallSections = ref([]);
 const heroFacts = computed(() =>
   canteen.value
     ? [
@@ -99,8 +98,12 @@ const heroFacts = computed(() =>
 
 watch(
   canteenId,
-  (id) => {
+  async (id) => {
     canteenStore.setActiveCanteen(id);
+    if (id) {
+      await canteenStore.loadCanteenDetail(id);
+      stallSections.value = await canteenStore.loadStallsByCanteen(id);
+    }
   },
   { immediate: true },
 );

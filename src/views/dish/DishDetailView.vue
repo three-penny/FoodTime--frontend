@@ -149,6 +149,20 @@ watch(
   { immediate: true }
 );
 
+watch(
+  [canteenId, dishId],
+  async ([cid, did]) => {
+    if (cid && did) {
+      await Promise.all([
+        canteenStore.loadCanteenDetail(cid),
+        dishStore.loadDishDetail(did),
+        dishStore.loadReviewsByDish(did),
+      ]);
+    }
+  },
+  { immediate: true }
+);
+
 function goHome() {
   router.push({ name: 'homeCanteenSelect' });
 }

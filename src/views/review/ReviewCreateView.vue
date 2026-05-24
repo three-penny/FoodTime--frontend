@@ -79,10 +79,10 @@
  * 依赖：Pinia、Vue Router、useDishStore、useCanteenStore、useAuthStore。
  * 设计说明：当前阶段点评写入前端 store，提交后回到对应菜品评论区。
  */
-import { computed, reactive, ref, watch } from 'vue';
+import { computed, onMounted, reactive, ref, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import ReviewTargetPicker from '../../components/review/ReviewTargetPicker.vue';
 import StarRatingInput from '../../components/review/StarRatingInput.vue';
+import ReviewTargetPicker from '../../components/review/ReviewTargetPicker.vue';
 import { useAuthStore } from '../../store/useAuthStore';
 import { useCanteenStore } from '../../store/useCanteenStore';
 import { useDishStore } from '../../store/useDishStore';
@@ -107,6 +107,13 @@ const target = reactive({
   canteenId: '',
   stallName: '',
   dishId: '',
+});
+
+onMounted(async () => {
+  await Promise.all([
+    canteenStore.loadCanteens(),
+    dishStore.loadDishes(),
+  ]);
 });
 
 const canteenId = computed(() => target.canteenId);

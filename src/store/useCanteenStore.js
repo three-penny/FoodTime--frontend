@@ -1,50 +1,96 @@
 import { defineStore } from 'pinia';
-import {
-  CANTEENS,
-  HOME_CANTEEN_SPOTS,
-  HOME_RANKINGS,
-} from '../mock/canteens.mock';
+import { fetchCanteens, fetchCanteenById, fetchCanteenSpots, fetchStallsByCanteen, fetchRankings } from '../api/canteen.api';
+import { resolveCanteenImage, resolveStallImage, resolveDishImage } from '../utils/imageMapper';
 
-/**
- * useCanteenStore
- * 职责：维护食堂基础信息、首页排行榜与当前选中食堂状态。
- * 作者：FoodTime Frontend Team
- * 创建时间：2026-04-25
- * 使用场景：首页、食堂详情页、菜品列表页。
- * 依赖：Pinia、canteens.mock.js
- */
 export const useCanteenStore = defineStore('canteen', {
   state: () => ({
-    canteens: CANTEENS,
-    homeCanteenSpots: HOME_CANTEEN_SPOTS,
-    rankings: HOME_RANKINGS,
-    activeCanteenId: CANTEENS[0]?.id ?? '',
+    canteens: [],
+    homeCanteenSpots: [],
+    rankings: [],
+    activeCanteenId: '',
+    loading: false,
   }),
   getters: {
     activeCanteen(state) {
-      return state.canteens.find(
-        canteen => canteen.id === state.activeCanteenId
-      );
+      return state.canteens.find(c => c.id === state.activeCanteenId) || null;
     },
   },
   actions: {
-    /**
-     * 设置当前活跃食堂。
-     * @param {string} canteenId 食堂 ID
-     * @returns {void}
-     */
+    async loadCanteens() {
+      this.loading = true;
+      try {
+        const res = await fetchCanteens();
+        this.canteens = (res.data || []).map(c => ({
+          ...c,
+          image: resolveCanteenImage(c.imageUrl),
+        }));
+        if (this.canteens.length > 0 && !this.activeCanteenId) {
+          this.activeCanteenId = this.canteens[0].id;
+        }
+      } catch (e) {
+        console.error('加载食堂数据失败:', e);
+      } finally {
+        this.loading = false;
+      }
+    },
+    async loadCanteenSpots() {
+      try {
+        const res = await fetchCanteenSpots();
+        this.homeCanteenSpots = (res.data || []).map(s => ({
+          ...s,
+          image: resolveCanteenImage(s.imageUrl),
+        }));
+      } catch (e) {
+        console.error('加载食堂推荐失败:', e);
+      }
+    },
+    async loadRankings() {
+      try {
+        const res = await fetchRankings();
+        this.rankings = res.data || [];
+      } catch (e) {
+        console.error('加载排行榜失败:', e);
+      }
+    },
     setActiveCanteen(canteenId) {
-      if (this.canteens.some(canteen => canteen.id === canteenId)) {
+      if (this.canteens.some(c => c.id === canteenId)) {
         this.activeCanteenId = canteenId;
       }
     },
-    /**
-     * 根据食堂 ID 获取食堂详情。
-     * @param {string} canteenId 食堂 ID
-     * @returns {Object|null}
-     */
     getCanteenById(canteenId) {
-      return this.canteens.find(canteen => canteen.id === canteenId) ?? null;
+      return this.canteens.find(c => c.id === canteenId) ?? null;
+    },
+    async loadCanteenDetail(canteenId) {
+      try {
+        const res = await fetchCanteenById(canteenId);
+        if (res.data) {
+          const existing = this.canteens.findIndex(c => c.id === canteenId);
+          const enriched = { ...res.data, image: resolveCanteenImage(res.data.imageUrl) };
+          if (existing >= 0) {
+            this.canteens[existing] = enriched;
+          } else {
+            this.canteens.push(enriched);
+          }
+        }
+      } catch (e) {
+        console.error('加载食堂详情失败:', e);
+      }
+    },
+    async loadStallsByCanteen(canteenId) {
+      try {
+        const res = await fetchStallsByCanteen(canteenId);
+        return (res.data || []).map(stall => ({
+          ...stall,
+          image: resolveStallImage(stall.imageUrl),
+          dishes: (stall.dishes || []).map(d => ({
+            ...d,
+            image: resolveDishImage(d.imageUrl || d.imageUrl),
+          })),
+        }));
+      } catch (e) {
+        console.error('加载档口数据失败:', e);
+        return [];
+      }
     },
   },
 });
