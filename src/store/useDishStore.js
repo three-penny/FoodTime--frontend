@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia';
 import { fetchDishes, fetchDishById, fetchDishReviews, recommendDish, avoidDish } from '../api/dish.api';
+import { createReview } from '../api/review.api';
 import { fetchCanteenDishes } from '../api/canteen.api';
 import { resolveDishImage } from '../utils/imageMapper';
 
@@ -121,6 +122,29 @@ export const useDishStore = defineStore('dish', {
     },
     async createDishReview(payload) {
       const safeRating = Math.min(5, Math.max(1, Number(payload.rating) || 1));
+      const { useAuthStore } = await import('./useAuthStore');
+      const authStore = useAuthStore();
+      const userId = authStore.session?.id || '';
+      try {
+        const res = await createReview({
+          dishId: payload.dishId,
+          userId,
+          rating: safeRating,
+          comment: payload.comment,
+        });
+        if (res.data) {
+          this.reviewsByDishId = {
+            ...this.reviewsByDishId,
+            [payload.dishId]: [
+              res.data,
+              ...(this.reviewsByDishId[payload.dishId] ?? []),
+            ],
+          };
+          return res.data;
+        }
+      } catch (e) {
+        console.error('提交评价失败:', e);
+      }
       const nextReview = {
         id: `review-${payload.dishId}-${Date.now()}`,
         dishId: payload.dishId,
