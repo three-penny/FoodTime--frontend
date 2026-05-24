@@ -1,10 +1,39 @@
 import { mount } from '@vue/test-utils';
 import { createPinia } from 'pinia';
 import { createMemoryHistory, createRouter } from 'vue-router';
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import ProfileView from './ProfileView.vue';
 import { useAuthStore } from '../../store/useAuthStore';
 import { usePointsStore } from '../../store/usePointsStore';
+
+vi.mock('../../api/points.api', () => ({
+  fetchPoints: vi.fn().mockResolvedValue({ data: { currentPoints: 10, totalEarned: 30, totalUsed: 20 } }),
+  fetchPointsHistory: vi.fn().mockResolvedValue({ data: [] }),
+  dailyCheckin: vi.fn().mockResolvedValue({ data: { checkedIn: false } }),
+}));
+
+vi.mock('../../api/canteen.api', () => ({
+  fetchCanteens: vi.fn().mockResolvedValue({ data: [] }),
+  fetchCanteenById: vi.fn().mockResolvedValue({ data: null }),
+  fetchCanteenSpots: vi.fn().mockResolvedValue({ data: [] }),
+  fetchStallsByCanteen: vi.fn().mockResolvedValue({ data: [] }),
+  fetchCanteenDishes: vi.fn().mockResolvedValue({ data: [] }),
+  fetchRankings: vi.fn().mockResolvedValue({ data: [] }),
+}));
+
+vi.mock('../../api/dish.api', () => ({
+  fetchDishes: vi.fn().mockResolvedValue({ data: [] }),
+  fetchTopDishes: vi.fn().mockResolvedValue({ data: [] }),
+  fetchDishById: vi.fn().mockResolvedValue({ data: null }),
+  fetchDishReviews: vi.fn().mockResolvedValue({ data: [] }),
+  recommendDish: vi.fn().mockResolvedValue({}),
+  avoidDish: vi.fn().mockResolvedValue({}),
+}));
+
+vi.mock('../../api/submission.api', () => ({
+  fetchMySubmissions: vi.fn().mockResolvedValue({ data: { items: [] } }),
+  createSubmission: vi.fn().mockResolvedValue({ data: {} }),
+}));
 
 describe('ProfileView', () => {
   it('renders account info and shows point income and spending ledgers', async () => {

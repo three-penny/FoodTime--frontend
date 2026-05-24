@@ -1,7 +1,13 @@
 import { createPinia, setActivePinia } from 'pinia';
-import { beforeEach, describe, expect, it } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { useAuthStore } from './useAuthStore';
 import { usePointsStore } from './usePointsStore';
+
+vi.mock('../api/points.api', () => ({
+  fetchPoints: vi.fn().mockResolvedValue({ data: { currentPoints: 0, totalEarned: 0, totalUsed: 0 } }),
+  fetchPointsHistory: vi.fn().mockResolvedValue({ data: [] }),
+  dailyCheckin: vi.fn().mockResolvedValue({ data: { checkedIn: true } }),
+}));
 
 describe('usePointsStore', () => {
   beforeEach(() => {
@@ -22,13 +28,16 @@ describe('usePointsStore', () => {
     expect(pointsStore.currentUserStats.earnedPoints).toBe(10);
   });
 
-  it('allows daily check-in only once per day', () => {
+  it('allows daily check-in only once per day', async () => {
     const authStore = useAuthStore();
     const pointsStore = usePointsStore();
-    authStore.login({ account: '2024211002', role: 'user' });
+    authStore.login({ id: 'user-1002', account: '2024211002', role: 'user' });
 
-    expect(pointsStore.dailyCheckIn()).toBe(true);
-    expect(pointsStore.dailyCheckIn()).toBe(false);
+    expect(await pointsStore.dailyCheckIn()).toBe(true);
+    // 第二次签到：API 返回 checkedIn: false
+    const { dailyCheckin } = await import('../api/points.api');
+    dailyCheckin.mockResolvedValue({ data: { checkedIn: false } });
+    expect(await pointsStore.dailyCheckIn()).toBe(false);
     expect(pointsStore.currentUserPoints).toBe(5);
     expect(pointsStore.currentUserStats.checkInDays).toBe(1);
   });
