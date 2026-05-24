@@ -48,7 +48,9 @@
           <p v-if="message" class="review-form__message">{{ message }}</p>
 
           <div class="review-form__actions">
-            <button class="button-ink is-primary" type="submit">提交点评</button>
+            <button class="button-ink is-primary" type="submit" :disabled="submitting">
+              {{ submitting ? '提交中...' : '提交点评' }}
+            </button>
             <button class="button-ink" type="button" @click="goBackToDish">返回评论区</button>
           </div>
         </form>
@@ -84,6 +86,7 @@ import StarRatingInput from '../../components/review/StarRatingInput.vue';
 import { useAuthStore } from '../../store/useAuthStore';
 import { useCanteenStore } from '../../store/useCanteenStore';
 import { useDishStore } from '../../store/useDishStore';
+import { createReview } from '../../api/review.api';
 
 defineOptions({
   name: 'ReviewCreateView',
@@ -95,6 +98,7 @@ const authStore = useAuthStore();
 const canteenStore = useCanteenStore();
 const dishStore = useDishStore();
 const message = ref('');
+const submitting = ref(false);
 const form = reactive({
   rating: 0,
   comment: '',
@@ -185,10 +189,10 @@ function goBackToDish() {
 }
 
 /**
- * 校验点评表单并写入菜品点评状态。
- * @returns {void}
+ * 校验点评表单，提交至后端并同步写入前端 store。
+ * @returns {Promise<void>}
  */
-function handleSubmit() {
+async function handleSubmit() {
   if (!dish.value || !canteen.value) {
     message.value = '请先选择要点评的餐厅、档口和菜品。';
     return;
@@ -204,14 +208,39 @@ function handleSubmit() {
     return;
   }
 
-  dishStore.createDishReview({
-    dishId: dishId.value,
-    rating: form.rating,
-    comment: form.comment,
-    reviewer: authStore.displayName,
-  });
+  if (!authStore.session?.id) {
+    message.value = '请先登录后再提交点评。';
+    return;
+  }
 
-  goBackToDish();
+  submitting.value = true;
+  message.value = '';
+
+  try {
+    const res = await createReview({
+      dish_id: dishId.value,
+      user_id: authStore.session.id,
+      rating: form.rating,
+      comment: form.comment,
+    });
+
+    // 同步写入前端 store，确保 dishDetail 页面可以即时展示
+    dishStore.createDishReview({
+      dishId: dishId.value,
+      rating: form.rating,
+      comment: form.comment,
+      reviewer: authStore.displayName,
+    });
+
+    message.value = '点评已提交。';
+    setTimeout(() => {
+      goBackToDish();
+    }, 600);
+  } catch (e) {
+    message.value = e.message || '提交失败，请稍后重试。';
+  } finally {
+    submitting.value = false;
+  }
 }
 </script>
 

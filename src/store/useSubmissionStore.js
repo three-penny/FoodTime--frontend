@@ -27,7 +27,7 @@ function mapSubmission(item) {
       ? new Date(item.created_at).toLocaleString('zh-CN', { hour12: false })
       : '',
     status: item.status,
-    imageUrl: filename ? `/api/v1/images/${filename}` : '',
+    imageUrl: filename ? `/api/v1/images/submission/${filename}` : '',
     imageName: filename || '待补充图片',
     reason: item.audit_reason || '',
     description: item.description || '',

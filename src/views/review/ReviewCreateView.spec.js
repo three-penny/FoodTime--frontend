@@ -1,11 +1,43 @@
-import { createPinia } from 'pinia';
+import { createPinia, setActivePinia } from 'pinia';
 import { createMemoryHistory, createRouter } from 'vue-router';
 import { mount, flushPromises } from '@vue/test-utils';
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi, beforeEach } from 'vitest';
 import ReviewCreateView from './ReviewCreateView.vue';
 import { useDishStore } from '../../store/useDishStore';
+import { useAuthStore } from '../../store/useAuthStore';
+
+// Mock review API 返回成功响应
+vi.mock('../../api/review.api', () => ({
+  createReview: vi.fn().mockResolvedValue({
+    code: 0,
+    message: '点评成功。',
+    data: {
+      id: 'review-mock-001',
+      dish_id: 'xueyi-northwest-noodles-1',
+      user_id: 'test-user-uuid',
+      rating: 4.5,
+      comment: 'mock comment',
+      created_at: '2026-05-24T12:00:00',
+    },
+  }),
+  fetchReviewsByDish: vi.fn(),
+}));
 
 describe('ReviewCreateView', () => {
+  let pinia;
+
+  beforeEach(() => {
+    pinia = createPinia();
+    setActivePinia(pinia);
+    // 确保 authStore 有 session（有 id）
+    useAuthStore().login({
+      id: 'test-user-uuid',
+      account: 'testuser',
+      nickname: '测试用户',
+      role: 'user',
+    });
+  });
+
   it('submits star review and returns to the dish comment page', async () => {
     const router = createRouter({
       history: createMemoryHistory(),
@@ -27,7 +59,6 @@ describe('ReviewCreateView', () => {
         },
       ],
     });
-    const pinia = createPinia();
     await router.push({
       name: 'reviewCreate',
       query: {
@@ -52,6 +83,8 @@ describe('ReviewCreateView', () => {
     const reviews = dishStore.getReviewsByDishId('xueyi-northwest-noodles-1');
     expect(reviews[0].rating).toBe(4.5);
     expect(reviews[0].comment).toContain('面条筋道');
+    // 导航在 setTimeout 600ms 后触发
+    await new Promise(r => setTimeout(r, 650));
     expect(router.currentRoute.value.name).toBe('dishDetail');
   });
 
@@ -68,7 +101,6 @@ describe('ReviewCreateView', () => {
         { path: '/', name: 'homeCanteenSelect', component: { template: '<div />' } },
       ],
     });
-    const pinia = createPinia();
     await router.push({ name: 'reviewCreate' });
     await router.isReady();
 
@@ -91,6 +123,7 @@ describe('ReviewCreateView', () => {
     const reviews = dishStore.getReviewsByDishId('xueyi-northwest-noodles-1');
     expect(reviews[0].rating).toBe(4);
     expect(reviews[0].comment).toContain('手动选择');
+    await new Promise(r => setTimeout(r, 650));
     expect(router.currentRoute.value.name).toBe('dishDetail');
   });
 });
