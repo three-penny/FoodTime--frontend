@@ -51,9 +51,14 @@
         <p class="submission-card__desc">{{ item.description }}</p>
         <div class="submission-card__meta">
           <span>{{ item.submittedAt }}</span>
-          <span>{{ item.imageName }}</span>
           <span v-if="item.tags?.length">标签 {{ item.tags.join(' / ') }}</span>
         </div>
+        <img
+          v-if="item.imageUrl"
+          :src="item.imageUrl"
+          :alt="item.dishName"
+          class="submission-card__image"
+        />
         <p v-if="item.reason" class="submission-card__reason">
           处理意见：{{ item.reason }}
         </p>
@@ -190,6 +195,14 @@ function retry() {
   flex-wrap: wrap;
   gap: 8px;
   margin-top: 12px;
+}
+
+.submission-card__image {
+  margin-top: 12px;
+  max-width: 320px;
+  width: 100%;
+  border: 1px solid var(--ft-color-secondary);
+  border-radius: 4px;
 }
 
 .submission-card__reason {

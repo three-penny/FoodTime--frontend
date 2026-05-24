@@ -15,6 +15,7 @@ const STATUS_LABELS = {
  * @returns {Object} 前端格式的提报记录
  */
 function mapSubmission(item) {
+  const filename = item.image_url ? item.image_url.replace(/^.*[/\\]/, '') : '';
   return {
     id: item.id,
     dishName: item.dish_name,
@@ -26,7 +27,8 @@ function mapSubmission(item) {
       ? new Date(item.created_at).toLocaleString('zh-CN', { hour12: false })
       : '',
     status: item.status,
-    imageName: item.image_url || '待补充图片',
+    imageUrl: filename ? `/api/v1/images/${filename}` : '',
+    imageName: filename || '待补充图片',
     reason: item.audit_reason || '',
     description: item.description || '',
     tags: item.tags || [],

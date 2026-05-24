@@ -170,21 +170,9 @@ async function handleSubmit() {
       fd.append('image', imageFile.value);
     }
 
-    await createSubmission(fd);
+    const res = await createSubmission(fd);
     // 即时写入 store，避免依赖后续 refetch
-    submissionStore.appendSubmission({
-      dish_name: form.dishName,
-      canteen_name: form.canteenName,
-      stall_name: form.stallName,
-      price: form.price || null,
-      image_url: '',
-      description: form.description,
-      tags: getTags(),
-      submitter_account: authStore.session.account,
-      status: 'pending',
-      audit_reason: '',
-      created_at: new Date().toISOString(),
-    });
+    submissionStore.appendSubmission(res.data);
     message.value = '已提交审核，可以在我的投稿中查看进度。';
     setTimeout(() => {
       router.push({ name: 'userSubmissions' });
