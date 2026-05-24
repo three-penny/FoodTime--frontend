@@ -2,6 +2,7 @@
 
 import { defineStore } from 'pinia';
 import { fetchMySubmissions } from '../api/submission.api';
+import { auditSubmission } from '../api/adminAudit.api';
 
 const STATUS_LABELS = {
   pending: '待审核',
@@ -149,11 +150,28 @@ export const useSubmissionStore = defineStore('submission', {
      * @param {string} submissionId 投稿 ID。
      * @returns {void}
      */
-    approveSubmission(submissionId) {
-      const target = this.submissions.find((item) => item.id === submissionId);
-      if (target) {
-        target.status = 'approved';
-        target.reason = '审核通过，已进入菜品展示候选池。';
+    async approveSubmission(submissionId) {
+      try {
+        await auditSubmission(submissionId, { status: 'approved', reason: '审核通过，已进入菜品展示候选池。', auditor: 'admin' });
+        const target = this.submissions.find((item) => item.id === submissionId);
+        if (target) {
+          target.status = 'approved';
+          target.reason = '审核通过，已进入菜品展示候选池。';
+        }
+      } catch (e) {
+        console.error('审核通过失败:', e);
+      }
+    },
+    async rejectSubmission(submissionId, reason = '信息不完整，请补充后重新提交。') {
+      try {
+        await auditSubmission(submissionId, { status: 'rejected', reason, auditor: 'admin' });
+        const target = this.submissions.find((item) => item.id === submissionId);
+        if (target) {
+          target.status = 'rejected';
+          target.reason = reason;
+        }
+      } catch (e) {
+        console.error('审核驳回失败:', e);
       }
     },
     /**
