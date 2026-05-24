@@ -166,7 +166,7 @@
  * 职责：展示个人中心账号资料，并提供积分明细等独立选项。
  * 依赖：Pinia、Vue Router、useAuthStore、usePointsStore。
  */
-import { computed, ref } from 'vue';
+import { computed, onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { useAuthStore } from '../../store/useAuthStore';
 import { usePointsStore } from '../../store/usePointsStore';
@@ -179,6 +179,12 @@ const router = useRouter();
 const authStore = useAuthStore();
 const pointsStore = usePointsStore();
 const activeTab = ref('account');
+
+onMounted(async () => {
+  if (authStore.session?.id) {
+    await pointsStore.loadUserPoints();
+  }
+});
 
 const tabs = [
   { key: 'account', index: '01', label: '账号信息' },

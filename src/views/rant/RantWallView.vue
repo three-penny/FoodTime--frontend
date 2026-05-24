@@ -79,7 +79,7 @@
  * 依赖：Pinia、Vue Router、useRantStore、useCanteenStore、useAuthStore。
  * 设计说明：当前阶段写入前端状态，模拟实时吐槽墙追加效果。
  */
-import { computed, reactive, ref } from 'vue';
+import { computed, onMounted, reactive, ref } from 'vue';
 import { useAuthStore } from '../../store/useAuthStore';
 import { useCanteenStore } from '../../store/useCanteenStore';
 import { useRantStore } from '../../store/useRantStore';
@@ -100,6 +100,13 @@ const form = reactive({
 
 const canteens = computed(() => canteenStore.canteens);
 const rants = computed(() => rantStore.visibleRants);
+
+onMounted(async () => {
+  await Promise.all([
+    canteenStore.loadCanteens(),
+    rantStore.loadRants(),
+  ]);
+});
 const selectedCanteen = computed(() =>
   canteenStore.getCanteenById(form.canteenId)
 );

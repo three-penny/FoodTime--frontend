@@ -190,11 +190,18 @@ function handleHomeSectionRequest(event) {
   }
 }
 
-onMounted(() => {
+onMounted(async () => {
   window.addEventListener(
     'foodtime:home-section-request',
     handleHomeSectionRequest,
   );
+  await Promise.all([
+    canteenStore.loadCanteens(),
+    canteenStore.loadCanteenSpots(),
+    canteenStore.loadRankings(),
+    dishStore.loadDishes(),
+    rantStore.loadRants(),
+  ]);
 });
 
 onBeforeUnmount(() => {

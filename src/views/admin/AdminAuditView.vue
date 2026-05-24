@@ -119,7 +119,7 @@
  * 依赖：Pinia、useSubmissionStore、useRantStore。
  * 说明：当前使用前端 mock 状态模拟审核流，后端接入后应迁移到 src/api 管理端接口。
  */
-import { computed, ref } from 'vue';
+import { computed, onMounted, ref } from 'vue';
 import { useRantStore } from '../../store/useRantStore';
 import { useSubmissionStore } from '../../store/useSubmissionStore';
 
@@ -129,6 +129,13 @@ defineOptions({
 
 const submissionStore = useSubmissionStore();
 const rantStore = useRantStore();
+
+onMounted(async () => {
+  await Promise.all([
+    submissionStore.loadSubmissions('all'),
+    rantStore.loadRants(),
+  ]);
+});
 
 const activePanel = ref('dish');
 const activeStatus = ref('pending');

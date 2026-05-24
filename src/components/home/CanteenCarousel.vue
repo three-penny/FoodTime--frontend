@@ -132,7 +132,11 @@ function handleSelect(canteenId) {
   }
 
   emit('select', canteenId);
-  router.push({ name: 'dishList', params: { canteenId } });
+  try {
+    router.push({ name: 'dishList', params: { canteenId } });
+  } catch (e) {
+    console.error('[NavErr] CanteenCarousel push failed:', e);
+  }
 }
 </script>
 
