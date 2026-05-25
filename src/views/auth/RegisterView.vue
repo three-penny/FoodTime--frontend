@@ -177,6 +177,7 @@ async function handleRegister() {
       nickname: form.nickname,
       verification_code: form.verificationCode,
       role: form.role,
+      invite_code: form.role === 'admin' ? form.inviteCode : '',
     });
     message.value = '注册成功，请返回登录。';
     setTimeout(() => {

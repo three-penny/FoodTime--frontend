@@ -3,7 +3,7 @@
 import { defineStore } from 'pinia';
 
 const STORAGE_KEY = 'foodtime_auth_session';
-export const ADMIN_INVITE_CODE = 'FT-ADMIN-2026';
+export const ADMIN_INVITE_CODE = 'ABCDEF';
 
 function loadSession() {
   try {
