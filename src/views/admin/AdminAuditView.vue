@@ -80,6 +80,13 @@
             <span v-for="tag in itemTags(item)" :key="tag">{{ tag }}</span>
           </div>
 
+          <img
+            v-if="activePanel === 'dish' && item.imageUrl"
+            :src="item.imageUrl"
+            :alt="item.dishName"
+            class="audit-card__image"
+          />
+
           <p v-if="item.reason" class="audit-card__reason">
             处理意见：{{ item.reason }}
           </p>
@@ -195,7 +202,7 @@ function itemContent(item) {
 
 function itemTags(item) {
   if (activePanel.value === 'dish') {
-    return [item.imageName, ...(item.tags ?? [])].filter(Boolean);
+    return (item.tags ?? []).filter(Boolean);
   }
 
   return [item.tag, item.canteenName].filter(Boolean);
@@ -393,6 +400,15 @@ function rejectItem(item) {
   padding: 4px 10px;
   color: var(--ft-color-text-muted);
   font-size: 13px;
+}
+
+.audit-card__image {
+  display: block;
+  margin-top: 14px;
+  max-width: 320px;
+  width: 100%;
+  border: 1px solid var(--ft-color-secondary);
+  border-radius: 4px;
 }
 
 .audit-card__reason {

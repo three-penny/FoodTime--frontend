@@ -61,10 +61,42 @@
             rows="5"
           ></textarea>
         </label>
-        <label>
-          <span>标签，用逗号分隔</span>
-          <input v-model.trim="tagText" type="text" />
-        </label>
+        <div class="upload-form__tags">
+          <span class="upload-form__tags-label">标签</span>
+          <div class="tag-list">
+            <span
+              v-for="(tag, index) in tags"
+              :key="index"
+              class="tag-chip"
+            >
+              {{ tag }}
+              <button
+                type="button"
+                class="tag-chip__close"
+                @click="removeTag(index)"
+              >
+                &times;
+              </button>
+            </span>
+            <span v-if="!addingTag" class="tag-add" @click="startAddTag">+</span>
+          </div>
+          <div v-if="addingTag" class="tag-input-row">
+            <input
+              ref="tagInputRef"
+              v-model.trim="newTagText"
+              type="text"
+              maxlength="20"
+              @keyup.enter="confirmTag"
+              @keyup.escape="cancelTag"
+            />
+            <button class="tag-btn tag-btn--confirm" type="button" @click="confirmTag">
+              确认
+            </button>
+            <button class="tag-btn tag-btn--cancel" type="button" @click="cancelTag">
+              取消
+            </button>
+          </div>
+        </div>
 
         <p v-if="message" class="upload-form__message">{{ message }}</p>
         <div class="upload-form__actions">
@@ -88,7 +120,7 @@
  * 使用场景：普通用户提交新增菜品、补充食堂菜品信息。
  * 依赖：Pinia、Vue Router、useCanteenStore、useAuthStore、submission.api.js。
  */
-import { computed, reactive, ref } from 'vue';
+import { computed, nextTick, reactive, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { useCanteenStore } from '../../store/useCanteenStore';
 import { useAuthStore } from '../../store/useAuthStore';
@@ -105,7 +137,10 @@ const authStore = useAuthStore();
 const submissionStore = useSubmissionStore();
 const message = ref('');
 const submitting = ref(false);
-const tagText = ref('校园推荐,新菜');
+const tags = reactive(['校园推荐', '新菜']);
+const addingTag = ref(false);
+const newTagText = ref('');
+const tagInputRef = ref(null);
 const imageFile = ref(null);
 
 const form = reactive({
@@ -120,10 +155,33 @@ const form = reactive({
 const canteens = computed(() => canteenStore.canteens);
 
 function getTags() {
-  return tagText.value
-    .split(',')
-    .map(tag => tag.trim())
-    .filter(Boolean);
+  return tags.filter(Boolean);
+}
+
+function startAddTag() {
+  addingTag.value = true;
+  newTagText.value = '';
+  nextTick(() => {
+    tagInputRef.value?.focus();
+  });
+}
+
+function confirmTag() {
+  const text = newTagText.value;
+  if (text && !tags.includes(text)) {
+    tags.push(text);
+  }
+  newTagText.value = '';
+  addingTag.value = false;
+}
+
+function cancelTag() {
+  newTagText.value = '';
+  addingTag.value = false;
+}
+
+function removeTag(index) {
+  tags.splice(index, 1);
 }
 
 function handleImageChange(event) {
@@ -267,6 +325,118 @@ function goSubmissions() {
   display: flex;
   flex-wrap: wrap;
   gap: 12px;
+}
+
+.upload-form__tags {
+  display: grid;
+  gap: 8px;
+}
+
+.upload-form__tags-label {
+  color: var(--ft-color-text-muted);
+  font-size: 14px;
+}
+
+.tag-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+}
+
+.tag-chip {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  border: 1px solid var(--ft-color-secondary);
+  background: #fffaf0;
+  color: var(--ft-color-secondary);
+  font-size: 14px;
+  padding: 6px 22px 6px 10px;
+}
+
+.tag-chip__close {
+  position: absolute;
+  right: 2px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 18px;
+  height: 18px;
+  display: grid;
+  place-items: center;
+  border: none;
+  background: none;
+  color: var(--zine-stamp-red);
+  font-size: 16px;
+  line-height: 1;
+  cursor: pointer;
+  padding: 0;
+}
+
+.tag-chip__close:hover {
+  color: var(--ft-color-primary);
+}
+
+.tag-add {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: 1px dashed var(--ft-color-secondary);
+  background: #fffaf0;
+  color: var(--ft-color-secondary);
+  font-size: 20px;
+  line-height: 1;
+  cursor: pointer;
+  user-select: none;
+}
+
+.tag-add:hover {
+  border-style: solid;
+  color: var(--ft-color-primary);
+  border-color: var(--ft-color-primary);
+}
+
+.tag-input-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.tag-input-row input {
+  width: 160px;
+  border: 1px solid var(--ft-color-secondary);
+  background: #fffaf0;
+  color: var(--ft-color-secondary);
+  font: inherit;
+  font-size: 14px;
+  padding: 6px 10px;
+  outline: none;
+}
+
+.tag-btn {
+  border: 1px solid var(--ft-color-secondary);
+  background: #fffaf0;
+  color: var(--ft-color-secondary);
+  cursor: pointer;
+  font: inherit;
+  font-size: 13px;
+  padding: 5px 10px;
+}
+
+.tag-btn--confirm {
+  border-color: var(--ft-color-primary);
+  color: var(--ft-color-primary);
+}
+
+.tag-btn--cancel {
+  opacity: 0.7;
+}
+
+.tag-btn--cancel:hover {
+  opacity: 1;
 }
 
 @media (max-width: 900px) {

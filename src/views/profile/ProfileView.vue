@@ -96,14 +96,6 @@
             >
               {{ checkInButtonText }}
             </button>
-            <button
-              class="button-ink"
-              type="button"
-              :disabled="pointsStore.currentUserPoints < 20"
-              @click="handleExchange"
-            >
-              兑换优惠券 -20
-            </button>
           </div>
 
           <div class="ledger-grid">
@@ -232,10 +224,6 @@ const checkInButtonText = computed(() =>
 
 function handleCheckIn() {
   pointsStore.dailyCheckIn();
-}
-
-function handleExchange() {
-  pointsStore.consumePoints(20, '兑换食堂优惠券');
 }
 
 function goSubmissions() {
