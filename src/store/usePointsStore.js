@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia';
 import { useAuthStore } from './useAuthStore';
-import { fetchPoints, fetchPointsHistory, dailyCheckin } from '../api/points.api';
+import { fetchPoints, fetchPointsHistory, dailyCheckin, consumePoints } from '../api/points.api';
 
 export const usePointsStore = defineStore('points', {
   state: () => ({
@@ -85,21 +85,28 @@ export const usePointsStore = defineStore('points', {
         timestamp: new Date().toLocaleString('zh-CN', { hour12: false }),
       });
     },
-    consumePoints(amount, reason) {
+    async consumePoints(amount, reason) {
       const authStore = useAuthStore();
+      const userId = authStore.session?.id;
       const account = authStore.session?.account;
-      if (!account) return false;
-      this.initUserPoints(account);
-      if (this.userPoints[account].currentPoints < amount) return false;
-      this.userPoints[account].currentPoints -= amount;
-      this.pointsHistory[account].unshift({
-        id: `points-${Date.now()}`,
-        amount: `-${amount}`,
-        reason,
-        type: 'consume',
-        timestamp: new Date().toLocaleString('zh-CN', { hour12: false }),
-      });
-      return true;
+      if (!userId || !account) return false;
+      try {
+        const res = await consumePoints(userId, amount, reason);
+        this.initUserPoints(account);
+        this.userPoints[account].currentPoints = res.data?.currentPoints ?? 0;
+        this.pointsHistory[account].unshift({
+          id: `points-${Date.now()}`,
+          amount: `-${amount}`,
+          reason,
+          type: 'consume',
+          timestamp: new Date().toLocaleString('zh-CN', { hour12: false }),
+        });
+        return true;
+      } catch (e) {
+        if (e.message.includes('积分不足')) return false;
+        console.error('积分消费失败:', e);
+        return false;
+      }
     },
     async dailyCheckIn() {
       const authStore = useAuthStore();
