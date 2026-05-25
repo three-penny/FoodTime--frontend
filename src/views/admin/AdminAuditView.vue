@@ -132,7 +132,7 @@ const rantStore = useRantStore();
 
 onMounted(async () => {
   await Promise.all([
-    submissionStore.loadSubmissions('all'),
+    submissionStore.loadAllSubmissions(),
     rantStore.loadRants(),
   ]);
 });

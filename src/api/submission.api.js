@@ -25,3 +25,11 @@ export function createSubmission(formData) {
 export function fetchMySubmissions(account) {
   return http.get('/submissions', { params: { account } });
 }
+
+/**
+ * 查询所有用户的提报列表（管理员专用）。
+ * @returns {Promise<Object>} 返回包含所有提报记录的分页结构
+ */
+export function fetchAllSubmissions() {
+  return http.get('/submissions');
+}

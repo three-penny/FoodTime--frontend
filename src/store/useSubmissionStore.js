@@ -1,7 +1,7 @@
 // @author XXXXX
 
 import { defineStore } from 'pinia';
-import { fetchMySubmissions } from '../api/submission.api';
+import { fetchMySubmissions, fetchAllSubmissions } from '../api/submission.api';
 import { auditSubmission } from '../api/adminAudit.api';
 
 const STATUS_LABELS = {
@@ -104,6 +104,23 @@ export const useSubmissionStore = defineStore('submission', {
       }
     },
     /**
+     * 从后端加载所有用户的提报列表（管理员专用）。
+     * @returns {Promise<void>}
+     */
+    async loadAllSubmissions() {
+      this.loading = true;
+      this.error = '';
+      try {
+        const res = await fetchAllSubmissions();
+        this.submissions = (res.data.items || []).map(mapSubmission);
+      } catch (e) {
+        this.error = e.message || '加载投稿列表失败';
+        this.submissions = [];
+      } finally {
+        this.loading = false;
+      }
+    },
+    /**
      * 用后端返回的数据直接追加一条投稿到列表头部（上传成功后即时展示）。
      * @param {Object} item 后端返回的提报记录
      * @returns {void}
@@ -174,19 +191,6 @@ export const useSubmissionStore = defineStore('submission', {
         }
       } catch (e) {
         console.error('审核驳回失败:', e);
-      }
-    },
-    /**
-     * 驳回某条投稿。
-     * @param {string} submissionId 投稿 ID。
-     * @param {string} reason 驳回原因。
-     * @returns {void}
-     */
-    rejectSubmission(submissionId, reason = '信息不完整，请补充后重新提交。') {
-      const target = this.submissions.find((item) => item.id === submissionId);
-      if (target) {
-        target.status = 'rejected';
-        target.reason = reason;
       }
     },
   },
