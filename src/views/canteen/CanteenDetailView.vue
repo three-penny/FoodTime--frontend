@@ -21,7 +21,7 @@
           <span class="sticker sticker--r-1">食堂档案</span>
           <h1>{{ canteen.name }}</h1>
           <p class="hero__meta">
-            评分 {{ canteen.rating.toFixed(1) }} · {{ canteen.location }} ·
+            评分 {{ (canteen.rating ?? 0).toFixed(1) }} · {{ canteen.location }} ·
             {{ canteen.openHours }}
           </p>
           <p class="hero__summary dropcap">{{ canteen.summary }}</p>
@@ -58,11 +58,15 @@
         <header class="stalls__header">
           <h2 class="section-title">全部档口</h2>
           <p class="section-subtitle">
-            当前所有食堂先使用统一默认档口数据，每个档口默认展示评分最高的三道菜。
+            当前食堂全部档口及菜品数据，点击菜品可查看详情及同学真实评价。
           </p>
         </header>
 
-        <div class="stalls__list">
+        <p v-if="stallSections.length === 0" class="stalls__empty">
+          该食堂暂无档口数据，快去上传新菜品吧。
+        </p>
+
+        <div v-else class="stalls__list">
           <CanteenStallCard
             v-for="stall in stallSections"
             :key="stall.id"
@@ -241,6 +245,14 @@ function toDishDetail(dish) {
 .stalls__list {
   display: grid;
   gap: var(--ft-space-2);
+}
+
+.stalls__empty {
+  border: 1px dashed rgb(58 36 24 / 36%);
+  background: rgb(255 250 240 / 62%);
+  color: var(--ft-color-text-muted);
+  padding: 18px;
+  margin: 0;
 }
 
 @media (max-width: 980px) {

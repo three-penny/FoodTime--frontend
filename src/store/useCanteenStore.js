@@ -53,9 +53,7 @@ export const useCanteenStore = defineStore('canteen', {
       }
     },
     setActiveCanteen(canteenId) {
-      if (this.canteens.some(c => c.id === canteenId)) {
-        this.activeCanteenId = canteenId;
-      }
+      this.activeCanteenId = canteenId;
     },
     getCanteenById(canteenId) {
       return this.canteens.find(c => c.id === canteenId) ?? null;

@@ -15,8 +15,8 @@ function createRouterForTest() {
         component: { template: '<main />' },
       },
       {
-        path: '/canteens/:canteenId/dishes',
-        name: 'dishList',
+        path: '/canteens/:canteenId',
+        name: 'canteenDetail',
         component: { template: '<main />' },
       },
     ],
@@ -73,13 +73,13 @@ describe('CanteenIntroGrid', () => {
     expect(photo.attributes('alt')).toBe(`${item.name} canteen photo`);
   });
 
-  it('keeps jump button routing to dish list', async () => {
+  it('keeps jump button routing to canteen detail', async () => {
     const { wrapper, router } = await mountGrid();
 
     await wrapper.find('.button-ink.is-primary').trigger('click');
     await flushPromises();
 
-    expect(router.currentRoute.value.name).toBe('dishList');
+    expect(router.currentRoute.value.name).toBe('canteenDetail');
     expect(router.currentRoute.value.params.canteenId).toBe('minghu');
   });
 });

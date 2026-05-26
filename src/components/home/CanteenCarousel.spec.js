@@ -16,8 +16,8 @@ function createRouterForTest() {
         component: { template: '<main />' },
       },
       {
-        path: '/canteens/:canteenId/dishes',
-        name: 'dishList',
+        path: '/canteens/:canteenId',
+        name: 'canteenDetail',
         component: { template: '<main />' },
       },
     ],
@@ -82,7 +82,7 @@ describe('CanteenCarousel', () => {
     await wrapper.find('.canteen-card').trigger('click');
     await flushPromises();
 
-    expect(router.currentRoute.value.name).toBe('dishList');
+    expect(router.currentRoute.value.name).toBe('canteenDetail');
     expect(router.currentRoute.value.params.canteenId).toBe('minghu');
   });
 
@@ -98,7 +98,7 @@ describe('CanteenCarousel', () => {
     await wrapper.find('.canteen-card').trigger('click');
     await flushPromises();
 
-    expect(router.currentRoute.value.name).toBe('dishList');
+    expect(router.currentRoute.value.name).toBe('canteenDetail');
     expect(router.currentRoute.value.params.canteenId).toBe('minghu');
   });
 
@@ -134,7 +134,7 @@ describe('CanteenCarousel', () => {
     await cards[2].trigger('click');
     await flushPromises();
 
-    expect(router.currentRoute.value.name).toBe('dishList');
+    expect(router.currentRoute.value.name).toBe('canteenDetail');
     expect(router.currentRoute.value.params.canteenId).toBe('minghu');
   });
 });
