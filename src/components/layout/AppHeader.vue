@@ -59,9 +59,9 @@
 </template>
 
 <script setup>
-import { computed } from 'vue';
+import { computed, onMounted, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import { CANTEEN_MESSAGES } from '../../constants/messages';
+import { fetchMessages } from '../../api/message.api';
 import { useAuthStore } from '../../store/useAuthStore';
 
 defineOptions({
@@ -112,7 +112,17 @@ const navItems = [
   },
 ];
 
-const previewMessages = CANTEEN_MESSAGES.slice(0, 4);
+const previewMessages = ref([]);
+
+onMounted(async () => {
+  try {
+    const res = await fetchMessages();
+    previewMessages.value = (res.data || []).slice(0, 4);
+  } catch (e) {
+    console.error('加载消息预览失败:', e);
+  }
+});
+
 const visibleNavItems = computed(() =>
   navItems.filter(item => !item.adminOnly || authStore.currentRole === 'admin')
 );
