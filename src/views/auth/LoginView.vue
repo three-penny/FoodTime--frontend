@@ -108,6 +108,7 @@ async function handleLogin() {
       nickname: res.data.nickname,
       role: res.data.role,
       id: res.data.id,
+      token: res.data.token,
     });
     router.push({ name: 'homeCanteenSelect' });
   } catch (e) {

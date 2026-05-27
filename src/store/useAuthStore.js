@@ -37,6 +37,9 @@ export const useAuthStore = defineStore('auth', {
     displayName(state) {
       return state.session?.nickname || state.session?.account || '用户';
     },
+    token(state) {
+      return state.session?.token ?? '';
+    },
   },
   actions: {
     /**
@@ -47,6 +50,7 @@ export const useAuthStore = defineStore('auth', {
      * @param {string} [payload.email] 邮箱。
      * @param {string} [payload.nickname] 昵称。
      * @param {string} [payload.id] 用户 ID。
+     * @param {string} [payload.token] JWT 令牌（登录时必传）。
      * @returns {void}
      */
     login(payload) {
@@ -56,6 +60,20 @@ export const useAuthStore = defineStore('auth', {
         email: payload.email || '',
         role: payload.role,
         nickname: payload.nickname || payload.account,
+        token: payload.token || this.session?.token || '',
+      };
+      window.localStorage.setItem(STORAGE_KEY, JSON.stringify(this.session));
+    },
+    /**
+     * 更新当前会话的部分字段（静默同步，保留 token）。
+     * @param {Object} data 要更新的字段
+     * @returns {void}
+     */
+    updateSession(data) {
+      this.session = {
+        ...this.session,
+        ...data,
+        token: this.session?.token || '',
       };
       window.localStorage.setItem(STORAGE_KEY, JSON.stringify(this.session));
     },

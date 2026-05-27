@@ -1,8 +1,25 @@
 import axios from 'axios';
 
+const STORAGE_KEY = 'foodtime_auth_session';
+
 const http = axios.create({
   baseURL: '/api/v1',
   timeout: 10000,
+});
+
+http.interceptors.request.use((config) => {
+  const raw = window.localStorage.getItem(STORAGE_KEY);
+  if (raw) {
+    try {
+      const session = JSON.parse(raw);
+      if (session.token) {
+        config.headers.Authorization = `Bearer ${session.token}`;
+      }
+    } catch {
+      // ignore parse error
+    }
+  }
+  return config;
 });
 
 http.interceptors.response.use(
@@ -18,7 +35,7 @@ http.interceptors.response.use(
     const body = error.response?.data;
 
     if (status === 401) {
-      localStorage.removeItem('foodtime_auth_session');
+      window.localStorage.removeItem('foodtime_auth_session');
     }
 
     const message = body?.message || error.message || '网络异常';

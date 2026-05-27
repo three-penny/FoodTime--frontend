@@ -219,7 +219,7 @@ async function saveEdit() {
       email: editForm.email.trim() || undefined,
     });
     if (res.data) {
-      authStore.login(res.data);
+      authStore.updateSession(res.data);
       editMessage.value = '资料更新成功！';
       setTimeout(() => { isEditing.value = false; }, 1200);
     }
