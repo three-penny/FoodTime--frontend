@@ -40,3 +40,7 @@ export function login(params) {
 export function sendVerificationCode(email) {
   return http.post('/auth/send-code', { email });
 }
+
+export function updateProfile(data) {
+  return http.put('/auth/profile', data);
+}

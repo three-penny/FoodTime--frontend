@@ -120,26 +120,28 @@ const router = createRouter({
   },
 });
 
-router.beforeEach((to) => {
-  const authStore = useAuthStore();
+function getSession() {
+  try {
+    const raw = window.localStorage.getItem('foodtime_auth_session');
+    return raw ? JSON.parse(raw) : null;
+  } catch {
+    return null;
+  }
+}
 
-  if (to.meta.requiresAuth && !authStore.isAuthenticated) {
-    return {
-      name: 'login',
-      query: {
-        redirect: to.fullPath,
-      },
-    };
+router.beforeEach((to) => {
+  const session = getSession();
+  const isAuthenticated = Boolean(session?.account);
+
+  if (to.meta.requiresAuth && !isAuthenticated) {
+    return { name: 'login', query: { redirect: to.fullPath } };
   }
 
-  if (to.meta.requiresAdmin && authStore.currentRole !== 'admin') {
+  if (to.meta.requiresAdmin && session?.role !== 'admin') {
     return { name: 'homeCanteenSelect' };
   }
 
-  if (
-    authStore.isAuthenticated &&
-    (to.name === 'login' || to.name === 'register')
-  ) {
+  if (isAuthenticated && (to.name === 'login' || to.name === 'register')) {
     return { name: 'homeCanteenSelect' };
   }
 

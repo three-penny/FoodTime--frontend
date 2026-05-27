@@ -57,7 +57,7 @@
 
           <div class="canteen-card__title-row">
             <h3>{{ item.name }}</h3>
-            <span class="zine-rating-stamp">{{ item.rating.toFixed(1) }}</span>
+            <span class="zine-rating-stamp">{{ (item.rating ?? 0).toFixed(1) }}</span>
           </div>
 
           <div class="canteen-card__chips">
@@ -132,7 +132,11 @@ function handleSelect(canteenId) {
   }
 
   emit('select', canteenId);
-  router.push({ name: 'dishList', params: { canteenId } });
+  try {
+    router.push({ name: 'canteenDetail', params: { canteenId } });
+  } catch (e) {
+    console.error('[NavErr] CanteenCarousel push failed:', e);
+  }
 }
 </script>
 

@@ -60,7 +60,7 @@
         <label>
           <span>密码</span>
           <input
-            v-model.trim="form.password"
+            v-model="form.password"
             type="password"
             autocomplete="new-password"
           />
@@ -104,7 +104,7 @@ defineOptions({
   name: 'RegisterView',
 });
 
-const EMAIL_REGEX = /^\d+@bjtu\.edu\.cn$/;
+const EMAIL_REGEX = /^\d+@bjtu\.edu\.cn$/i;
 
 const router = useRouter();
 const authStore = useAuthStore();
@@ -177,6 +177,7 @@ async function handleRegister() {
       nickname: form.nickname,
       verification_code: form.verificationCode,
       role: form.role,
+      invite_code: form.role === 'admin' ? form.inviteCode : '',
     });
     message.value = '注册成功，请返回登录。';
     setTimeout(() => {

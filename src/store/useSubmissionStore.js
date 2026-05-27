@@ -1,7 +1,8 @@
 // @author XXXXX
 
 import { defineStore } from 'pinia';
-import { DISH_SUBMISSIONS } from '../mock/submissions.mock';
+import { fetchMySubmissions, fetchAllSubmissions } from '../api/submission.api';
+import { auditSubmission } from '../api/adminAudit.api';
 
 const STATUS_LABELS = {
   pending: '待审核',
@@ -10,18 +11,46 @@ const STATUS_LABELS = {
 };
 
 /**
+ * 将后端返回的提报数据转换为前端展示格式。
+ * @param {Object} item 后端提报记录
+ * @returns {Object} 前端格式的提报记录
+ */
+function mapSubmission(item) {
+  const filename = item.image_url ? item.image_url.replace(/^.*[/\\]/, '') : '';
+  return {
+    id: item.id,
+    dishName: item.dish_name,
+    canteenName: item.canteen_name,
+    stallName: item.stall_name,
+    price: item.price,
+    submitter: item.submitter_account,
+    submittedAt: item.created_at
+      ? new Date(item.created_at).toLocaleString('zh-CN', { hour12: false })
+      : '',
+    status: item.status,
+    imageUrl: filename ? `/api/v1/images/submission/${filename}` : '',
+    imageName: filename || '待补充图片',
+    reason: item.audit_reason || '',
+    description: item.description || '',
+    tags: item.tags || [],
+  };
+}
+
+/**
  * useSubmissionStore
- * 职责：管理用户菜品投稿、审核状态流转和列表筛选所需的共享状态。
+ * 职责：管理用户菜品投稿列表、审核状态流转和统计信息。
  * 作者：XXXXX
  * 创建时间：2026-05-09
  * 使用场景：用户上传菜品页、用户投稿页、菜品审核列表页。
- * 依赖：Pinia、submissions.mock.js
- * 设计说明：当前阶段使用 mock 数据模拟 B/S 架构中的后端返回，后续可替换为 API 层。
+ * 依赖：Pinia、submission.api.js
+ * 设计说明：对接后端 API 获取真实数据，上传成功后本地即时追加。
  */
 export const useSubmissionStore = defineStore('submission', {
   state: () => ({
-    submissions: [...DISH_SUBMISSIONS],
+    submissions: [],
     activeStatus: 'all',
+    loading: false,
+    error: '',
   }),
   getters: {
     statusLabels() {
@@ -40,30 +69,68 @@ export const useSubmissionStore = defineStore('submission', {
       if (state.activeStatus === 'all') {
         return state.submissions;
       }
-
       return state.submissions.filter(
-        item => item.status === state.activeStatus
+        (item) => item.status === state.activeStatus
       );
     },
     pendingCount(state) {
-      return state.submissions.filter(item => item.status === 'pending').length;
+      return state.submissions.filter((item) => item.status === 'pending').length;
     },
     approvedCount(state) {
-      return state.submissions.filter(item => item.status === 'approved')
-        .length;
+      return state.submissions.filter((item) => item.status === 'approved').length;
     },
     rejectedCount(state) {
-      return state.submissions.filter(item => item.status === 'rejected')
-        .length;
+      return state.submissions.filter((item) => item.status === 'rejected').length;
     },
   },
   actions: {
     /**
-     * 新增一条菜品投稿。
+     * 从后端加载当前用户的提报列表。
+     * @param {string} account 用户账号
+     * @returns {Promise<void>}
+     */
+    async loadSubmissions(account) {
+      if (!account) return;
+      this.loading = true;
+      this.error = '';
+      try {
+        const res = await fetchMySubmissions(account);
+        this.submissions = (res.data.items || []).map(mapSubmission);
+      } catch (e) {
+        this.error = e.message || '加载投稿列表失败';
+        this.submissions = [];
+      } finally {
+        this.loading = false;
+      }
+    },
+    /**
+     * 从后端加载所有用户的提报列表（管理员专用）。
+     * @returns {Promise<void>}
+     */
+    async loadAllSubmissions() {
+      this.loading = true;
+      this.error = '';
+      try {
+        const res = await fetchAllSubmissions();
+        this.submissions = (res.data.items || []).map(mapSubmission);
+      } catch (e) {
+        this.error = e.message || '加载投稿列表失败';
+        this.submissions = [];
+      } finally {
+        this.loading = false;
+      }
+    },
+    /**
+     * 用后端返回的数据直接追加一条投稿到列表头部（上传成功后即时展示）。
+     * @param {Object} item 后端返回的提报记录
+     * @returns {void}
+     */
+    appendSubmission(item) {
+      this.submissions.unshift(mapSubmission(item));
+    },
+    /**
+     * 新增一条菜品投稿（本地即时追加，用于上传成功后无需重新加载）。
      * @param {Object} payload 投稿表单数据。
-     * @param {string} payload.dishName 菜品名称。
-     * @param {string} payload.canteenName 所在食堂名称。
-     * @param {string} payload.stallName 档口名称。
      * @returns {Object} 返回创建后的投稿记录。
      */
     createSubmission(payload) {
@@ -102,24 +169,28 @@ export const useSubmissionStore = defineStore('submission', {
      * @param {string} submissionId 投稿 ID。
      * @returns {void}
      */
-    approveSubmission(submissionId) {
-      const target = this.submissions.find(item => item.id === submissionId);
-      if (target) {
-        target.status = 'approved';
-        target.reason = '审核通过，已进入菜品展示候选池。';
+    async approveSubmission(submissionId) {
+      try {
+        await auditSubmission(submissionId, { status: 'approved', reason: '审核通过，已进入菜品展示候选池。', auditor: 'admin' });
+        const target = this.submissions.find((item) => item.id === submissionId);
+        if (target) {
+          target.status = 'approved';
+          target.reason = '审核通过，已进入菜品展示候选池。';
+        }
+      } catch (e) {
+        console.error('审核通过失败:', e);
       }
     },
-    /**
-     * 驳回某条投稿。
-     * @param {string} submissionId 投稿 ID。
-     * @param {string} reason 驳回原因。
-     * @returns {void}
-     */
-    rejectSubmission(submissionId, reason = '信息不完整，请补充后重新提交。') {
-      const target = this.submissions.find(item => item.id === submissionId);
-      if (target) {
-        target.status = 'rejected';
-        target.reason = reason;
+    async rejectSubmission(submissionId, reason = '信息不完整，请补充后重新提交。') {
+      try {
+        await auditSubmission(submissionId, { status: 'rejected', reason, auditor: 'admin' });
+        const target = this.submissions.find((item) => item.id === submissionId);
+        if (target) {
+          target.status = 'rejected';
+          target.reason = reason;
+        }
+      } catch (e) {
+        console.error('审核驳回失败:', e);
       }
     },
   },

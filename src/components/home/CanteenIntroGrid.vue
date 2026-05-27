@@ -105,7 +105,7 @@ const router = useRouter();
 
 function jumpToDishList(canteenId) {
   router.push({
-    name: 'dishList',
+    name: 'canteenDetail',
     params: { canteenId },
   });
 }

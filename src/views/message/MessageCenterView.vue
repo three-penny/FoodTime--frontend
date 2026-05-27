@@ -30,13 +30,23 @@
 </template>
 
 <script setup>
-import { CANTEEN_MESSAGES } from '../../constants/messages';
+import { onMounted, ref } from 'vue';
+import { fetchMessages } from '../../api/message.api';
 
 defineOptions({
   name: 'MessageCenterView',
 });
 
-const messages = CANTEEN_MESSAGES;
+const messages = ref([]);
+
+onMounted(async () => {
+  try {
+    const res = await fetchMessages();
+    messages.value = res.data || [];
+  } catch (e) {
+    console.error('加载消息失败:', e);
+  }
+});
 </script>
 
 <style scoped lang="scss">

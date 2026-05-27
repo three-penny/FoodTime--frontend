@@ -181,6 +181,63 @@ chore: 升级 eslint 与 vitest
 - `fix bug`
 - `临时提交`
 
+### 4.5 Git 提交日志记录
+
+每次 `git commit` 后，必须在 `docs/gitLog/` 目录下创建一份提交日志文件，用于多人协作时发生合并冲突后快速复核功能点，避免丢失代码。
+
+#### 4.5.1 文件命名
+
+格式：`<BranchName>_<Time>.md`
+
+- `BranchName`：当前分支名，如 `feat-dish-upload`、`fix-login-session`
+- `Time`：提交时间，格式为 `YYYYMMDD_HHmmss`，如 `20260525_143022`
+
+示例：`feat-admin-audit_20260525_143022.md`
+
+#### 4.5.2 日志内容规范
+
+每份日志文件必须包含以下字段：
+
+```markdown
+# Git 提交日志
+
+## 基本信息
+- **分支名**：feat-admin-audit
+- **提交时间**：2026-05-25 14:30:22
+- **提交者**：naph130
+- **Commit Hash**：a1b2c3d
+
+## 提交信息
+feat: 打通管理员审核模块与投稿上传的后端接口
+
+## 变更文件清单
+| 文件路径 | 变更类型 | 说明 |
+|---------|---------|------|
+| src/views/admin/AdminAuditView.vue | 修改 | 修复加载全部投稿的 BUG |
+| src/store/useSubmissionStore.js | 修改 | 新增 loadAllSubmissions 方法 |
+| src/api/submission.api.js | 新增 | 新增 fetchAllSubmissions 接口 |
+
+## 变更详情
+1. 修复 `useSubmissionStore.js` 中 `rejectSubmission` 方法被重复定义导致 API 调用被覆盖的问题。
+2. 管理员审核台改为调用 `loadAllSubmissions()` 而非传 `account='all'` 筛选。
+
+## 影响范围
+- 影响模块：管理员审核台、用户投稿
+- 影响接口：GET /api/v1/submissions、PUT /api/v1/submissions/:id/audit
+- 向前兼容：是
+
+## 合并冲突处理指引
+- 若 `useSubmissionStore.js` 发生冲突，优先保留含 `loadAllSubmissions` 和 `fetchAllSubmissions` 导入的版本。
+- 若 `AdminAuditView.vue` 发生冲突，确保 `onMounted` 中调用 `loadAllSubmissions()` 而非 `loadSubmissions('all')`。
+```
+
+#### 4.5.3 执行要求
+
+- 每次 `git commit` 后必须立即创建对应日志文件，不得推迟或合并多日提交。
+- 日志文件命名不规范、内容缺失关键字段的，Code Review 阶段应直接退回。
+- `docs/gitLog/` 目录必须纳入版本控制，跟随代码一并提交推送。
+- 禁止修改他人的日志文件，如需补充可在文件末尾追加 `## 补充说明` 段落并署名。
+
 ## 5. 样式管理规范
 
 ### 5.1 样式方案

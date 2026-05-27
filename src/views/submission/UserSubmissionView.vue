@@ -24,7 +24,20 @@
       <span>已驳回 {{ submissionStore.rejectedCount }}</span>
     </div>
 
-    <div class="submission-list">
+    <div v-if="submissionStore.loading" class="submission-list">
+      <p class="submission-loading">加载中...</p>
+    </div>
+
+    <div v-else-if="submissionStore.error" class="submission-list">
+      <p class="submission-loading submission-error">{{ submissionStore.error }}</p>
+      <button class="button-ink" type="button" @click="retry">重新加载</button>
+    </div>
+
+    <div v-else-if="!submissions.length" class="submission-list">
+      <p class="submission-loading">暂无投稿记录，快去上传新菜品吧。</p>
+    </div>
+
+    <div v-else class="submission-list">
       <article
         v-for="item in submissions"
         :key="item.id"
@@ -33,14 +46,19 @@
         <div>
           <span class="stamp">{{ statusLabel(item.status) }}</span>
           <h2>{{ item.dishName }}</h2>
-          <p>{{ item.canteenName }} · {{ item.stallName }} · ¥{{ item.price }}</p>
+          <p>{{ item.canteenName }} · {{ item.stallName }} · &yen;{{ item.price }}</p>
         </div>
         <p class="submission-card__desc">{{ item.description }}</p>
         <div class="submission-card__meta">
           <span>{{ item.submittedAt }}</span>
-          <span>{{ item.imageName }}</span>
           <span v-if="item.tags?.length">标签 {{ item.tags.join(' / ') }}</span>
         </div>
+        <img
+          v-if="item.imageUrl"
+          :src="item.imageUrl"
+          :alt="item.dishName"
+          class="submission-card__image"
+        />
         <p v-if="item.reason" class="submission-card__reason">
           处理意见：{{ item.reason }}
         </p>
@@ -52,14 +70,15 @@
 <script setup>
 /**
  * UserSubmissionView
- * 职责：展示当前用户菜品投稿记录和审核结果。
+ * 职责：展示当前用户菜品投稿记录和审核结果，对接后端 API。
  * 作者：XXXXX
  * 使用场景：用户提交菜品后查看状态、继续新增投稿。
- * 依赖：Pinia、Vue Router、useSubmissionStore。
+ * 依赖：Pinia、Vue Router、useSubmissionStore、useAuthStore。
  */
-import { computed } from 'vue';
+import { computed, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { useSubmissionStore } from '../../store/useSubmissionStore';
+import { useAuthStore } from '../../store/useAuthStore';
 
 defineOptions({
   name: 'UserSubmissionView',
@@ -67,7 +86,15 @@ defineOptions({
 
 const router = useRouter();
 const submissionStore = useSubmissionStore();
+const authStore = useAuthStore();
 const submissions = computed(() => submissionStore.submissions);
+
+onMounted(() => {
+  const account = authStore.session?.account;
+  if (account) {
+    submissionStore.loadSubmissions(account);
+  }
+});
 
 function statusLabel(status) {
   return submissionStore.statusLabels[status] ?? '未知';
@@ -75,6 +102,13 @@ function statusLabel(status) {
 
 function goUpload() {
   router.push({ name: 'dishUpload' });
+}
+
+function retry() {
+  const account = authStore.session?.account;
+  if (account) {
+    submissionStore.loadSubmissions(account);
+  }
 }
 </script>
 
@@ -124,6 +158,16 @@ function goUpload() {
   gap: 16px;
 }
 
+.submission-loading {
+  color: var(--ft-color-text-muted);
+  text-align: center;
+  padding: 32px 0;
+}
+
+.submission-error {
+  color: var(--zine-stamp-red);
+}
+
 .submission-card {
   border: 1px solid var(--ft-color-secondary);
   background: var(--zine-paper-card-alt);
@@ -151,6 +195,14 @@ function goUpload() {
   flex-wrap: wrap;
   gap: 8px;
   margin-top: 12px;
+}
+
+.submission-card__image {
+  margin-top: 12px;
+  max-width: 320px;
+  width: 100%;
+  border: 1px solid var(--ft-color-secondary);
+  border-radius: 4px;
 }
 
 .submission-card__reason {

@@ -58,10 +58,31 @@
             <h2>基础资料</h2>
           </div>
 
-          <div class="info-grid">
+          <div v-if="!isEditing" class="info-grid">
             <div v-for="item in accountInfo" :key="item.label">
               <span>{{ item.label }}</span>
               <strong>{{ item.value }}</strong>
+            </div>
+            <button class="button-ink is-primary" type="button" @click="startEdit" style="grid-column: 1 / -1; margin-top: 12px;">
+              编辑资料
+            </button>
+          </div>
+
+          <div v-else class="edit-form">
+            <label>
+              <span>昵称</span>
+              <input v-model="editForm.nickname" type="text" maxlength="50" />
+            </label>
+            <label>
+              <span>邮箱</span>
+              <input v-model="editForm.email" type="email" maxlength="120" />
+            </label>
+            <p v-if="editMessage" class="edit-form__message">{{ editMessage }}</p>
+            <div class="edit-form__actions">
+              <button class="button-ink is-primary" type="button" @click="saveEdit" :disabled="editSaving">
+                {{ editSaving ? '保存中...' : '保存' }}
+              </button>
+              <button class="button-ink" type="button" @click="cancelEdit">取消</button>
             </div>
           </div>
         </section>
@@ -95,14 +116,6 @@
               @click="handleCheckIn"
             >
               {{ checkInButtonText }}
-            </button>
-            <button
-              class="button-ink"
-              type="button"
-              :disabled="pointsStore.currentUserPoints < 20"
-              @click="handleExchange"
-            >
-              兑换优惠券 -20
             </button>
           </div>
 
@@ -166,10 +179,11 @@
  * 职责：展示个人中心账号资料，并提供积分明细等独立选项。
  * 依赖：Pinia、Vue Router、useAuthStore、usePointsStore。
  */
-import { computed, ref } from 'vue';
+import { computed, onMounted, reactive, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { useAuthStore } from '../../store/useAuthStore';
 import { usePointsStore } from '../../store/usePointsStore';
+import { updateProfile } from '../../api/auth.api';
 
 defineOptions({
   name: 'ProfileView',
@@ -179,6 +193,48 @@ const router = useRouter();
 const authStore = useAuthStore();
 const pointsStore = usePointsStore();
 const activeTab = ref('account');
+const isEditing = ref(false);
+const editSaving = ref(false);
+const editMessage = ref('');
+const editForm = reactive({ nickname: '', email: '' });
+
+function startEdit() {
+  editForm.nickname = authStore.session?.nickname || '';
+  editForm.email = authStore.session?.email || '';
+  editMessage.value = '';
+  isEditing.value = true;
+}
+
+function cancelEdit() {
+  isEditing.value = false;
+  editMessage.value = '';
+}
+
+async function saveEdit() {
+  editSaving.value = true;
+  editMessage.value = '';
+  try {
+    const res = await updateProfile({
+      nickname: editForm.nickname.trim() || undefined,
+      email: editForm.email.trim() || undefined,
+    });
+    if (res.data) {
+      authStore.updateSession(res.data);
+      editMessage.value = '资料更新成功！';
+      setTimeout(() => { isEditing.value = false; }, 1200);
+    }
+  } catch (e) {
+    editMessage.value = e.message || '更新失败，请重试。';
+  } finally {
+    editSaving.value = false;
+  }
+}
+
+onMounted(async () => {
+  if (authStore.session?.id) {
+    await pointsStore.loadUserPoints();
+  }
+});
 
 const tabs = [
   { key: 'account', index: '01', label: '账号信息' },
@@ -226,10 +282,6 @@ const checkInButtonText = computed(() =>
 
 function handleCheckIn() {
   pointsStore.dailyCheckIn();
-}
-
-function handleExchange() {
-  pointsStore.consumePoints(20, '兑换食堂优惠券');
 }
 
 function goSubmissions() {
@@ -531,6 +583,35 @@ button:disabled {
   background: rgb(255 250 240 / 62%);
   color: var(--ft-color-text-muted);
   padding: 14px;
+}
+
+.edit-form {
+  display: grid;
+  gap: 14px;
+  max-width: 400px;
+}
+.edit-form label {
+  display: grid;
+  gap: 4px;
+}
+.edit-form label span {
+  font-size: 13px;
+  color: var(--ft-color-text-muted);
+}
+.edit-form input {
+  border: 1px solid var(--ft-color-secondary);
+  background: var(--ft-color-surface);
+  padding: 8px 12px;
+  font: inherit;
+  font-size: 16px;
+}
+.edit-form__message {
+  color: var(--zine-stamp-red);
+  font-size: 14px;
+}
+.edit-form__actions {
+  display: flex;
+  gap: 10px;
 }
 
 @media (max-width: 860px) {

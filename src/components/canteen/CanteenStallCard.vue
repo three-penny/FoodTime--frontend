@@ -33,7 +33,7 @@
         <div class="canteen-stall-card__dish-body">
           <div class="canteen-stall-card__dish-title">
             <h3>{{ dish.name }}</h3>
-            <span class="stamp">评分 {{ dish.rating.toFixed(1) }}</span>
+            <span class="stamp">评分 {{ (dish.rating ?? 0).toFixed(1) }}</span>
           </div>
           <div class="canteen-stall-card__dish-meta">
             <span>¥{{ dish.price }}</span>

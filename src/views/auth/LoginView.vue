@@ -43,7 +43,7 @@
         <label>
           <span>密码</span>
           <input
-            v-model.trim="form.password"
+            v-model="form.password"
             type="password"
             autocomplete="current-password"
           />
@@ -108,6 +108,7 @@ async function handleLogin() {
       nickname: res.data.nickname,
       role: res.data.role,
       id: res.data.id,
+      token: res.data.token,
     });
     router.push({ name: 'homeCanteenSelect' });
   } catch (e) {

@@ -28,7 +28,16 @@ describe('useSubmissionStore', () => {
 
   it('supports approving and rejecting submissions', () => {
     const store = useSubmissionStore();
-    const targetId = store.submissions[0].id;
+
+    const created = store.createSubmission({
+      dishName: '测试菜品',
+      canteenName: '测试食堂',
+      stallName: '测试档口',
+      price: 10,
+      description: '测试描述',
+      tags: ['测试'],
+    });
+    const targetId = created.id;
 
     store.approveSubmission(targetId);
     expect(store.submissions[0].status).toBe('approved');
