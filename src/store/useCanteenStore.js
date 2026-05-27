@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia';
-import { fetchCanteens, fetchCanteenById, fetchCanteenSpots, fetchStallsByCanteen, fetchRankings } from '../api/canteen.api';
+import { fetchCanteens, fetchCanteenById, fetchCanteenSpots, fetchStallsByCanteen, fetchRankings, fetchDailyRecommendations, fetchWeeklyRecommendations } from '../api/canteen.api';
 import { resolveCanteenImage, resolveStallImage, resolveDishImage } from '../utils/imageMapper';
 
 export const useCanteenStore = defineStore('canteen', {
@@ -7,6 +7,8 @@ export const useCanteenStore = defineStore('canteen', {
     canteens: [],
     homeCanteenSpots: [],
     rankings: [],
+    dailyRecommendations: [],
+    weeklyRecommendations: [],
     activeCanteenId: '',
     loading: false,
   }),
@@ -88,6 +90,35 @@ export const useCanteenStore = defineStore('canteen', {
       } catch (e) {
         console.error('加载档口数据失败:', e);
         return [];
+      }
+    },
+    async loadDailyRecommendations() {
+      try {
+        const res = await fetchDailyRecommendations();
+        this.dailyRecommendations = (res.data || []).map(item => ({
+          ...item,
+          image: resolveDishImage(item.imageUrl),
+          comment: item.description || '',
+        }));
+      } catch (e) {
+        console.error('加载每日推荐失败:', e);
+      }
+    },
+    async loadWeeklyRecommendations() {
+      try {
+        const res = await fetchWeeklyRecommendations();
+        this.weeklyRecommendations = (res.data || []).map((item, idx) => ({
+          ...item,
+          rank: idx + 1,
+          image: resolveDishImage(item.imageUrl),
+          stamp: item.score >= 4.8 ? '必吃' : '推荐',
+          recommendVotes: item.recommendVotes || 0,
+          avoidVotes: item.avoidVotes || 0,
+          valueNote: item.stall || '档口待补',
+          comment: item.description || '同学评价待补充',
+        }));
+      } catch (e) {
+        console.error('加载每周推荐失败:', e);
       }
     },
   },

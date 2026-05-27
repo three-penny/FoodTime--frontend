@@ -23,3 +23,11 @@ export function fetchCanteenDishes(canteenId) {
 export function fetchRankings() {
   return http.get('/rankings');
 }
+
+export function fetchDailyRecommendations() {
+  return http.get('/recommendations/daily');
+}
+
+export function fetchWeeklyRecommendations() {
+  return http.get('/recommendations/weekly');
+}

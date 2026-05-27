@@ -124,23 +124,14 @@ const canteenSpots = computed(() =>
   ),
 );
 const recommendations = computed(() =>
-  (dishStore.homeRecommendations ?? []).filter(
+  (canteenStore.dailyRecommendations ?? []).filter(
     (item) => item?.id && item?.canteenId,
   ),
 );
 const rankings = computed(() =>
-  canteenStore.rankings.map((item) => ({
-    ...item,
-    canteenName:
-      canteenStore.getCanteenById(item.canteenId)?.name ?? '未知食堂',
-    image: dishStore.getDishById(item.dishId)?.image ?? '',
-    price: dishStore.getDishById(item.dishId)?.price ?? null,
-    valueNote:
-      dishStore.getDishById(item.dishId)?.stall ??
-      dishStore.getDishById(item.dishId)?.valueNote ??
-      '档口待补',
-    comment: dishStore.getDishById(item.dishId)?.comment ?? '同学评价待补充',
-  })),
+  (canteenStore.weeklyRecommendations ?? []).filter(
+    (item) => item?.dishId,
+  ),
 );
 const rantPreview = computed(() => rantStore.todayPreview);
 
@@ -198,7 +189,8 @@ onMounted(async () => {
   await Promise.all([
     canteenStore.loadCanteens(),
     canteenStore.loadCanteenSpots(),
-    canteenStore.loadRankings(),
+    canteenStore.loadDailyRecommendations(),
+    canteenStore.loadWeeklyRecommendations(),
     dishStore.loadDishes(),
     rantStore.loadRants(),
   ]);
