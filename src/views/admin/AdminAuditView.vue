@@ -10,9 +10,9 @@
     <header class="admin-hero torn-edge">
       <div>
         <span class="sticker sticker--r-1">管理员审核台</span>
-        <h1>投稿和吐槽发布审核</h1>
+        <h1>投稿、吐槽和评论发布审核</h1>
         <p class="handwrite">
-          按照内容类型和状态快速处理用户提交的菜品、吐槽墙内容，后端接入后可替换为真实审核接口。
+          按照内容类型和状态快速处理用户提交的菜品、吐槽墙和评论内容。
         </p>
       </div>
       <div class="admin-hero__stamp">
@@ -43,6 +43,7 @@
           <select v-model="activePanel">
             <option value="dish">菜品投稿</option>
             <option value="rant">吐槽墙</option>
+            <option value="review">评论审核</option>
           </select>
         </label>
         <label>
@@ -87,8 +88,8 @@
             class="audit-card__image"
           />
 
-          <p v-if="item.reason" class="audit-card__reason">
-            处理意见：{{ item.reason }}
+          <p v-if="item.reason || item.audit_reason" class="audit-card__reason">
+            处理意见：{{ item.reason || item.audit_reason }}
           </p>
 
           <div class="audit-card__actions">
@@ -122,13 +123,13 @@
 <script setup>
 /**
  * AdminAuditView
- * 职责：提供管理员审核菜品投稿和吐槽墙内容的前端工作台。
- * 依赖：Pinia、useSubmissionStore、useRantStore。
- * 说明：当前使用前端 mock 状态模拟审核流，后端接入后应迁移到 src/api 管理端接口。
+ * 职责：提供管理员审核菜品投稿、吐槽墙和评论内容的前端工作台。
+ * 依赖：Pinia、useSubmissionStore、useRantStore、useReviewStore。
  */
 import { computed, onMounted, ref } from 'vue';
 import { useRantStore } from '../../store/useRantStore';
 import { useSubmissionStore } from '../../store/useSubmissionStore';
+import { useReviewStore } from '../../store/useReviewStore';
 
 defineOptions({
   name: 'AdminAuditView',
@@ -136,11 +137,13 @@ defineOptions({
 
 const submissionStore = useSubmissionStore();
 const rantStore = useRantStore();
+const reviewStore = useReviewStore();
 
 onMounted(async () => {
   await Promise.all([
     submissionStore.loadAllSubmissions(),
     rantStore.loadRants(),
+    reviewStore.loadAllReviews(),
   ]);
 });
 
@@ -149,7 +152,7 @@ const activeStatus = ref('pending');
 const rejectReason = ref('信息不完整或内容不符合发布规范，请修改后重新提交。');
 
 const pendingTotal = computed(
-  () => submissionStore.pendingCount + rantStore.pendingCount
+  () => submissionStore.pendingCount + rantStore.pendingCount + reviewStore.pendingCount
 );
 
 const summaryCards = computed(() => [
@@ -163,11 +166,22 @@ const summaryCards = computed(() => [
     label: '吐槽待审',
     count: rantStore.pendingCount,
   },
+  {
+    key: 'review',
+    label: '评论待审',
+    count: reviewStore.pendingCount,
+  },
 ]);
 
 const activeItems = computed(() => {
-  const source =
-    activePanel.value === 'dish' ? submissionStore.submissions : rantStore.rants;
+  let source;
+  if (activePanel.value === 'dish') {
+    source = submissionStore.submissions;
+  } else if (activePanel.value === 'rant') {
+    source = rantStore.rants;
+  } else {
+    source = reviewStore.reviews;
+  }
 
   if (activeStatus.value === 'all') {
     return source;
@@ -177,35 +191,46 @@ const activeItems = computed(() => {
 });
 
 function statusLabel(status) {
-  const labels =
-    activePanel.value === 'dish'
-      ? submissionStore.statusLabels
-      : rantStore.statusLabels;
-  return labels[status] ?? '未知';
+  if (activePanel.value === 'dish') return submissionStore.statusLabels[status] ?? '未知';
+  if (activePanel.value === 'rant') return rantStore.statusLabels[status] ?? '未知';
+  return reviewStore.statusLabels[status] ?? '未知';
 }
 
 function itemTitle(item) {
-  return activePanel.value === 'dish' ? item.dishName : `${item.tag}吐槽`;
+  if (activePanel.value === 'dish') return item.dishName;
+  if (activePanel.value === 'rant') return `${item.tag}吐槽`;
+  return `点评 (${item.rating ?? 0} 星)`;
 }
 
 function itemMeta(item) {
   if (activePanel.value === 'dish') {
     return `${item.canteenName} / ${item.stallName} / ¥${item.price} / ${item.submitter}`;
   }
-
-  return `${item.canteenName} / ${item.author} / ${item.createdAt}`;
+  if (activePanel.value === 'rant') {
+    return `${item.canteenName} / ${item.author} / ${item.createdAt}`;
+  }
+  return `评分 ${item.rating ?? '?'} / 5 · ${item.reviewer_nickname || '用户'}`;
 }
 
 function itemContent(item) {
-  return activePanel.value === 'dish' ? item.description : item.content;
+  if (activePanel.value === 'dish') return item.description;
+  if (activePanel.value === 'rant') return item.content;
+  return item.comment || '';
 }
 
 function itemTags(item) {
   if (activePanel.value === 'dish') {
     return (item.tags ?? []).filter(Boolean);
   }
-
-  return [item.tag, item.canteenName].filter(Boolean);
+  if (activePanel.value === 'rant') {
+    return [item.tag, item.canteenName].filter(Boolean);
+  }
+  const dishPath = [
+    item.canteen_name,
+    item.stall_name,
+    item.dish_name,
+  ].filter(Boolean).join(' - ');
+  return [`${item.rating} 星`, dishPath].filter(Boolean);
 }
 
 function approveItem(item) {
@@ -213,8 +238,11 @@ function approveItem(item) {
     submissionStore.approveSubmission(item.id);
     return;
   }
-
-  rantStore.approveRant(item.id);
+  if (activePanel.value === 'rant') {
+    rantStore.approveRant(item.id);
+    return;
+  }
+  reviewStore.approveReview(item.id);
 }
 
 function rejectItem(item) {
@@ -222,8 +250,11 @@ function rejectItem(item) {
     submissionStore.rejectSubmission(item.id, rejectReason.value);
     return;
   }
-
-  rantStore.rejectRant(item.id, rejectReason.value);
+  if (activePanel.value === 'rant') {
+    rantStore.rejectRant(item.id, rejectReason.value);
+    return;
+  }
+  reviewStore.rejectReview(item.id, rejectReason.value);
 }
 </script>
 
@@ -282,7 +313,7 @@ function rejectItem(item) {
 
 .audit-summary {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 14px;
   margin-top: var(--ft-space-3);
 }

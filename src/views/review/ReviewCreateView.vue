@@ -110,10 +110,27 @@ const target = reactive({
 });
 
 onMounted(async () => {
-  await Promise.all([
-    canteenStore.loadCanteens(),
-    dishStore.loadDishes(),
-  ]);
+  await canteenStore.loadCanteens();
+
+  const queryCanteenId = String(route.query.canteenId ?? '');
+  const queryDishId = String(route.query.dishId ?? '');
+
+  if (queryCanteenId) {
+    await dishStore.loadDishesByCanteen(queryCanteenId);
+
+    if (queryDishId) {
+      const queryDish = dishStore.getDishById(queryDishId);
+      if (queryDish && queryDish.canteenId === queryCanteenId) {
+        target.canteenId = queryDish.canteenId;
+        target.stallName = queryDish.stall ?? queryDish.valueNote ?? '';
+        target.dishId = queryDish.id;
+        return;
+      }
+    }
+    target.canteenId = queryCanteenId;
+  } else {
+    await dishStore.loadDishes();
+  }
 });
 
 const canteenId = computed(() => target.canteenId);
@@ -150,6 +167,7 @@ const dishOptions = computed(() => {
 watch(
   () => [route.query.canteenId, route.query.dishId],
   ([nextCanteenId, nextDishId]) => {
+    if (!nextCanteenId || !nextDishId) return;
     const nextDish = dishStore.getDishById(String(nextDishId ?? ''));
     if (!nextDish || nextDish.canteenId !== String(nextCanteenId ?? '')) {
       return;
@@ -159,14 +177,17 @@ watch(
     target.stallName = nextDish.stall ?? nextDish.valueNote ?? '';
     target.dishId = nextDish.id;
   },
-  { immediate: true }
 );
 
-function handleCanteenChange(nextCanteenId) {
+async function handleCanteenChange(nextCanteenId) {
   target.canteenId = nextCanteenId;
   target.stallName = '';
   target.dishId = '';
   message.value = '';
+
+  if (nextCanteenId) {
+    await dishStore.loadDishesByCanteen(nextCanteenId);
+  }
 }
 
 function handleStallChange(nextStallName) {
