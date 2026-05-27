@@ -43,7 +43,7 @@
         <label>
           <span>密码</span>
           <input
-            v-model.trim="form.password"
+            v-model="form.password"
             type="password"
             autocomplete="current-password"
           />

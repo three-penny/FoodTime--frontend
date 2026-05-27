@@ -60,7 +60,7 @@
         <label>
           <span>密码</span>
           <input
-            v-model.trim="form.password"
+            v-model="form.password"
             type="password"
             autocomplete="new-password"
           />
@@ -104,7 +104,7 @@ defineOptions({
   name: 'RegisterView',
 });
 
-const EMAIL_REGEX = /^\d+@bjtu\.edu\.cn$/;
+const EMAIL_REGEX = /^\d+@bjtu\.edu\.cn$/i;
 
 const router = useRouter();
 const authStore = useAuthStore();
