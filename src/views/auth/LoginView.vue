@@ -43,9 +43,12 @@
         <label>
           <span>密码</span>
           <input
+            ref="passwordInput"
             v-model="form.password"
             type="password"
             autocomplete="current-password"
+            @change="syncPassword"
+            @input="syncPassword"
           />
         </label>
         <p v-if="message" class="auth-form__message">{{ message }}</p>
@@ -70,7 +73,7 @@
  * 使用场景：所有业务页面访问前的登录校验入口。
  * 依赖：Pinia、Vue Router、useAuthStore、auth.api.js。
  */
-import { reactive, ref } from 'vue';
+import { reactive, ref, onMounted, nextTick } from 'vue';
 import { useRouter } from 'vue-router';
 import { useAuthStore } from '../../store/useAuthStore';
 import { login as loginApi } from '../../api/auth.api';
@@ -83,11 +86,29 @@ const router = useRouter();
 const authStore = useAuthStore();
 const message = ref('');
 const submitting = ref(false);
+const passwordInput = ref(null);
 const form = reactive({
   role: 'user',
   loginId: '',
   password: '',
 });
+
+onMounted(async () => {
+  await nextTick();
+  if (passwordInput.value && passwordInput.value.value) {
+    form.password = passwordInput.value.value;
+  }
+  const textInput = document.querySelector('input[type="text"][autocomplete="username"]');
+  if (textInput && textInput.value) {
+    form.loginId = textInput.value;
+  }
+});
+
+function syncPassword() {
+  if (passwordInput.value) {
+    form.password = passwordInput.value.value || '';
+  }
+}
 
 async function handleLogin() {
   if (!form.loginId || !form.password) {

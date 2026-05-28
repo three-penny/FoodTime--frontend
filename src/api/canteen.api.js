@@ -31,3 +31,7 @@ export function fetchDailyRecommendations() {
 export function fetchWeeklyRecommendations() {
   return http.get('/recommendations/weekly');
 }
+
+export function deleteStall(stallId) {
+  return http.delete(`/stalls/${stallId}`);
+}

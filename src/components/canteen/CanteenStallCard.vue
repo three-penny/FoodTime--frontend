@@ -19,6 +19,14 @@
           <span>推荐 {{ stall.bestTime }}</span>
           <span>{{ sortedDishes.length }} 道菜</span>
         </span>
+        <button
+          v-if="isAdmin"
+          class="button-ink button-ink--danger canteen-stall-card__delete"
+          type="button"
+          @click.stop="emit('delete-stall', stall)"
+        >
+          删除档口
+        </button>
       </span>
     </div>
 
@@ -66,6 +74,7 @@
  * 注意：展开状态属于当前卡片交互，不进入 Pinia，避免污染跨页面状态。
  */
 import { computed, ref } from 'vue';
+import { useAuthStore } from '../../store/useAuthStore';
 
 defineOptions({
   name: 'CanteenStallCard',
@@ -77,7 +86,10 @@ const props = defineProps({
     required: true,
   },
 });
-const emit = defineEmits(['dish-click']);
+const emit = defineEmits(['dish-click', 'delete-stall']);
+
+const authStore = useAuthStore();
+const isAdmin = computed(() => authStore.currentRole === 'admin');
 
 const expanded = ref(false);
 
@@ -186,6 +198,11 @@ function toggleExpanded() {
   padding: 2px 7px;
   color: var(--ft-color-text-muted);
   font-size: 12px;
+}
+
+.canteen-stall-card__delete {
+  margin-top: 2px;
+  font-size: 13px;
 }
 
 .canteen-stall-card__toggle {

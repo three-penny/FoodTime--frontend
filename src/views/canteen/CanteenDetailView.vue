@@ -72,9 +72,27 @@
             :key="stall.id"
             :stall="stall"
             @dish-click="toDishDetail"
+            @delete-stall="onDeleteStall"
           />
         </div>
       </section>
+
+      <Teleport to="body">
+        <div v-if="stallToDelete" class="overlay" @click.self="stallToDelete = null">
+          <div class="confirm-dialog torn-edge">
+            <h3>确认删除</h3>
+            <p>确定要删除档口「{{ stallToDelete.name }}」吗？该档口下的所有菜品也将被删除，此操作不可恢复。</p>
+            <div class="confirm-dialog__actions">
+              <button class="button-ink is-primary" type="button" :disabled="deleting" @click="confirmDeleteStall">
+                {{ deleting ? '删除中...' : '确认删除' }}
+              </button>
+              <button class="button-ink" type="button" :disabled="deleting" @click="stallToDelete = null">
+                取消
+              </button>
+            </div>
+          </div>
+        </div>
+      </Teleport>
     </template>
   </section>
 </template>
@@ -84,6 +102,7 @@ import { computed, ref, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import CanteenStallCard from '../../components/canteen/CanteenStallCard.vue';
 import { useCanteenStore } from '../../store/useCanteenStore';
+import { deleteStall as deleteStallApi } from '../../api/canteen.api';
 import { formatComment } from '../../utils/commentText';
 
 defineOptions({
@@ -97,6 +116,8 @@ const canteenStore = useCanteenStore();
 const canteenId = computed(() => String(route.params.canteenId ?? ''));
 const canteen = computed(() => canteenStore.getCanteenById(canteenId.value));
 const stallSections = ref([]);
+const stallToDelete = ref(null);
+const deleting = ref(false);
 const heroFacts = computed(() =>
   canteen.value
     ? [
@@ -138,6 +159,24 @@ function toDishDetail(dish) {
       dishId: dish.id,
     },
   });
+}
+
+function onDeleteStall(stall) {
+  stallToDelete.value = stall;
+}
+
+async function confirmDeleteStall() {
+  if (!stallToDelete.value) return;
+  deleting.value = true;
+  try {
+    await deleteStallApi(stallToDelete.value.id);
+    stallSections.value = stallSections.value.filter(s => s.id !== stallToDelete.value.id);
+    stallToDelete.value = null;
+  } catch {
+    stallToDelete.value = null;
+  } finally {
+    deleting.value = false;
+  }
 }
 </script>
 
@@ -299,5 +338,51 @@ function toDishDetail(dish) {
     display: grid;
     grid-template-columns: 1fr;
   }
+}
+</style>
+
+<style>
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgb(0 0 0 / 40%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.confirm-dialog {
+  background: var(--ft-color-surface);
+  border: 1px solid var(--ft-color-secondary);
+  padding: 24px;
+  max-width: 400px;
+  width: 90%;
+}
+
+.confirm-dialog h3 {
+  margin: 0 0 8px;
+  font-family: var(--ft-font-family-title);
+  font-size: 28px;
+}
+
+.confirm-dialog p {
+  margin: 0 0 16px;
+  color: var(--ft-color-text-muted);
+}
+
+.confirm-dialog__actions {
+  display: flex;
+  gap: 10px;
+}
+
+.button-ink--danger {
+  border-color: var(--zine-stamp-red, #c0392b) !important;
+  color: var(--zine-stamp-red, #c0392b) !important;
+}
+
+.button-ink--danger:hover {
+  background: var(--zine-stamp-red, #c0392b) !important;
+  color: #fff !important;
 }
 </style>
