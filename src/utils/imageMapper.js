@@ -36,14 +36,21 @@ const DISH_IMAGE_MAP = {
   '酸汤米线.png': dishSourSoup,
 };
 
+function isRemoteUrl(url) {
+  return typeof url === 'string' && url.length > 0 && (url.startsWith('/') || url.startsWith('http'));
+}
+
 export function resolveCanteenImage(imageUrl) {
+  if (isRemoteUrl(imageUrl)) return imageUrl;
   return CANTEEN_IMAGE_MAP[imageUrl] || CANTEEN_IMAGE_MAP['食堂1.png'];
 }
 
 export function resolveStallImage(imageUrl) {
+  if (isRemoteUrl(imageUrl)) return imageUrl;
   return STALL_IMAGE_MAP[imageUrl] || STALL_IMAGE_MAP['档口01.webp'];
 }
 
 export function resolveDishImage(imageUrl) {
+  if (isRemoteUrl(imageUrl)) return imageUrl;
   return DISH_IMAGE_MAP[imageUrl] || DISH_IMAGE_MAP['番茄肥牛饭.jpg'];
 }

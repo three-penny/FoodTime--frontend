@@ -30,14 +30,6 @@
             <span>（{{ formatComment(dish.comment, 42).length }}字）</span>
           </p>
 
-          <div class="dish-main__essay">
-            <p class="dropcap">{{ dish.description ?? dish.comment }}</p>
-            <p>
-              在 {{ canteen.name }} 里，这道菜属于“犹豫时就点它”的那类。风味不追求花哨，
-              但稳定度高，尤其适合晚课后急着吃饭的时段。
-            </p>
-          </div>
-
           <div class="dish-main__tags">
             <span v-for="tag in safeTags" :key="tag">#{{ tag }}</span>
           </div>
@@ -262,17 +254,6 @@ function toReviewPage() {
   font-size: 14px;
 }
 
-.dish-main__essay {
-  margin-top: 12px;
-  column-count: 2;
-  column-gap: 18px;
-
-  p {
-    margin: 0 0 10px;
-    color: var(--ft-color-secondary-soft);
-  }
-}
-
 .dish-main__tags {
   margin-top: 8px;
   display: flex;
@@ -321,10 +302,6 @@ function toReviewPage() {
   .dish-main__image {
     min-height: 300px;
     clip-path: none;
-  }
-
-  .dish-main__essay {
-    column-count: 1;
   }
 }
 
