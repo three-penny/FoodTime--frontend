@@ -41,9 +41,34 @@
             <button class="button-ink" type="button" @click="toCanteenDetail">
               查看食堂详情
             </button>
+            <button
+              v-if="isAdmin"
+              class="button-ink button-ink--danger"
+              type="button"
+              @click="showDeleteConfirm = true"
+            >
+              删除菜品
+            </button>
           </div>
         </div>
       </article>
+
+      <Teleport to="body">
+        <div v-if="showDeleteConfirm" class="overlay" @click.self="showDeleteConfirm = false">
+          <div class="confirm-dialog torn-edge">
+            <h3>确认删除</h3>
+            <p>确定要删除「{{ dish.name }}」吗？此操作不可恢复。</p>
+            <div class="confirm-dialog__actions">
+              <button class="button-ink is-primary" type="button" :disabled="deleting" @click="handleDelete">
+                {{ deleting ? '删除中...' : '确认删除' }}
+              </button>
+              <button class="button-ink" type="button" :disabled="deleting" @click="showDeleteConfirm = false">
+                取消
+              </button>
+            </div>
+          </div>
+        </div>
+      </Teleport>
 
       <DishReviewPanel
         :dish-name="dish.name"
@@ -77,12 +102,14 @@
 </template>
 
 <script setup>
-import { computed, watch } from 'vue';
+import { computed, ref, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import DishCard from '../../components/dish/DishCard.vue';
 import DishReviewPanel from '../../components/dish/DishReviewPanel.vue';
 import { useCanteenStore } from '../../store/useCanteenStore';
 import { useDishStore } from '../../store/useDishStore';
+import { useAuthStore } from '../../store/useAuthStore';
+import { deleteDish as deleteDishApi } from '../../api/dish.api';
 import { formatComment } from '../../utils/commentText';
 import { getRatingLabel } from '../../utils/ratingLabel';
 
@@ -94,6 +121,11 @@ const route = useRoute();
 const router = useRouter();
 const canteenStore = useCanteenStore();
 const dishStore = useDishStore();
+const authStore = useAuthStore();
+
+const showDeleteConfirm = ref(false);
+const deleting = ref(false);
+const isAdmin = computed(() => authStore.currentRole === 'admin');
 
 const canteenId = computed(() => String(route.params.canteenId ?? ''));
 const dishId = computed(() => String(route.params.dishId ?? ''));
@@ -175,6 +207,19 @@ function toAnotherDish(targetDishId) {
       dishId: targetDishId,
     },
   });
+}
+
+async function handleDelete() {
+  deleting.value = true;
+  try {
+    await deleteDishApi(dishId.value);
+    dishStore.dishes = dishStore.dishes.filter(d => d.id !== dishId.value);
+    router.push({ name: 'dishList', params: { canteenId: canteenId.value } });
+  } catch (e) {
+    showDeleteConfirm.value = false;
+  } finally {
+    deleting.value = false;
+  }
 }
 
 function toReviewPage() {
@@ -272,6 +317,50 @@ function toReviewPage() {
   display: flex;
   gap: 10px;
   flex-wrap: wrap;
+}
+
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgb(0 0 0 / 40%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.confirm-dialog {
+  background: var(--ft-color-surface);
+  border: 1px solid var(--ft-color-secondary);
+  padding: 24px;
+  max-width: 400px;
+  width: 90%;
+
+  h3 {
+    margin: 0 0 8px;
+    font-family: var(--ft-font-family-title);
+    font-size: 28px;
+  }
+
+  p {
+    margin: 0 0 16px;
+    color: var(--ft-color-text-muted);
+  }
+}
+
+.confirm-dialog__actions {
+  display: flex;
+  gap: 10px;
+}
+
+.button-ink--danger {
+  border-color: var(--zine-stamp-red, #c0392b) !important;
+  color: var(--zine-stamp-red, #c0392b) !important;
+
+  &:hover {
+    background: var(--zine-stamp-red, #c0392b) !important;
+    color: #fff !important;
+  }
 }
 
 .related {

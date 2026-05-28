@@ -23,3 +23,7 @@ export function recommendDish(dishId) {
 export function avoidDish(dishId) {
   return http.post(`/dishes/${dishId}/avoid`);
 }
+
+export function deleteDish(dishId) {
+  return http.delete(`/dishes/${dishId}`);
+}
