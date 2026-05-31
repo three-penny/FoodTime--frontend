@@ -44,3 +44,11 @@ export function sendVerificationCode(email) {
 export function updateProfile(data) {
   return http.put('/auth/profile', data);
 }
+
+export function generateInviteCode() {
+  return http.post('/auth/invite-code/generate');
+}
+
+export function getInviteCode() {
+  return http.get('/auth/invite-code');
+}

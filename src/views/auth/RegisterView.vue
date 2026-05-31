@@ -158,13 +158,18 @@ async function handleRegister() {
     return;
   }
 
-  if (form.password !== form.confirmPassword) {
-    message.value = '两次输入的密码不一致。';
+  if (form.password.length < 6) {
+    message.value = '密码长度不能少于 6 位。';
     return;
   }
 
-  if (form.role === 'admin' && !authStore.validateAdminInvite(form.inviteCode)) {
-    message.value = '管理员邀请码不正确。';
+  if (form.role === 'admin' && !form.inviteCode) {
+    message.value = '管理员注册需要提供邀请码。';
+    return;
+  }
+
+  if (form.password !== form.confirmPassword) {
+    message.value = '两次输入的密码不一致。';
     return;
   }
 

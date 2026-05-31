@@ -68,6 +68,39 @@
             </button>
           </div>
 
+          <div v-if="authStore.currentRole === 'admin' && !isEditing" class="invite-code-section">
+            <div class="panel-title" style="margin-top: 28px;">
+              <span class="sticker sticker--r-2">邀请码</span>
+              <h2>管理员邀请码</h2>
+            </div>
+            <p class="handwrite invite-code-desc">生成邀请码后，其他用户可使用此码注册为管理员。每个邀请码有效期为3天，使用后即作废。</p>
+
+            <div v-if="inviteCodeData" class="invite-code-display">
+              <div class="invite-code-box">
+                <span class="invite-code-label">邀请码</span>
+                <strong class="invite-code-value">{{ inviteCodeData.code }}</strong>
+              </div>
+              <div class="invite-code-meta">
+                <span>过期时间：{{ formatExpiry(inviteCodeData.expires_at) }}</span>
+                <span :class="inviteCodeData.is_active ? 'tag-valid' : 'tag-invalid'">
+                  {{ inviteCodeData.is_active ? '有效' : '已失效' }}
+                </span>
+              </div>
+              <button class="button-ink is-primary" type="button" @click="handleGenerateInviteCode" :disabled="inviteCodeLoading">
+                {{ inviteCodeLoading ? '处理中...' : '重新生成邀请码' }}
+              </button>
+            </div>
+
+            <div v-else class="invite-code-empty">
+              <p>暂无有效邀请码</p>
+              <button class="button-ink is-primary" type="button" @click="handleGenerateInviteCode" :disabled="inviteCodeLoading">
+                {{ inviteCodeLoading ? '生成中...' : '生成邀请码' }}
+              </button>
+            </div>
+
+            <p v-if="inviteCodeMessage" class="invite-code-message">{{ inviteCodeMessage }}</p>
+          </div>
+
           <div v-else class="edit-form">
             <label>
               <span>昵称</span>
@@ -183,7 +216,7 @@ import { computed, onMounted, reactive, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { useAuthStore } from '../../store/useAuthStore';
 import { usePointsStore } from '../../store/usePointsStore';
-import { updateProfile } from '../../api/auth.api';
+import { updateProfile, generateInviteCode, getInviteCode } from '../../api/auth.api';
 
 defineOptions({
   name: 'ProfileView',
@@ -197,6 +230,45 @@ const isEditing = ref(false);
 const editSaving = ref(false);
 const editMessage = ref('');
 const editForm = reactive({ nickname: '', email: '' });
+const inviteCodeData = ref(null);
+const inviteCodeLoading = ref(false);
+const inviteCodeMessage = ref('');
+
+function formatExpiry(isoString) {
+  const date = new Date(isoString);
+  return date.toLocaleString('zh-CN', {
+    year: 'numeric', month: '2-digit', day: '2-digit',
+    hour: '2-digit', minute: '2-digit',
+  });
+}
+
+async function handleGenerateInviteCode() {
+  inviteCodeLoading.value = true;
+  inviteCodeMessage.value = '';
+  try {
+    const res = await generateInviteCode();
+    if (res.data) {
+      inviteCodeData.value = res.data;
+      inviteCodeMessage.value = '邀请码已生成，有效期为3天。';
+    }
+  } catch (e) {
+    inviteCodeMessage.value = e.message || '邀请码生成失败，请重试。';
+  } finally {
+    inviteCodeLoading.value = false;
+  }
+}
+
+async function loadInviteCode() {
+  if (authStore.currentRole !== 'admin') return;
+  try {
+    const res = await getInviteCode();
+    if (res.data) {
+      inviteCodeData.value = res.data;
+    }
+  } catch {
+    // 静默失败
+  }
+}
 
 function startEdit() {
   editForm.nickname = authStore.session?.nickname || '';
@@ -233,6 +305,7 @@ async function saveEdit() {
 onMounted(async () => {
   if (authStore.session?.id) {
     await pointsStore.loadUserPoints();
+    await loadInviteCode();
   }
 });
 
@@ -612,6 +685,79 @@ button:disabled {
 .edit-form__actions {
   display: flex;
   gap: 10px;
+}
+
+.invite-code-section {
+  margin-top: 8px;
+}
+
+.invite-code-desc {
+  color: var(--ft-color-text-muted);
+  font-size: 14px;
+  margin: 10px 0 16px;
+}
+
+.invite-code-display,
+.invite-code-empty {
+  display: grid;
+  gap: 14px;
+}
+
+.invite-code-box {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  border: 2px dashed var(--ft-color-primary);
+  background: var(--zine-stamp-blue-soft);
+  padding: 18px 22px;
+  border-radius: 4px;
+}
+
+.invite-code-label {
+  color: var(--ft-color-text-muted);
+  font-size: 14px;
+}
+
+.invite-code-value {
+  font-family: var(--zine-title-font);
+  font-size: 36px;
+  color: var(--ft-color-primary);
+  letter-spacing: 6px;
+  line-height: 1;
+}
+
+.invite-code-meta {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  color: var(--ft-color-text-muted);
+  font-size: 14px;
+}
+
+.tag-valid {
+  display: inline-block;
+  border: 1px solid var(--ft-color-accent);
+  color: var(--ft-color-accent);
+  font-size: 12px;
+  font-weight: 700;
+  padding: 2px 10px;
+  border-radius: 2px;
+}
+
+.tag-invalid {
+  display: inline-block;
+  border: 1px solid var(--zine-stamp-red);
+  color: var(--zine-stamp-red);
+  font-size: 12px;
+  font-weight: 700;
+  padding: 2px 10px;
+  border-radius: 2px;
+}
+
+.invite-code-message {
+  margin: 8px 0 0;
+  color: var(--zine-stamp-red);
+  font-size: 14px;
 }
 
 @media (max-width: 860px) {
