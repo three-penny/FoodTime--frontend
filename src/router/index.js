@@ -16,6 +16,7 @@ const DishUploadView = () => import('../views/submission/DishUploadView.vue');
 const UserSubmissionView = () =>
   import('../views/submission/UserSubmissionView.vue');
 const AdminAuditView = () => import('../views/admin/AdminAuditView.vue');
+const SuperadminView = () => import('../views/superadmin/SuperadminView.vue');
 const ProfileView = () => import('../views/profile/ProfileView.vue');
 
 export const routes = [
@@ -106,6 +107,12 @@ export const routes = [
     meta: { requiresAuth: true, requiresAdmin: true },
   },
   {
+    path: '/admin/superadmin',
+    name: 'superadmin',
+    component: SuperadminView,
+    meta: { requiresAuth: true, requiresSuperadmin: true },
+  },
+  {
     path: '/:pathMatch(.*)*',
     name: 'notFoundRedirect',
     redirect: '/',
@@ -137,7 +144,11 @@ router.beforeEach((to) => {
     return { name: 'login', query: { redirect: to.fullPath } };
   }
 
-  if (to.meta.requiresAdmin && session?.role !== 'admin') {
+  if (to.meta.requiresAdmin && session?.role !== 'admin' && session?.role !== 'superadmin') {
+    return { name: 'homeCanteenSelect' };
+  }
+
+  if (to.meta.requiresSuperadmin && session?.role !== 'superadmin') {
     return { name: 'homeCanteenSelect' };
   }
 

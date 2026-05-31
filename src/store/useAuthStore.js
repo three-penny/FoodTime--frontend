@@ -40,6 +40,12 @@ export const useAuthStore = defineStore('auth', {
     token(state) {
       return state.session?.token ?? '';
     },
+    isSuperAdmin(state) {
+      return state.session?.role === 'superadmin';
+    },
+    isAdmin(state) {
+      return state.session?.role === 'admin' || state.session?.role === 'superadmin';
+    },
   },
   actions: {
     /**

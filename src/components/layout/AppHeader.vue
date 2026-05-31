@@ -110,6 +110,13 @@ const navItems = [
     to: { name: 'adminAudit' },
     adminOnly: true,
   },
+  {
+    key: 'superadmin',
+    index: '99',
+    label: '控制台',
+    to: { name: 'superadmin' },
+    superadminOnly: true,
+  },
 ];
 
 const previewMessages = ref([]);
@@ -124,7 +131,11 @@ onMounted(async () => {
 });
 
 const visibleNavItems = computed(() =>
-  navItems.filter(item => !item.adminOnly || authStore.currentRole === 'admin')
+  navItems.filter(item => {
+    if (item.superadminOnly) return authStore.currentRole === 'superadmin';
+    if (item.adminOnly) return authStore.currentRole === 'admin' || authStore.currentRole === 'superadmin';
+    return true;
+  })
 );
 const isAuthPage = computed(
   () => route.name === 'login' || route.name === 'register'
@@ -142,6 +153,9 @@ const activeKey = computed(() => {
   }
   if (route.name === 'adminAudit') {
     return 'admin';
+  }
+  if (route.name === 'superadmin') {
+    return 'superadmin';
   }
   if (route.name === 'profile') {
     return '';
