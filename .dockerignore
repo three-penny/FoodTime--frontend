@@ -1,0 +1,11 @@
+node_modules/
+.git/
+.gitignore
+*.md
+docs/
+.idea/
+.vscode/
+.vite-cache/
+.vitest-cache/
+*.local
+package-lock.json
