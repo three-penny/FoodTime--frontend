@@ -7,10 +7,6 @@
       <span class="section-rule__line"></span>
     </div>
 
-    <transition name="toast-fade">
-      <div v-if="toast.visible" class="sa-toast">{{ toast.message }}</div>
-    </transition>
-
     <header class="sa-header torn-edge">
       <div>
         <span class="sticker sticker--r-1">超级管理员</span>
@@ -198,13 +194,14 @@
           maxlength="128"
           @keyup.enter="confirmPasswordChange"
         />
+        <p v-if="passwordModal.success" class="modal-card__success">{{ passwordModal.success }}</p>
         <p v-if="passwordModal.error" class="modal-card__error">{{ passwordModal.error }}</p>
         <div class="modal-card__actions">
-          <button class="button-ink is-primary" type="button" :disabled="passwordModal.submitting" @click="confirmPasswordChange">
-            {{ passwordModal.submitting ? '修改中...' : '确认修改' }}
+          <button class="button-ink is-primary" type="button" :disabled="passwordModal.submitting || passwordModal.success" @click="confirmPasswordChange">
+            {{ passwordModal.submitting ? '修改中...' : passwordModal.success ? '已完成' : '确认修改' }}
           </button>
           <button class="button-ink" type="button" :disabled="passwordModal.submitting" @click="closePasswordModal">
-            取消
+            {{ passwordModal.success ? '关闭' : '取消' }}
           </button>
         </div>
       </div>
@@ -228,15 +225,6 @@ const tabs = [
   { key: 'users', index: '02', label: '用户管理' },
   { key: 'logs', index: '03', label: '操作日志' },
 ];
-
-const toast = reactive({ visible: false, message: '', timer: null });
-
-function showToast(msg) {
-  if (toast.timer) clearTimeout(toast.timer);
-  toast.message = msg;
-  toast.visible = true;
-  toast.timer = setTimeout(() => { toast.visible = false; }, 2200);
-}
 
 const stats = ref({});
 onMounted(async () => {
@@ -313,6 +301,7 @@ const passwordModal = reactive({
   target: null,
   password: '',
   error: '',
+  success: '',
   submitting: false,
 });
 
@@ -320,6 +309,7 @@ function openPasswordModal(user) {
   passwordModal.target = user;
   passwordModal.password = '';
   passwordModal.error = '';
+  passwordModal.success = '';
   passwordModal.submitting = false;
   passwordModal.visible = true;
 }
@@ -329,6 +319,7 @@ function closePasswordModal() {
   passwordModal.target = null;
   passwordModal.password = '';
   passwordModal.error = '';
+  passwordModal.success = '';
 }
 
 async function confirmPasswordChange() {
@@ -344,8 +335,9 @@ async function confirmPasswordChange() {
   passwordModal.error = '';
   try {
     await changeUserPassword(passwordModal.target.id, passwordModal.password);
-    closePasswordModal();
-    showToast('密码修改成功。');
+    passwordModal.success = '密码修改成功。';
+    passwordModal.password = '';
+    setTimeout(() => closePasswordModal(), 1200);
   } catch (e) {
     passwordModal.error = e.message || '操作失败';
   } finally {
@@ -658,36 +650,18 @@ table {
   font-size: 13px;
 }
 
+.modal-card__success {
+  margin: 8px 0 0;
+  color: var(--ft-color-accent);
+  font-weight: 700;
+  font-size: 15px;
+}
+
 .modal-card__actions {
   display: flex;
   gap: 10px;
   margin-top: 16px;
 }
 
-.sa-toast {
-  position: fixed;
-  top: 20px;
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 200;
-  border: 1px solid var(--ft-color-accent);
-  background: #f0faf0;
-  color: var(--ft-color-accent);
-  font-weight: 700;
-  font-size: 15px;
-  padding: 12px 28px;
-  box-shadow: 4px 4px 0 rgb(58 36 24 / 14%);
-  white-space: nowrap;
-}
 
-.toast-fade-enter-active,
-.toast-fade-leave-active {
-  transition: opacity 0.25s, transform 0.25s;
-}
-
-.toast-fade-enter-from,
-.toast-fade-leave-to {
-  opacity: 0;
-  transform: translateX(-50%) translateY(-10px);
-}
 </style>
