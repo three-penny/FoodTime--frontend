@@ -134,7 +134,7 @@ async function sendCode() {
   message.value = '';
   try {
     await sendVerificationCode(form.email);
-    message.value = '验证码已发送（默认000000）。';
+    message.value = '验证码已发送，请查收邮件。';
   } catch (e) {
     message.value = e.message || '验证码发送失败。';
   } finally {
