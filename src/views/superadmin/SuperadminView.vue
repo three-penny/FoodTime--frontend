@@ -7,6 +7,10 @@
       <span class="section-rule__line"></span>
     </div>
 
+    <transition name="toast-fade">
+      <div v-if="toast.visible" class="sa-toast">{{ toast.message }}</div>
+    </transition>
+
     <header class="sa-header torn-edge">
       <div>
         <span class="sticker sticker--r-1">超级管理员</span>
@@ -225,6 +229,15 @@ const tabs = [
   { key: 'logs', index: '03', label: '操作日志' },
 ];
 
+const toast = reactive({ visible: false, message: '', timer: null });
+
+function showToast(msg) {
+  if (toast.timer) clearTimeout(toast.timer);
+  toast.message = msg;
+  toast.visible = true;
+  toast.timer = setTimeout(() => { toast.visible = false; }, 2200);
+}
+
 const stats = ref({});
 onMounted(async () => {
   await loadStats();
@@ -332,7 +345,7 @@ async function confirmPasswordChange() {
   try {
     await changeUserPassword(passwordModal.target.id, passwordModal.password);
     closePasswordModal();
-    alert('密码修改成功。');
+    showToast('密码修改成功。');
   } catch (e) {
     passwordModal.error = e.message || '操作失败';
   } finally {
@@ -649,5 +662,32 @@ table {
   display: flex;
   gap: 10px;
   margin-top: 16px;
+}
+
+.sa-toast {
+  position: fixed;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 200;
+  border: 1px solid var(--ft-color-accent);
+  background: #f0faf0;
+  color: var(--ft-color-accent);
+  font-weight: 700;
+  font-size: 15px;
+  padding: 12px 28px;
+  box-shadow: 4px 4px 0 rgb(58 36 24 / 14%);
+  white-space: nowrap;
+}
+
+.toast-fade-enter-active,
+.toast-fade-leave-active {
+  transition: opacity 0.25s, transform 0.25s;
+}
+
+.toast-fade-enter-from,
+.toast-fade-leave-to {
+  opacity: 0;
+  transform: translateX(-50%) translateY(-10px);
 }
 </style>
