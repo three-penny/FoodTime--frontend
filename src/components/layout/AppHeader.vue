@@ -218,7 +218,6 @@ function handleLogout() {
   border-bottom: 1px solid var(--ft-color-secondary);
   background: rgb(242 239 230 / 94%);
   backdrop-filter: blur(4px);
-  overflow: hidden;
 }
 
 .app-header__inner {
