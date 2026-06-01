@@ -101,7 +101,7 @@
                   >
                     {{ u.account_status === 'banned' ? '解封' : '封禁' }}
                   </button>
-                  <button class="button-ink is-small" type="button" @click="changePassword(u)">
+                  <button class="button-ink is-small" type="button" @click="openPasswordModal(u)">
                     改密码
                   </button>
                 </td>
@@ -178,6 +178,33 @@
         </div>
       </section>
     </article>
+
+    <div v-if="passwordModal.visible" class="modal-overlay" @click.self="closePasswordModal">
+      <div class="modal-card torn-edge">
+        <div class="modal-card__head">
+          <span class="sticker sticker--r2">密码</span>
+          <h3>修改密码</h3>
+        </div>
+        <p class="modal-card__hint">为 {{ passwordModal.target?.nickname }}（{{ passwordModal.target?.account }}）设置新密码</p>
+        <input
+          v-model="passwordModal.password"
+          type="password"
+          class="modal-card__input"
+          placeholder="输入新密码（至少6位）"
+          maxlength="128"
+          @keyup.enter="confirmPasswordChange"
+        />
+        <p v-if="passwordModal.error" class="modal-card__error">{{ passwordModal.error }}</p>
+        <div class="modal-card__actions">
+          <button class="button-ink is-primary" type="button" :disabled="passwordModal.submitting" @click="confirmPasswordChange">
+            {{ passwordModal.submitting ? '修改中...' : '确认修改' }}
+          </button>
+          <button class="button-ink" type="button" :disabled="passwordModal.submitting" @click="closePasswordModal">
+            取消
+          </button>
+        </div>
+      </div>
+    </div>
   </section>
 </template>
 
@@ -268,18 +295,48 @@ async function changeRole(userId) {
   }
 }
 
-async function changePassword(user) {
-  const newPassword = prompt(`请输入 ${user.nickname}（${user.account}）的新密码（至少6位）：`);
-  if (!newPassword) return;
-  if (newPassword.length < 6) {
-    alert('密码长度不能少于 6 位。');
+const passwordModal = reactive({
+  visible: false,
+  target: null,
+  password: '',
+  error: '',
+  submitting: false,
+});
+
+function openPasswordModal(user) {
+  passwordModal.target = user;
+  passwordModal.password = '';
+  passwordModal.error = '';
+  passwordModal.submitting = false;
+  passwordModal.visible = true;
+}
+
+function closePasswordModal() {
+  passwordModal.visible = false;
+  passwordModal.target = null;
+  passwordModal.password = '';
+  passwordModal.error = '';
+}
+
+async function confirmPasswordChange() {
+  if (!passwordModal.password) {
+    passwordModal.error = '密码不能为空。';
     return;
   }
+  if (passwordModal.password.length < 6) {
+    passwordModal.error = '密码长度不能少于 6 位。';
+    return;
+  }
+  passwordModal.submitting = true;
+  passwordModal.error = '';
   try {
-    await changeUserPassword(user.id, newPassword);
+    await changeUserPassword(passwordModal.target.id, passwordModal.password);
+    closePasswordModal();
     alert('密码修改成功。');
   } catch (e) {
-    alert(e.message || '操作失败');
+    passwordModal.error = e.message || '操作失败';
+  } finally {
+    passwordModal.submitting = false;
   }
 }
 
@@ -530,5 +587,67 @@ table {
 @media (max-width: 680px) {
   .sa-tabs, .stats-grid { grid-template-columns: 1fr; }
   .td-actions { flex-direction: column; align-items: flex-start; }
+}
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgb(0 0 0 / 32%);
+  padding: 16px;
+}
+
+.modal-card {
+  width: min(400px, 100%);
+  border: 1px solid var(--ft-color-secondary);
+  background: var(--zine-paper-card);
+  padding: 22px;
+  box-shadow: 8px 8px 0 rgb(58 36 24 / 16%);
+}
+
+.modal-card__head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  h3 {
+    margin: 0;
+    font-family: var(--zine-title-font);
+    font-size: 28px;
+    line-height: 1;
+  }
+}
+
+.modal-card__hint {
+  margin: 14px 0 0;
+  color: var(--ft-color-text-muted);
+  font-size: 14px;
+}
+
+.modal-card__input {
+  width: 100%;
+  margin-top: 12px;
+  border: 1px solid var(--ft-color-secondary);
+  background: #fffaf0;
+  padding: 12px 14px;
+  font: inherit;
+  font-size: 15px;
+  outline: none;
+  box-sizing: border-box;
+}
+
+.modal-card__error {
+  margin: 8px 0 0;
+  color: var(--zine-stamp-red);
+  font-size: 13px;
+}
+
+.modal-card__actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 16px;
 }
 </style>
