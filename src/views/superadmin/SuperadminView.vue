@@ -181,29 +181,87 @@
 
     <div v-if="passwordModal.visible" class="modal-overlay" @click.self="closePasswordModal">
       <div class="modal-card torn-edge">
-        <div class="modal-card__head">
-          <span class="sticker sticker--r2">密码</span>
-          <h3>修改密码</h3>
-        </div>
-        <p class="modal-card__hint">为 {{ passwordModal.target?.nickname }}（{{ passwordModal.target?.account }}）设置新密码</p>
-        <input
-          v-model="passwordModal.password"
-          type="password"
-          class="modal-card__input"
-          placeholder="输入新密码（至少6位）"
-          maxlength="128"
-          @keyup.enter="confirmPasswordChange"
-        />
-        <p v-if="passwordModal.success" class="modal-card__success">{{ passwordModal.success }}</p>
-        <p v-if="passwordModal.error" class="modal-card__error">{{ passwordModal.error }}</p>
-        <div class="modal-card__actions">
-          <button class="button-ink is-primary" type="button" :disabled="passwordModal.submitting || passwordModal.success" @click="confirmPasswordChange">
-            {{ passwordModal.submitting ? '修改中...' : passwordModal.success ? '已完成' : '确认修改' }}
-          </button>
-          <button class="button-ink" type="button" :disabled="passwordModal.submitting" @click="closePasswordModal">
-            {{ passwordModal.success ? '关闭' : '取消' }}
-          </button>
-        </div>
+        <template v-if="passwordModal.phase === 'result'">
+          <div class="modal-card__head">
+            <span
+              class="sticker"
+              :class="passwordModal.success ? 'sticker--r2' : 'sticker--r1'"
+            >{{ passwordModal.success ? '完成' : '出错' }}</span>
+            <h3>{{ passwordModal.success ? '密码已重置' : '密码修改失败' }}</h3>
+          </div>
+          <div
+            class="modal-card__banner"
+            :class="passwordModal.success ? 'modal-card__banner--success' : 'modal-card__banner--error'"
+          >
+            <span class="modal-card__banner-icon" aria-hidden="true">
+              {{ passwordModal.success ? '✓' : '✕' }}
+            </span>
+            <div>
+              <p class="modal-card__banner-title">
+                {{ passwordModal.success ? '密码重置成功' : '密码重置失败' }}
+              </p>
+              <p class="modal-card__banner-text">
+                {{ passwordModal.success
+                  ? `已为 ${passwordModal.target?.nickname || ''}（${passwordModal.target?.account || ''}）重置密码，请通知其使用新密码登录。`
+                  : passwordModal.error }}
+              </p>
+            </div>
+          </div>
+          <div class="modal-card__actions">
+            <button
+              v-if="!passwordModal.success"
+              class="button-ink is-primary"
+              type="button"
+              @click="retryPasswordChange"
+            >
+              重试
+            </button>
+            <button
+              class="button-ink"
+              :class="passwordModal.success ? 'is-primary' : ''"
+              type="button"
+              @click="closePasswordModal"
+            >
+              {{ passwordModal.success ? '完成' : '关闭' }}
+            </button>
+          </div>
+        </template>
+        <template v-else>
+          <div class="modal-card__head">
+            <span class="sticker sticker--r2">密码</span>
+            <h3>修改密码</h3>
+          </div>
+          <p class="modal-card__hint">为 {{ passwordModal.target?.nickname }}（{{ passwordModal.target?.account }}）设置新密码</p>
+          <input
+            v-model="passwordModal.password"
+            type="password"
+            class="modal-card__input"
+            :class="{ 'modal-card__input--error': passwordModal.error }"
+            placeholder="输入新密码（6-128 位）"
+            maxlength="128"
+            @keyup.enter="confirmPasswordChange"
+            @input="passwordModal.error = ''"
+          />
+          <p v-if="passwordModal.error" class="modal-card__error">{{ passwordModal.error }}</p>
+          <div class="modal-card__actions">
+            <button
+              class="button-ink is-primary"
+              type="button"
+              :disabled="passwordModal.submitting"
+              @click="confirmPasswordChange"
+            >
+              {{ passwordModal.submitting ? '修改中...' : '确认修改' }}
+            </button>
+            <button
+              class="button-ink"
+              type="button"
+              :disabled="passwordModal.submitting"
+              @click="closePasswordModal"
+            >
+              取消
+            </button>
+          </div>
+        </template>
       </div>
     </div>
   </section>
@@ -298,10 +356,11 @@ async function changeRole(userId) {
 
 const passwordModal = reactive({
   visible: false,
+  phase: 'form',
   target: null,
   password: '',
   error: '',
-  success: '',
+  success: false,
   submitting: false,
 });
 
@@ -309,8 +368,9 @@ function openPasswordModal(user) {
   passwordModal.target = user;
   passwordModal.password = '';
   passwordModal.error = '';
-  passwordModal.success = '';
+  passwordModal.success = false;
   passwordModal.submitting = false;
+  passwordModal.phase = 'form';
   passwordModal.visible = true;
 }
 
@@ -319,10 +379,25 @@ function closePasswordModal() {
   passwordModal.target = null;
   passwordModal.password = '';
   passwordModal.error = '';
-  passwordModal.success = '';
+  passwordModal.success = false;
+  passwordModal.submitting = false;
+  passwordModal.phase = 'form';
+}
+
+function retryPasswordChange() {
+  passwordModal.error = '';
+  passwordModal.success = false;
+  passwordModal.phase = 'form';
+  passwordModal.password = '';
 }
 
 async function confirmPasswordChange() {
+  if (!passwordModal.target) {
+    passwordModal.error = '操作目标不存在，请重新打开弹窗。';
+    passwordModal.success = false;
+    passwordModal.phase = 'result';
+    return;
+  }
   const pwd = passwordModal.password.trim();
   if (!pwd) {
     passwordModal.error = '请输入新密码。';
@@ -339,15 +414,16 @@ async function confirmPasswordChange() {
 
   passwordModal.submitting = true;
   passwordModal.error = '';
-  passwordModal.success = '';
+  passwordModal.success = false;
   try {
     await changeUserPassword(passwordModal.target.id, pwd);
-    const targetName = passwordModal.target?.nickname || passwordModal.target?.account || '用户';
-    passwordModal.success = `已将 ${targetName} 的密码重置成功，1.2 秒后自动关闭。`;
+    passwordModal.success = true;
     passwordModal.password = '';
-    setTimeout(() => closePasswordModal(), 1200);
+    passwordModal.phase = 'result';
   } catch (e) {
+    passwordModal.success = false;
     passwordModal.error = e.message || '修改失败，请稍后重试。';
+    passwordModal.phase = 'result';
   } finally {
     passwordModal.submitting = false;
   }
@@ -650,6 +726,17 @@ table {
   font-size: 15px;
   outline: none;
   box-sizing: border-box;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.modal-card__input:focus {
+  border-color: var(--ft-color-primary);
+  box-shadow: 0 0 0 2px rgb(0 0 0 / 6%);
+}
+
+.modal-card__input--error {
+  border-color: var(--zine-stamp-red);
+  background: rgb(255 250 245 / 90%);
 }
 
 .modal-card__error {
@@ -662,21 +749,61 @@ table {
   line-height: 1.45;
 }
 
-.modal-card__success {
-  margin: 8px 0 0;
-  padding: 8px 10px;
-  border: 1px solid var(--ft-color-accent);
+.modal-card__banner {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  margin: 16px 0 0;
+  padding: 14px 16px;
+  border: 2px solid;
+  line-height: 1.5;
+}
+
+.modal-card__banner--success {
+  border-color: var(--ft-color-accent);
   background: rgb(232 248 232 / 80%);
   color: var(--ft-color-accent);
-  font-weight: 700;
-  font-size: 14px;
-  line-height: 1.45;
+}
+
+.modal-card__banner--error {
+  border-color: var(--zine-stamp-red);
+  background: rgb(255 235 230 / 80%);
+  color: var(--zine-stamp-red);
+}
+
+.modal-card__banner-icon {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: 2px solid currentColor;
+  border-radius: 50%;
+  font-size: 18px;
+  font-weight: 900;
+  line-height: 1;
+}
+
+.modal-card__banner-title {
+  margin: 0 0 4px;
+  font-size: 16px;
+  font-weight: 800;
+  color: inherit;
+}
+
+.modal-card__banner-text {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 500;
+  color: inherit;
+  opacity: 0.92;
 }
 
 .modal-card__actions {
   display: flex;
   gap: 10px;
-  margin-top: 16px;
+  margin-top: 18px;
 }
 
 
