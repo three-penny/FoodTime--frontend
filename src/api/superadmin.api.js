@@ -19,3 +19,7 @@ export function listAuditLogs(params = {}) {
 export function getDashboard() {
   return http.get('/superadmin/dashboard');
 }
+
+export function changeUserPassword(userId, password) {
+  return http.put(`/superadmin/users/${userId}/password`, { password });
+}

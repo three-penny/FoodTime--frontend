@@ -101,6 +101,9 @@
                   >
                     {{ u.account_status === 'banned' ? '解封' : '封禁' }}
                   </button>
+                  <button class="button-ink is-small" type="button" @click="changePassword(u)">
+                    改密码
+                  </button>
                 </td>
               </tr>
             </tbody>
@@ -133,6 +136,7 @@
             <option value="">全部操作</option>
             <option value="role_change">角色变更</option>
             <option value="status_change">状态变更</option>
+            <option value="password_change">密码重置</option>
           </select>
           <select v-model="logTargetType" @change="loadLogs()">
             <option value="">全部类型</option>
@@ -180,7 +184,7 @@
 <script setup>
 import { computed, onMounted, reactive, ref } from 'vue';
 import {
-  listUsers, setUserRole, setUserStatus,
+  listUsers, setUserRole, setUserStatus, changeUserPassword,
   listAuditLogs, getDashboard,
 } from '../../api/superadmin.api';
 
@@ -264,6 +268,21 @@ async function changeRole(userId) {
   }
 }
 
+async function changePassword(user) {
+  const newPassword = prompt(`请输入 ${user.nickname}（${user.account}）的新密码（至少6位）：`);
+  if (!newPassword) return;
+  if (newPassword.length < 6) {
+    alert('密码长度不能少于 6 位。');
+    return;
+  }
+  try {
+    await changeUserPassword(user.id, newPassword);
+    alert('密码修改成功。');
+  } catch (e) {
+    alert(e.message || '操作失败');
+  }
+}
+
 async function toggleStatus(user) {
   const newStatus = user.account_status === 'banned' ? 'active' : 'banned';
   try {
@@ -298,7 +317,7 @@ async function loadLogs() {
 }
 
 function actionLabel(action) {
-  const map = { role_change: '角色变更', status_change: '状态变更' };
+  const map = { role_change: '角色变更', status_change: '状态变更', password_change: '密码重置' };
   return map[action] || action;
 }
 
