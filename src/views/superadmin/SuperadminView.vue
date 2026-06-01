@@ -323,23 +323,31 @@ function closePasswordModal() {
 }
 
 async function confirmPasswordChange() {
-  if (!passwordModal.password) {
-    passwordModal.error = '密码不能为空。';
+  const pwd = passwordModal.password.trim();
+  if (!pwd) {
+    passwordModal.error = '请输入新密码。';
     return;
   }
-  if (passwordModal.password.length < 6) {
+  if (pwd.length < 6) {
     passwordModal.error = '密码长度不能少于 6 位。';
     return;
   }
+  if (pwd.length > 128) {
+    passwordModal.error = '密码长度不能超过 128 个字符。';
+    return;
+  }
+
   passwordModal.submitting = true;
   passwordModal.error = '';
+  passwordModal.success = '';
   try {
-    await changeUserPassword(passwordModal.target.id, passwordModal.password);
-    passwordModal.success = '密码修改成功。';
+    await changeUserPassword(passwordModal.target.id, pwd);
+    const targetName = passwordModal.target?.nickname || passwordModal.target?.account || '用户';
+    passwordModal.success = `已将 ${targetName} 的密码重置成功，1.2 秒后自动关闭。`;
     passwordModal.password = '';
     setTimeout(() => closePasswordModal(), 1200);
   } catch (e) {
-    passwordModal.error = e.message || '操作失败';
+    passwordModal.error = e.message || '修改失败，请稍后重试。';
   } finally {
     passwordModal.submitting = false;
   }
@@ -646,15 +654,23 @@ table {
 
 .modal-card__error {
   margin: 8px 0 0;
+  padding: 8px 10px;
+  border: 1px solid var(--zine-stamp-red);
+  background: rgb(255 235 230 / 80%);
   color: var(--zine-stamp-red);
   font-size: 13px;
+  line-height: 1.45;
 }
 
 .modal-card__success {
   margin: 8px 0 0;
+  padding: 8px 10px;
+  border: 1px solid var(--ft-color-accent);
+  background: rgb(232 248 232 / 80%);
   color: var(--ft-color-accent);
   font-weight: 700;
-  font-size: 15px;
+  font-size: 14px;
+  line-height: 1.45;
 }
 
 .modal-card__actions {
