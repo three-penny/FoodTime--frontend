@@ -187,7 +187,11 @@ async function handleNavClick(item) {
     route.name === 'homeCanteenSelect' &&
     route.query.section === targetSection;
 
-  await router.push(item.to);
+  try {
+    await router.push(item.to);
+  } catch (e) {
+    console.warn('[Nav] 跳转拦截或失败:', e?.message);
+  }
 
   if (isSameHomeSection && typeof targetSection === 'string') {
     window.dispatchEvent(
