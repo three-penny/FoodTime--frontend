@@ -59,6 +59,31 @@
           <span>驳回意见模板</span>
           <textarea v-model.trim="rejectReason" rows="4"></textarea>
         </label>
+
+        <template v-if="authStore.isAdmin">
+          <hr class="audit-filter__divider" />
+          <h2>快速创建</h2>
+          <template v-if="activePanel === 'dish'">
+            <label>菜名 <input v-model="quickForm.dishName" /></label>
+            <label>食堂 <input v-model="quickForm.canteenName" /></label>
+            <label>档口 <input v-model="quickForm.stallName" /></label>
+            <label>价格 <input v-model.number="quickForm.price" type="number" /></label>
+            <label>描述 <textarea v-model="quickForm.description" rows="2"></textarea></label>
+            <p v-if="quickMsg" class="audit-filter__msg">{{ quickMsg }}</p>
+            <button class="button-ink is-primary" type="button" @click="quickCreate" :disabled="quickSaving">
+              {{ quickSaving ? '创建中...' : '直接创建（免审）' }}
+            </button>
+          </template>
+          <template v-if="activePanel === 'rant'">
+            <label>食堂 <input v-model="quickRantForm.canteenName" /></label>
+            <label>标签 <input v-model="quickRantForm.tag" /></label>
+            <label>内容 <textarea v-model="quickRantForm.content" rows="2"></textarea></label>
+            <p v-if="quickMsg" class="audit-filter__msg">{{ quickMsg }}</p>
+            <button class="button-ink is-primary" type="button" @click="quickCreateRant" :disabled="quickSaving">
+              {{ quickSaving ? '创建中...' : '直接创建（免审）' }}
+            </button>
+          </template>
+        </template>
       </aside>
 
       <div class="audit-board">
@@ -160,7 +185,8 @@ import { useRantStore } from '../../store/useRantStore';
 import { useSubmissionStore } from '../../store/useSubmissionStore';
 import { useReviewStore } from '../../store/useReviewStore';
 import { useAuthStore } from '../../store/useAuthStore';
-import { editSubmission, editRant } from '../../api/adminAudit.api';
+import { editSubmission, editRant, adminCreateSubmission } from '../../api/adminAudit.api';
+import { createRant } from '../../api/rant.api';
 
 defineOptions({
   name: 'AdminAuditView',
@@ -175,6 +201,57 @@ const editingId = ref(null);
 const editSaving = ref(false);
 const editMsg = ref('');
 const editForm = reactive({});
+
+const quickForm = reactive({ dishName: '', canteenName: '', stallName: '', price: '', description: '' });
+const quickRantForm = reactive({ canteenName: '', tag: '排队', content: '' });
+const quickSaving = ref(false);
+const quickMsg = ref('');
+
+async function quickCreate() {
+  quickSaving.value = true;
+  quickMsg.value = '';
+  try {
+    await adminCreateSubmission({
+      dish_name: quickForm.dishName,
+      canteen_name: quickForm.canteenName,
+      stall_name: quickForm.stallName,
+      price: quickForm.price || null,
+      description: quickForm.description,
+    });
+    quickMsg.value = '创建成功！';
+    quickForm.dishName = '';
+    quickForm.canteenName = '';
+    quickForm.stallName = '';
+    quickForm.price = '';
+    quickForm.description = '';
+    await submissionStore.loadAllSubmissions();
+  } catch (e) {
+    quickMsg.value = e.message || '创建失败';
+  } finally {
+    quickSaving.value = false;
+  }
+}
+
+async function quickCreateRant() {
+  quickSaving.value = true;
+  quickMsg.value = '';
+  try {
+    await createRant({
+      canteenName: quickRantForm.canteenName,
+      author: authStore.session?.account || '',
+      content: quickRantForm.content,
+      tag: quickRantForm.tag,
+    });
+    quickMsg.value = '吐槽已发布（已通过审核）！';
+    quickRantForm.canteenName = '';
+    quickRantForm.content = '';
+    await rantStore.loadRants();
+  } catch (e) {
+    quickMsg.value = e.message || '创建失败';
+  } finally {
+    quickSaving.value = false;
+  }
+}
 
 function startEdit(item) {
   editingId.value = item.id;
@@ -633,5 +710,33 @@ function rejectItem(item) {
 .edit-form-actions {
   display: flex;
   gap: 10px;
+}
+
+.audit-filter__divider {
+  margin: 16px 0;
+  border: none;
+  border-top: 1px dashed var(--ft-color-secondary);
+}
+
+.audit-filter label {
+  display: grid;
+  gap: 2px;
+  font-size: 13px;
+  color: var(--ft-color-text-muted);
+}
+
+.audit-filter input,
+.audit-filter textarea {
+  border: 1px solid var(--ft-color-secondary);
+  background: var(--ft-color-surface);
+  padding: 6px 10px;
+  font: inherit;
+  font-size: 14px;
+}
+
+.audit-filter__msg {
+  color: var(--zine-stamp-red);
+  font-size: 13px;
+  margin: 6px 0 0;
 }
 </style>
