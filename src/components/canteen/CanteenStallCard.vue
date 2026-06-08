@@ -31,25 +31,45 @@
     </div>
 
     <div class="canteen-stall-card__dishes">
-      <button
+      <div
         v-for="dish in visibleDishes"
         :key="dish.id"
         class="canteen-stall-card__dish"
-        type="button"
-        @click="emit('dish-click', dish)"
       >
-        <div class="canteen-stall-card__dish-body">
-          <div class="canteen-stall-card__dish-title">
-            <h3>{{ dish.name }}</h3>
-            <span class="stamp">评分 {{ (dish.rating ?? 0).toFixed(1) }}</span>
+        <template v-if="editingDishId !== dish.id">
+          <button
+            class="canteen-stall-card__dish-main"
+            type="button"
+            @click="emit('dish-click', dish)"
+          >
+            <div class="canteen-stall-card__dish-body">
+              <div class="canteen-stall-card__dish-title">
+                <h3>{{ dish.name }}</h3>
+                <span class="stamp">评分 {{ (dish.rating ?? 0).toFixed(1) }}</span>
+              </div>
+              <div class="canteen-stall-card__dish-meta">
+                <span>¥{{ dish.price }}</span>
+                <span>{{ dish.stall }}</span>
+              </div>
+              <p>真实评价：{{ dish.comment }}</p>
+            </div>
+          </button>
+          <div v-if="isAdmin" class="canteen-stall-card__dish-admin">
+            <button class="button-ink button-ink--small" type="button" @click.stop="startEditDish(dish)">编辑</button>
+            <button class="button-ink button-ink--small button-ink--danger" type="button" @click.stop="emit('delete-dish', dish)">删除</button>
           </div>
-          <div class="canteen-stall-card__dish-meta">
-            <span>¥{{ dish.price }}</span>
-            <span>{{ dish.stall }}</span>
+        </template>
+        <div v-else class="canteen-stall-card__dish-edit">
+          <label>菜名 <input v-model="editDishForm.name" /></label>
+          <label>价格 <input v-model.number="editDishForm.price" type="number" /></label>
+          <label>描述 <textarea v-model="editDishForm.description" rows="2"></textarea></label>
+          <label>评分 <input v-model.number="editDishForm.rating" type="number" step="0.1" min="0" max="5" /></label>
+          <div class="canteen-stall-card__dish-edit-actions">
+            <button class="button-ink is-primary button-ink--small" type="button" @click="saveEditDish(dish)">保存</button>
+            <button class="button-ink button-ink--small" type="button" @click="editingDishId = null">取消</button>
           </div>
-          <p>真实评价：{{ dish.comment }}</p>
         </div>
-      </button>
+      </div>
 
       <button
         v-if="hiddenCount > 0"
@@ -73,7 +93,7 @@
  * 依赖：Vue 局部状态、全局 zine 视觉类。
  * 注意：展开状态属于当前卡片交互，不进入 Pinia，避免污染跨页面状态。
  */
-import { computed, ref } from 'vue';
+import { computed, reactive, ref } from 'vue';
 import { useAuthStore } from '../../store/useAuthStore';
 
 defineOptions({
@@ -86,10 +106,10 @@ const props = defineProps({
     required: true,
   },
 });
-const emit = defineEmits(['dish-click', 'delete-stall']);
+const emit = defineEmits(['dish-click', 'delete-stall', 'edit-dish', 'delete-dish']);
 
 const authStore = useAuthStore();
-const isAdmin = computed(() => authStore.currentRole === 'admin');
+const isAdmin = computed(() => authStore.currentRole === 'admin' || authStore.currentRole === 'superadmin');
 
 const expanded = ref(false);
 
@@ -100,6 +120,28 @@ const visibleDishes = computed(() =>
   expanded.value ? sortedDishes.value : sortedDishes.value.slice(0, 3),
 );
 const hiddenCount = computed(() => Math.max(sortedDishes.value.length - 3, 0));
+
+const editingDishId = ref(null);
+const editDishForm = reactive({ name: '', price: null, description: '', rating: null });
+
+function startEditDish(dish) {
+  editingDishId.value = dish.id;
+  editDishForm.name = dish.name || '';
+  editDishForm.price = dish.price ?? null;
+  editDishForm.description = dish.description || dish.comment || '';
+  editDishForm.rating = dish.rating ?? null;
+}
+
+function saveEditDish(dish) {
+  emit('edit-dish', {
+    ...dish,
+    name: editDishForm.name,
+    price: editDishForm.price,
+    description: editDishForm.description,
+    rating: editDishForm.rating,
+  });
+  editingDishId.value = null;
+}
 
 function toggleExpanded() {
   if (hiddenCount.value > 0) {
@@ -205,6 +247,17 @@ function toggleExpanded() {
   font-size: 13px;
 }
 
+.button-ink--small {
+  padding: 3px 8px !important;
+  font-size: 12px !important;
+  min-height: auto !important;
+}
+
+.button-ink--danger {
+  color: var(--zine-stamp-red) !important;
+  border-color: var(--zine-stamp-red) !important;
+}
+
 .canteen-stall-card__toggle {
   justify-self: start;
   margin-top: 2px;
@@ -278,6 +331,73 @@ function toggleExpanded() {
   color: var(--ft-color-secondary);
   font-size: 13px;
   font-weight: 700;
+}
+
+.canteen-stall-card__dish {
+  position: relative;
+}
+
+.canteen-stall-card__dish-main {
+  appearance: none;
+  border: 1px solid var(--ft-color-secondary);
+  background: var(--zine-paper-card);
+  color: inherit;
+  cursor: pointer;
+  font: inherit;
+  width: 100%;
+  text-align: left;
+  box-shadow: 3px 3px 0 rgb(58 36 24 / 12%);
+  transition: transform var(--ft-transition-fast), box-shadow var(--ft-transition-fast);
+}
+
+.canteen-stall-card__dish-main:hover {
+  box-shadow: 5px 5px 0 rgb(58 36 24 / 18%);
+}
+
+.canteen-stall-card__dish-main:nth-child(2n) {
+  transform: rotate(0.4deg);
+}
+
+.canteen-stall-card__dish-main:nth-child(2n + 1) {
+  transform: rotate(-0.3deg);
+}
+
+.canteen-stall-card__dish-admin {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  display: flex;
+  gap: 4px;
+  z-index: 2;
+}
+
+.canteen-stall-card__dish-edit {
+  border: 1px solid var(--ft-color-secondary);
+  background: var(--ft-color-surface);
+  padding: 12px;
+  display: grid;
+  gap: 8px;
+}
+
+.canteen-stall-card__dish-edit label {
+  display: grid;
+  gap: 2px;
+  font-size: 13px;
+  color: var(--ft-color-text-muted);
+}
+
+.canteen-stall-card__dish-edit input,
+.canteen-stall-card__dish-edit textarea {
+  border: 1px solid var(--ft-color-secondary);
+  background: #fff;
+  padding: 6px 10px;
+  font: inherit;
+  font-size: 14px;
+}
+
+.canteen-stall-card__dish-edit-actions {
+  display: flex;
+  gap: 8px;
 }
 
 .canteen-stall-card__dish-body p {

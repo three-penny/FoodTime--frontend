@@ -27,3 +27,7 @@ export function avoidDish(dishId) {
 export function deleteDish(dishId) {
   return http.delete(`/dishes/${dishId}`);
 }
+
+export function updateDish(dishId, data) {
+  return http.put(`/dishes/${dishId}`, data);
+}

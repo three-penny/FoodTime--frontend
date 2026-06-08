@@ -65,6 +65,8 @@
             :key="stall.id"
             :stall="stall"
             @dish-click="toDishDetail"
+            @edit-dish="onEditDish"
+            @delete-dish="onDeleteDish"
           />
         </div>
       </section>
@@ -77,6 +79,7 @@ import { computed, ref, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import CanteenStallCard from '../../components/canteen/CanteenStallCard.vue';
 import { useCanteenStore } from '../../store/useCanteenStore';
+import { updateDish, deleteDish as deleteDishApi } from '../../api/dish.api';
 import { formatComment } from '../../utils/commentText';
 
 defineOptions({
@@ -124,6 +127,29 @@ function toDishDetail(dish) {
       dishId: dish.id,
     },
   });
+}
+
+async function onEditDish(dish) {
+  try {
+    await updateDish(dish.id, {
+      name: dish.name,
+      price: dish.price,
+      description: dish.description,
+      rating: dish.rating,
+    });
+    stallSections.value = await canteenStore.loadStallsByCanteen(canteenId.value);
+  } catch (e) {
+    console.error('更新菜品失败:', e);
+  }
+}
+
+async function onDeleteDish(dish) {
+  try {
+    await deleteDishApi(dish.id);
+    stallSections.value = await canteenStore.loadStallsByCanteen(canteenId.value);
+  } catch (e) {
+    console.error('删除菜品失败:', e);
+  }
 }
 </script>
 
