@@ -92,7 +92,7 @@
             处理意见：{{ item.reason || item.audit_reason }}
           </p>
 
-          <div class="audit-card__actions">
+          <div v-if="editingId !== item.id" class="audit-card__actions">
             <button
               class="button-ink is-primary"
               type="button"
@@ -109,6 +109,35 @@
             >
               驳回
             </button>
+            <button
+              v-if="authStore.isAdmin"
+              class="button-ink"
+              type="button"
+              @click="startEdit(item)"
+            >
+              编辑
+            </button>
+          </div>
+          <div v-else class="edit-form-inline">
+            <template v-if="activePanel === 'dish'">
+              <label>菜品名 <input v-model="editForm.dishName" /></label>
+              <label>食堂 <input v-model="editForm.canteenName" /></label>
+              <label>档口 <input v-model="editForm.stallName" /></label>
+              <label>价格 <input v-model.number="editForm.price" type="number" /></label>
+              <label>描述 <textarea v-model="editForm.description" rows="3"></textarea></label>
+            </template>
+            <template v-if="activePanel === 'rant'">
+              <label>食堂 <input v-model="editForm.canteenName" /></label>
+              <label>标签 <input v-model="editForm.tag" /></label>
+              <label>内容 <textarea v-model="editForm.content" rows="3"></textarea></label>
+            </template>
+            <p v-if="editMsg" class="edit-form-msg">{{ editMsg }}</p>
+            <div class="edit-form-actions">
+              <button class="button-ink is-primary" type="button" @click="saveEdit" :disabled="editSaving">
+                {{ editSaving ? '保存中...' : '保存' }}
+              </button>
+              <button class="button-ink" type="button" @click="cancelEdit">取消</button>
+            </div>
           </div>
         </article>
 
@@ -126,10 +155,12 @@
  * 职责：提供管理员审核菜品投稿、吐槽墙和评论内容的前端工作台。
  * 依赖：Pinia、useSubmissionStore、useRantStore、useReviewStore。
  */
-import { computed, onMounted, ref } from 'vue';
+import { computed, onMounted, reactive, ref } from 'vue';
 import { useRantStore } from '../../store/useRantStore';
 import { useSubmissionStore } from '../../store/useSubmissionStore';
 import { useReviewStore } from '../../store/useReviewStore';
+import { useAuthStore } from '../../store/useAuthStore';
+import { editSubmission, editRant } from '../../api/adminAudit.api';
 
 defineOptions({
   name: 'AdminAuditView',
@@ -138,6 +169,63 @@ defineOptions({
 const submissionStore = useSubmissionStore();
 const rantStore = useRantStore();
 const reviewStore = useReviewStore();
+const authStore = useAuthStore();
+
+const editingId = ref(null);
+const editSaving = ref(false);
+const editMsg = ref('');
+const editForm = reactive({});
+
+function startEdit(item) {
+  editingId.value = item.id;
+  editMsg.value = '';
+  if (activePanel.value === 'dish') {
+    editForm.dishName = item.dishName || '';
+    editForm.canteenName = item.canteenName || '';
+    editForm.stallName = item.stallName || '';
+    editForm.price = item.price ?? '';
+    editForm.description = item.description || '';
+  } else if (activePanel.value === 'rant') {
+    editForm.canteenName = item.canteenName || '';
+    editForm.tag = item.tag || '';
+    editForm.content = item.content || '';
+  }
+}
+
+function cancelEdit() {
+  editingId.value = null;
+  editMsg.value = '';
+}
+
+async function saveEdit() {
+  editSaving.value = true;
+  editMsg.value = '';
+  try {
+    if (activePanel.value === 'dish') {
+      await editSubmission(editingId.value, {
+        dish_name: editForm.dishName,
+        canteen_name: editForm.canteenName,
+        stall_name: editForm.stallName,
+        price: editForm.price || null,
+        description: editForm.description,
+      });
+      await submissionStore.loadAllSubmissions();
+    } else if (activePanel.value === 'rant') {
+      await editRant(editingId.value, {
+        canteenName: editForm.canteenName,
+        tag: editForm.tag,
+        content: editForm.content,
+      });
+      await rantStore.loadRants();
+    }
+    editMsg.value = '保存成功';
+    editingId.value = null;
+  } catch (e) {
+    editMsg.value = e.message || '保存失败';
+  } finally {
+    editSaving.value = false;
+  }
+}
 
 onMounted(async () => {
   await Promise.all([
@@ -514,5 +602,36 @@ function rejectItem(item) {
     display: grid;
     grid-template-columns: 1fr;
   }
+}
+
+.edit-form-inline {
+  display: grid;
+  gap: 10px;
+  margin-top: 12px;
+  padding: 12px;
+  border: 1px dashed var(--ft-color-secondary);
+  background: var(--ft-color-surface);
+}
+.edit-form-inline label {
+  display: grid;
+  gap: 3px;
+  font-size: 13px;
+  color: var(--ft-color-text-muted);
+}
+.edit-form-inline input,
+.edit-form-inline textarea {
+  border: 1px solid var(--ft-color-secondary);
+  background: #fff;
+  padding: 6px 10px;
+  font: inherit;
+  font-size: 14px;
+}
+.edit-form-msg {
+  color: var(--zine-stamp-red);
+  font-size: 14px;
+}
+.edit-form-actions {
+  display: flex;
+  gap: 10px;
 }
 </style>
