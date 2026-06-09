@@ -127,8 +127,8 @@ export const useDishStore = defineStore('dish', {
       const userId = authStore.session?.id || '';
       try {
         const res = await createReview({
-          dishId: payload.dishId,
-          userId,
+          dish_id: payload.dishId,
+          user_id: userId,
           rating: safeRating,
           comment: payload.comment,
         });

@@ -36,16 +36,9 @@
             <span>（{{ formatComment(canteen.rant, 42).length }}字）</span>
           </p>
           <div class="hero__actions">
-            <button
-              class="button-ink is-primary"
-              type="button"
-              @click="toDishList"
-            >
-              查看菜品列表
-            </button>
-            <button class="button-ink" type="button" @click="goHome">
-              返回首页
-            </button>
+            <button class="button-ink is-primary" type="button" @click="toDishList">查看菜品列表</button>
+            <button class="button-ink" type="button" @click="goHome">返回首页</button>
+            <button v-if="isAdmin" class="button-ink" type="button" @click="openEditCanteen">编辑食堂</button>
           </div>
         </div>
       </article>
@@ -73,11 +66,40 @@
             :stall="stall"
             @dish-click="toDishDetail"
             @delete-stall="onDeleteStall"
+            @edit-dish="onEditDish"
+            @delete-dish="onDeleteDish"
+            @edit-stall="onEditStall"
           />
         </div>
       </section>
 
       <Teleport to="body">
+        <div v-if="showEditCanteen" class="overlay" @click.self="showEditCanteen = false">
+          <div class="edit-dialog torn-edge">
+            <h3>编辑食堂</h3>
+            <div class="edit-dialog__body">
+              <label>名称 <input v-model="editCanteen.name" /></label>
+              <label>简称 <input v-model="editCanteen.shortName" /></label>
+              <label>评分 <input v-model.number="editCanteen.rating" type="number" step="0.1" min="0" max="5" /></label>
+              <label>位置 <input v-model="editCanteen.location" /></label>
+              <label>营业时间 <input v-model="editCanteen.openHours" /></label>
+              <label>人均 <input v-model="editCanteen.avgPrice" /></label>
+              <label>高峰 <input v-model="editCanteen.peakQueue" /></label>
+              <label>推荐时段 <input v-model="editCanteen.bestTime" /></label>
+              <label>简介 <textarea v-model="editCanteen.summary" rows="2"></textarea></label>
+              <label>吐槽 <textarea v-model="editCanteen.rant" rows="2"></textarea></label>
+              <label>更换图片 <input type="file" accept="image/*" @change="onCanteenImageChange" /></label>
+            </div>
+            <p v-if="editCanteenMsg" class="form-msg">{{ editCanteenMsg }}</p>
+            <div class="edit-dialog__actions">
+              <button class="button-ink is-primary" type="button" :disabled="editCanteenSaving" @click="saveEditCanteen">
+                {{ editCanteenSaving ? '保存中...' : '保存' }}
+              </button>
+              <button class="button-ink" type="button" @click="showEditCanteen = false">取消</button>
+            </div>
+          </div>
+        </div>
+
         <div v-if="stallToDelete" class="overlay" @click.self="stallToDelete = null">
           <div class="confirm-dialog torn-edge">
             <h3>确认删除</h3>
@@ -98,11 +120,13 @@
 </template>
 
 <script setup>
-import { computed, ref, watch } from 'vue';
+import { computed, reactive, ref, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import CanteenStallCard from '../../components/canteen/CanteenStallCard.vue';
 import { useCanteenStore } from '../../store/useCanteenStore';
-import { deleteStall as deleteStallApi } from '../../api/canteen.api';
+import { useAuthStore } from '../../store/useAuthStore';
+import { deleteStall as deleteStallApi, updateCanteen, updateStall, uploadImage } from '../../api/canteen.api';
+import { updateDish, deleteDish as deleteDishApi } from '../../api/dish.api';
 import { formatComment } from '../../utils/commentText';
 
 defineOptions({
@@ -116,6 +140,68 @@ const canteenStore = useCanteenStore();
 const canteenId = computed(() => String(route.params.canteenId ?? ''));
 const canteen = computed(() => canteenStore.getCanteenById(canteenId.value));
 const stallSections = ref([]);
+const authStore = useAuthStore();
+const isAdmin = computed(() => authStore.isAdmin);
+
+const showEditCanteen = ref(false);
+const editCanteenSaving = ref(false);
+const editCanteenMsg = ref('');
+const editCanteen = reactive({ name: '', shortName: '', rating: 5, location: '', openHours: '', avgPrice: '', peakQueue: '', bestTime: '', summary: '', rant: '' });
+let canteenImageFile = null;
+
+function onCanteenImageChange(e) {
+  canteenImageFile = e.target.files?.[0] || null;
+}
+
+function openEditCanteen() {
+  const c = canteen.value;
+  if (!c) return;
+  editCanteen.name = c.name || '';
+  editCanteen.shortName = c.shortName || '';
+  editCanteen.rating = c.rating ?? 5;
+  editCanteen.location = c.location || '';
+  editCanteen.openHours = c.openHours || '';
+  editCanteen.avgPrice = c.avgPrice || '';
+  editCanteen.peakQueue = c.peakQueue || '';
+  editCanteen.bestTime = c.bestTime || '';
+  editCanteen.summary = c.summary || '';
+  editCanteen.rant = c.rant || '';
+  canteenImageFile = null;
+  editCanteenMsg.value = '';
+  showEditCanteen.value = true;
+}
+
+async function saveEditCanteen() {
+  editCanteenSaving.value = true;
+  editCanteenMsg.value = '';
+  try {
+    let imageUrl = undefined;
+    if (canteenImageFile) {
+      const uploadRes = await uploadImage('canteen_img', canteenImageFile);
+      imageUrl = uploadRes.data?.url || undefined;
+    }
+    await updateCanteen(canteenId.value, {
+      name: editCanteen.name,
+      short_name: editCanteen.shortName,
+      rating: editCanteen.rating,
+      location: editCanteen.location,
+      open_hours: editCanteen.openHours,
+      avg_price: editCanteen.avgPrice,
+      peak_queue: editCanteen.peakQueue,
+      best_time: editCanteen.bestTime,
+      summary: editCanteen.summary,
+      rant: editCanteen.rant,
+      image_url: imageUrl,
+    });
+    showEditCanteen.value = false;
+    await canteenStore.loadCanteenDetail(canteenId.value);
+  } catch (e) {
+    editCanteenMsg.value = e.message || '保存失败';
+  } finally {
+    editCanteenSaving.value = false;
+  }
+}
+
 const stallToDelete = ref(null);
 const deleting = ref(false);
 const heroFacts = computed(() =>
@@ -176,6 +262,55 @@ async function confirmDeleteStall() {
     stallToDelete.value = null;
   } finally {
     deleting.value = false;
+  }
+}
+
+async function onEditStall(stall) {
+  try {
+    let imageUrl = undefined;
+    if (stall._imageFile) {
+      const uploadRes = await uploadImage('stall_img', stall._imageFile);
+      imageUrl = uploadRes.data?.url || undefined;
+    }
+    await updateStall(stall.id, {
+      name: stall.name,
+      avg_price: stall.avgPrice,
+      best_time: stall.bestTime,
+      summary: stall.summary,
+      image_url: imageUrl,
+    });
+    stallSections.value = await canteenStore.loadStallsByCanteen(canteenId.value);
+  } catch (e) {
+    console.error('更新档口失败:', e);
+  }
+}
+
+async function onEditDish(dish) {
+  try {
+    let imageUrl = undefined;
+    if (dish._imageFile) {
+      const uploadRes = await uploadImage('dish_img', dish._imageFile);
+      imageUrl = uploadRes.data?.url || undefined;
+    }
+    await updateDish(dish.id, {
+      name: dish.name,
+      price: dish.price,
+      description: dish.description,
+      rating: dish.rating,
+      image_url: imageUrl,
+    });
+    stallSections.value = await canteenStore.loadStallsByCanteen(canteenId.value);
+  } catch (e) {
+    console.error('更新菜品失败:', e);
+  }
+}
+
+async function onDeleteDish(dish) {
+  try {
+    await deleteDishApi(dish.id);
+    stallSections.value = await canteenStore.loadStallsByCanteen(canteenId.value);
+  } catch (e) {
+    console.error('删除菜品失败:', e);
   }
 }
 </script>
@@ -379,6 +514,49 @@ async function confirmDeleteStall() {
 .button-ink--danger {
   border-color: var(--zine-stamp-red, #c0392b) !important;
   color: var(--zine-stamp-red, #c0392b) !important;
+}
+
+.edit-dialog {
+  background: var(--ft-color-surface);
+  border: 1px solid var(--ft-color-secondary);
+  padding: 24px;
+  max-width: 520px;
+  width: 90%;
+  max-height: 80vh;
+  overflow-y: auto;
+}
+.edit-dialog h3 {
+  margin: 0 0 12px;
+  font-family: var(--ft-font-family-title);
+  font-size: 28px;
+}
+.edit-dialog__body {
+  display: grid;
+  gap: 10px;
+}
+.edit-dialog__body label {
+  display: grid;
+  gap: 2px;
+  font-size: 13px;
+  color: var(--ft-color-text-muted);
+}
+.edit-dialog__body input,
+.edit-dialog__body textarea {
+  border: 1px solid var(--ft-color-secondary);
+  background: #fff;
+  padding: 6px 10px;
+  font: inherit;
+  font-size: 14px;
+}
+.edit-dialog__actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 14px;
+}
+.form-msg {
+  color: var(--zine-stamp-red);
+  font-size: 14px;
+  margin-top: 8px;
 }
 
 .button-ink--danger:hover {

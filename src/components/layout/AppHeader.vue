@@ -111,6 +111,13 @@ const navItems = [
     adminOnly: true,
   },
   {
+    key: 'manage',
+    index: '07',
+    label: '管理台',
+    to: { name: 'adminManage' },
+    adminOnly: true,
+  },
+  {
     key: 'superadmin',
     index: '99',
     label: '控制台',
@@ -157,6 +164,9 @@ const activeKey = computed(() => {
   if (route.name === 'superadmin') {
     return 'superadmin';
   }
+  if (route.name === 'adminManage') {
+    return 'manage';
+  }
   if (route.name === 'profile') {
     return '';
   }
@@ -187,7 +197,11 @@ async function handleNavClick(item) {
     route.name === 'homeCanteenSelect' &&
     route.query.section === targetSection;
 
-  await router.push(item.to);
+  try {
+    await router.push(item.to);
+  } catch (e) {
+    console.warn('[Nav] 跳转拦截或失败:', e?.message);
+  }
 
   if (isSameHomeSection && typeof targetSection === 'string') {
     window.dispatchEvent(
