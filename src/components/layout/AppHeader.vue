@@ -111,6 +111,13 @@ const navItems = [
     adminOnly: true,
   },
   {
+    key: 'manage',
+    index: '07',
+    label: '管理台',
+    to: { name: 'adminManage' },
+    adminOnly: true,
+  },
+  {
     key: 'superadmin',
     index: '99',
     label: '控制台',
@@ -156,6 +163,9 @@ const activeKey = computed(() => {
   }
   if (route.name === 'superadmin') {
     return 'superadmin';
+  }
+  if (route.name === 'adminManage') {
+    return 'manage';
   }
   if (route.name === 'profile') {
     return '';

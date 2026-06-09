@@ -31,3 +31,7 @@ export function deleteDish(dishId) {
 export function updateDish(dishId, data) {
   return http.put(`/dishes/${dishId}`, data);
 }
+
+export function createDish(data) {
+  return http.post('/dishes', data);
+}

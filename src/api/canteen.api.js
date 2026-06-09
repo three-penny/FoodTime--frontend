@@ -35,3 +35,11 @@ export function fetchWeeklyRecommendations() {
 export function deleteStall(stallId) {
   return http.delete(`/stalls/${stallId}`);
 }
+
+export function createCanteen(data) {
+  return http.post('/canteens', data);
+}
+
+export function createStall(canteenId, data) {
+  return http.post(`/canteens/${canteenId}/stalls`, data);
+}

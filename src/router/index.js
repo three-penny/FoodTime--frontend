@@ -17,6 +17,7 @@ const UserSubmissionView = () =>
   import('../views/submission/UserSubmissionView.vue');
 const AdminAuditView = () => import('../views/admin/AdminAuditView.vue');
 const SuperadminView = () => import('../views/superadmin/SuperadminView.vue');
+const AdminManageView = () => import('../views/admin/AdminManageView.vue');
 const ProfileView = () => import('../views/profile/ProfileView.vue');
 
 export const routes = [
@@ -111,6 +112,12 @@ export const routes = [
     name: 'superadmin',
     component: SuperadminView,
     meta: { requiresAuth: true, requiresSuperadmin: true },
+  },
+  {
+    path: '/admin/manage',
+    name: 'adminManage',
+    component: AdminManageView,
+    meta: { requiresAuth: true, requiresAdmin: true },
   },
   {
     path: '/:pathMatch(.*)*',
