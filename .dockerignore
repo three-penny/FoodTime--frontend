@@ -8,4 +8,4 @@ docs/
 .vite-cache/
 .vitest-cache/
 *.local
-package-lock.json
+
