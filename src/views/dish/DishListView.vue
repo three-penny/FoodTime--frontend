@@ -67,6 +67,7 @@
             @dish-click="toDishDetail"
             @edit-dish="onEditDish"
             @delete-dish="onDeleteDish"
+            @edit-stall="onEditStall"
           />
         </div>
       </section>
@@ -80,6 +81,7 @@ import { useRoute, useRouter } from 'vue-router';
 import CanteenStallCard from '../../components/canteen/CanteenStallCard.vue';
 import { useCanteenStore } from '../../store/useCanteenStore';
 import { updateDish, deleteDish as deleteDishApi } from '../../api/dish.api';
+import { updateStall, uploadImage } from '../../api/canteen.api';
 import { formatComment } from '../../utils/commentText';
 
 defineOptions({
@@ -129,13 +131,39 @@ function toDishDetail(dish) {
   });
 }
 
+async function onEditStall(stall) {
+  try {
+    let imageUrl = undefined;
+    if (stall._imageFile) {
+      const uploadRes = await uploadImage('stall_img', stall._imageFile);
+      imageUrl = uploadRes.data?.url || undefined;
+    }
+    await updateStall(stall.id, {
+      name: stall.name,
+      avg_price: stall.avgPrice,
+      best_time: stall.bestTime,
+      summary: stall.summary,
+      image_url: imageUrl,
+    });
+    stallSections.value = await canteenStore.loadStallsByCanteen(canteenId.value);
+  } catch (e) {
+    console.error('更新档口失败:', e);
+  }
+}
+
 async function onEditDish(dish) {
   try {
+    let imageUrl = undefined;
+    if (dish._imageFile) {
+      const uploadRes = await uploadImage('dish_img', dish._imageFile);
+      imageUrl = uploadRes.data?.url || undefined;
+    }
     await updateDish(dish.id, {
       name: dish.name,
       price: dish.price,
       description: dish.description,
       rating: dish.rating,
+      image_url: imageUrl,
     });
     stallSections.value = await canteenStore.loadStallsByCanteen(canteenId.value);
   } catch (e) {

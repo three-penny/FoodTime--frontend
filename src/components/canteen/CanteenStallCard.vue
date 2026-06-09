@@ -6,29 +6,40 @@
     :class="{ 'is-expanded': expanded }"
     data-test="canteen-stall-card"
   >
-    <div class="canteen-stall-card__info">
-      <span class="canteen-stall-card__photo-frame">
-        <img class="canteen-stall-card__photo" :src="stall.image" :alt="`${stall.name}档口图`" loading="lazy" />
-      </span>
-      <span class="canteen-stall-card__copy">
-        <span class="sticker sticker--r-1">档口</span>
-        <strong>{{ stall.name }}</strong>
-        <span class="canteen-stall-card__summary">{{ stall.summary }}</span>
-        <span class="canteen-stall-card__facts">
-          <span>人均 {{ stall.avgPrice }}</span>
-          <span>推荐 {{ stall.bestTime }}</span>
-          <span>{{ sortedDishes.length }} 道菜</span>
+    <template v-if="editingStall">
+      <div class="canteen-stall-card__edit-form">
+        <label>档口名 <input v-model="editStallForm.name" /></label>
+        <label>人均 <input v-model="editStallForm.avgPrice" /></label>
+        <label>推荐时段 <input v-model="editStallForm.bestTime" /></label>
+        <label>简介 <textarea v-model="editStallForm.summary" rows="2"></textarea></label>
+        <label>更换图片 <input type="file" accept="image/*" @change="onStallImageChange" /></label>
+        <div class="canteen-stall-card__edit-actions">
+          <button class="button-ink is-primary button-ink--small" type="button" @click="saveEditStall">保存</button>
+          <button class="button-ink button-ink--small" type="button" @click="editingStall = false">取消</button>
+        </div>
+      </div>
+    </template>
+    <template v-else>
+      <div class="canteen-stall-card__info">
+        <span class="canteen-stall-card__photo-frame">
+          <img class="canteen-stall-card__photo" :src="stall.image" :alt="`${stall.name}档口图`" loading="lazy" />
         </span>
-        <button
-          v-if="isAdmin"
-          class="button-ink button-ink--danger canteen-stall-card__delete"
-          type="button"
-          @click.stop="emit('delete-stall', stall)"
-        >
-          删除档口
-        </button>
-      </span>
-    </div>
+        <span class="canteen-stall-card__copy">
+          <span class="sticker sticker--r-1">档口</span>
+          <strong>{{ stall.name }}</strong>
+          <span class="canteen-stall-card__summary">{{ stall.summary }}</span>
+          <span class="canteen-stall-card__facts">
+            <span>人均 {{ stall.avgPrice }}</span>
+            <span>推荐 {{ stall.bestTime }}</span>
+            <span>{{ sortedDishes.length }} 道菜</span>
+          </span>
+          <div v-if="isAdmin" class="canteen-stall-card__admin-actions">
+            <button class="button-ink button-ink--small" type="button" @click.stop="startEditStall">编辑</button>
+            <button class="button-ink button-ink--small button-ink--danger" type="button" @click.stop="emit('delete-stall', stall)">删除</button>
+          </div>
+        </span>
+      </div>
+    </template>
 
     <div class="canteen-stall-card__dishes">
       <div
@@ -64,6 +75,7 @@
           <label>价格 <input v-model.number="editDishForm.price" type="number" /></label>
           <label>描述 <textarea v-model="editDishForm.description" rows="2"></textarea></label>
           <label>评分 <input v-model.number="editDishForm.rating" type="number" step="0.1" min="0" max="5" /></label>
+          <label>更换图片 <input type="file" accept="image/*" @change="onDishImageChange" /></label>
           <div class="canteen-stall-card__dish-edit-actions">
             <button class="button-ink is-primary button-ink--small" type="button" @click="saveEditDish(dish)">保存</button>
             <button class="button-ink button-ink--small" type="button" @click="editingDishId = null">取消</button>
@@ -106,7 +118,7 @@ const props = defineProps({
     required: true,
   },
 });
-const emit = defineEmits(['dish-click', 'delete-stall', 'edit-dish', 'delete-dish']);
+const emit = defineEmits(['dish-click', 'delete-stall', 'edit-dish', 'delete-dish', 'edit-stall']);
 
 const authStore = useAuthStore();
 const isAdmin = computed(() => authStore.currentRole === 'admin' || authStore.currentRole === 'superadmin');
@@ -121,8 +133,41 @@ const visibleDishes = computed(() =>
 );
 const hiddenCount = computed(() => Math.max(sortedDishes.value.length - 3, 0));
 
+const editingStall = ref(false);
+const editStallForm = reactive({ name: '', avgPrice: '', bestTime: '', summary: '' });
+let stallImageFile = null;
+
+function onStallImageChange(e) {
+  stallImageFile = e.target.files?.[0] || null;
+}
+
+function startEditStall() {
+  editingStall.value = true;
+  editStallForm.name = props.stall.name || '';
+  editStallForm.avgPrice = props.stall.avgPrice || '';
+  editStallForm.bestTime = props.stall.bestTime || '';
+  editStallForm.summary = props.stall.summary || '';
+  stallImageFile = null;
+}
+
+function saveEditStall() {
+  emit('edit-stall', {
+    ...props.stall,
+    name: editStallForm.name,
+    avgPrice: editStallForm.avgPrice,
+    bestTime: editStallForm.bestTime,
+    summary: editStallForm.summary,
+  });
+  editingStall.value = false;
+}
+
 const editingDishId = ref(null);
 const editDishForm = reactive({ name: '', price: null, description: '', rating: null });
+let dishImageFile = null;
+
+function onDishImageChange(e) {
+  dishImageFile = e.target.files?.[0] || null;
+}
 
 function startEditDish(dish) {
   editingDishId.value = dish.id;
@@ -130,6 +175,7 @@ function startEditDish(dish) {
   editDishForm.price = dish.price ?? null;
   editDishForm.description = dish.description || dish.comment || '';
   editDishForm.rating = dish.rating ?? null;
+  dishImageFile = null;
 }
 
 function saveEditDish(dish) {
@@ -139,6 +185,7 @@ function saveEditDish(dish) {
     price: editDishForm.price,
     description: editDishForm.description,
     rating: editDishForm.rating,
+    _imageFile: dishImageFile,
   });
   editingDishId.value = null;
 }
@@ -398,6 +445,42 @@ function toggleExpanded() {
 .canteen-stall-card__dish-edit-actions {
   display: flex;
   gap: 8px;
+}
+
+.canteen-stall-card__edit-form {
+  border: 1px solid var(--ft-color-secondary);
+  background: var(--ft-color-surface);
+  padding: 14px;
+  display: grid;
+  gap: 8px;
+}
+
+.canteen-stall-card__edit-form label {
+  display: grid;
+  gap: 2px;
+  font-size: 13px;
+  color: var(--ft-color-text-muted);
+}
+
+.canteen-stall-card__edit-form input,
+.canteen-stall-card__edit-form textarea {
+  border: 1px solid var(--ft-color-secondary);
+  background: #fff;
+  padding: 6px 10px;
+  font: inherit;
+  font-size: 14px;
+}
+
+.canteen-stall-card__edit-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.canteen-stall-card__admin-actions {
+  display: flex;
+  gap: 6px;
+  margin-top: 6px;
 }
 
 .canteen-stall-card__dish-body p {
