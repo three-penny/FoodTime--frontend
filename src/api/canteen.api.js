@@ -35,3 +35,25 @@ export function fetchWeeklyRecommendations() {
 export function deleteStall(stallId) {
   return http.delete(`/stalls/${stallId}`);
 }
+
+export function createCanteen(data) {
+  return http.post('/canteens', data);
+}
+
+export function createStall(canteenId, data) {
+  return http.post(`/canteens/${canteenId}/stalls`, data);
+}
+
+export function updateCanteen(canteenId, data) {
+  return http.put(`/canteens/${canteenId}`, data);
+}
+
+export function updateStall(stallId, data) {
+  return http.put(`/stalls/${stallId}`, data);
+}
+
+export function uploadImage(folder, file) {
+  const fd = new FormData();
+  fd.append('file', file);
+  return http.post(`/uploads/${folder}`, fd);
+}

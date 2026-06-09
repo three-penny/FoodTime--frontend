@@ -36,6 +36,7 @@ http.interceptors.response.use(
 
     if (status === 401) {
       window.localStorage.removeItem('foodtime_auth_session');
+      window.location.href = '/login';
     }
 
     const message = body?.message || error.message || '网络异常';
