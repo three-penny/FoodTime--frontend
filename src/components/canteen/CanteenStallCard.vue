@@ -157,6 +157,7 @@ function saveEditStall() {
     avgPrice: editStallForm.avgPrice,
     bestTime: editStallForm.bestTime,
     summary: editStallForm.summary,
+    _imageFile: stallImageFile,
   });
   editingStall.value = false;
 }
