@@ -448,7 +448,10 @@ function vote(id, type, baseRecommend, baseAvoid) {
 
   .ranking__index {
     min-width: 0;
-    font-size: 32px;
+    font-size: 24px;
+    line-height: 1;
+    -webkit-text-stroke-width: 1px;
+    text-shadow: 1px 1px 0 rgb(58 36 24 / 8%);
   }
 
   .ranking__body {
@@ -491,6 +494,9 @@ function vote(id, type, baseRecommend, baseAvoid) {
   }
 
   .ranking__media {
+    grid-column: 3;
+    grid-row: 1;
+    align-self: start;
     width: 104px;
     padding: 5px;
     transform: none;
