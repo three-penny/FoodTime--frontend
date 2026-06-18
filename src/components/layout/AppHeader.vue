@@ -56,6 +56,20 @@
       aria-hidden="true"
     ></span>
   </header>
+
+  <nav v-if="!isAuthPage" class="mobile-tabbar" aria-label="手机端主导航">
+    <button
+      v-for="item in mobileTabItems"
+      :key="item.key"
+      class="mobile-tabbar__item"
+      :class="{ 'is-active': activeKey === item.key }"
+      type="button"
+      @click="handleNavClick(item)"
+    >
+      <span class="mobile-tabbar__mark" aria-hidden="true">{{ item.index }}</span>
+      <span class="mobile-tabbar__label">{{ item.label }}</span>
+    </button>
+  </nav>
 </template>
 
 <script setup>
@@ -144,6 +158,28 @@ const visibleNavItems = computed(() =>
     return true;
   })
 );
+
+const mobileTabItems = computed(() => {
+  const baseKeys = ['canteen', 'recommend', 'review', 'message', 'upload'];
+  const items = baseKeys
+    .map(key => navItems.find(item => item.key === key))
+    .filter(Boolean);
+
+  if (authStore.currentRole === 'superadmin') {
+    items.push(navItems.find(item => item.key === 'superadmin'));
+  } else if (authStore.currentRole === 'admin') {
+    items.push(navItems.find(item => item.key === 'admin'));
+  }
+
+  items.push({
+    key: 'profile',
+    index: 'ME',
+    label: '我的',
+    to: { name: 'profile' },
+  });
+
+  return items.filter(Boolean);
+});
 const isAuthPage = computed(
   () => route.name === 'login' || route.name === 'register'
 );
@@ -168,7 +204,7 @@ const activeKey = computed(() => {
     return 'manage';
   }
   if (route.name === 'profile') {
-    return '';
+    return 'profile';
   }
   if (route.name === 'login' || route.name === 'register') {
     return 'login';
@@ -467,6 +503,10 @@ function handleLogout() {
   transform: rotate(3deg);
 }
 
+.mobile-tabbar {
+  display: none;
+}
+
 @media (max-width: 1180px) {
   .app-header__bg-decor {
     display: none;
@@ -475,66 +515,152 @@ function handleLogout() {
 
 @media (max-width: 980px) {
   .app-header__inner {
-    grid-template-columns: 1fr;
-    padding: 10px var(--zine-page-padding-mobile) 14px;
-    gap: 10px;
+    grid-template-columns: minmax(0, 1fr) auto;
+    min-height: 64px;
+    padding: 8px var(--zine-page-padding-mobile);
+    gap: 12px;
   }
 
   .nav {
-    border-left: 0;
-    padding-left: 0;
-    gap: 6px;
-    overflow-x: auto;
-    overscroll-behavior-inline: contain;
-    padding-bottom: 4px;
-    scrollbar-width: none;
-    white-space: nowrap;
-  }
-
-  .nav::-webkit-scrollbar {
     display: none;
   }
 
-  .nav__item {
-    min-width: 68px;
-    min-height: 42px;
-    padding: 8px 10px;
+  .message-popover {
+    display: none;
   }
 
   .account-actions {
-    justify-self: start;
-    width: 100%;
-    justify-content: space-between;
+    justify-self: end;
+    gap: 8px;
   }
 
   .profile__label {
-    max-width: min(58vw, 240px);
+    max-width: min(30vw, 140px);
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+  }
+
+  .logout {
+    min-height: 38px;
+    padding: 6px 10px;
+    box-shadow: 1px 1px 0 var(--ft-color-secondary);
+    font-size: 14px;
+  }
+
+  .mobile-tabbar {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 70;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(0, 1fr));
+    min-height: calc(
+      var(--app-mobile-tabbar-height) + var(--app-mobile-safe-bottom)
+    );
+    padding: 7px 8px calc(7px + var(--app-mobile-safe-bottom));
+    border-top: 1px solid rgb(58 36 24 / 26%);
+    background:
+      linear-gradient(180deg, rgb(255 250 240 / 96%), rgb(242 239 230 / 98%)),
+      var(--zine-paper-card);
+    box-shadow: 0 -8px 22px rgb(58 36 24 / 13%);
+    backdrop-filter: blur(8px);
+  }
+
+  .mobile-tabbar__item {
+    appearance: none;
+    min-width: 0;
+    min-height: 54px;
+    border: 0;
+    background: transparent;
+    color: var(--ft-color-text-muted);
+    cursor: pointer;
+    display: grid;
+    align-content: center;
+    justify-items: center;
+    gap: 2px;
+    padding: 4px 2px;
+    font: inherit;
+    line-height: 1.1;
+  }
+
+  .mobile-tabbar__item.is-active {
+    color: var(--ft-color-primary);
+  }
+
+  .mobile-tabbar__mark {
+    display: inline-grid;
+    place-items: center;
+    min-width: 26px;
+    height: 22px;
+    border: 1px solid currentColor;
+    border-radius: 50%;
+    font-family: var(--zine-title-font);
+    font-size: 10px;
+    font-weight: 900;
+    line-height: 1;
+  }
+
+  .mobile-tabbar__item.is-active .mobile-tabbar__mark {
+    background: var(--zine-stamp-red-soft);
+    box-shadow: 2px 2px 0 rgb(58 36 24 / 14%);
+  }
+
+  .mobile-tabbar__label {
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: 12px;
+    font-weight: 800;
   }
 }
 
 @media (max-width: 520px) {
   .brand__title {
-    font-size: 28px;
+    font-size: 24px;
   }
 
   .brand__sub {
-    font-size: 15px;
-  }
-
-  .nav__item {
-    min-width: 62px;
-    padding-inline: 9px;
+    font-size: 13px;
   }
 
   .account-actions {
     gap: 8px;
   }
 
+  .profile {
+    gap: 6px;
+  }
+
+  .profile__avatar {
+    width: 30px;
+    height: 30px;
+    box-shadow: 1px 1px 0 var(--ft-color-secondary);
+  }
+
+  .profile__label {
+    display: none;
+  }
+
   .logout {
-    padding: 7px 10px;
+    min-height: 34px;
+    padding: 5px 8px;
+    font-size: 13px;
+  }
+
+  .mobile-tabbar {
+    padding-inline: 5px;
+  }
+
+  .mobile-tabbar__mark {
+    min-width: 24px;
+    height: 20px;
+  }
+
+  .mobile-tabbar__label {
+    font-size: 11px;
   }
 }
 </style>
