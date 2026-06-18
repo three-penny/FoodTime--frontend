@@ -32,7 +32,6 @@
       <label>食堂ID <input v-model="canteenForm.id" placeholder="如 xuewu" /></label>
       <label>名称 <input v-model="canteenForm.name" /></label>
       <label>简称 <input v-model="canteenForm.shortName" /></label>
-      <label>评分 <input v-model.number="canteenForm.rating" type="number" step="0.1" min="0" max="5" /></label>
       <label>位置 <input v-model="canteenForm.location" /></label>
       <label>营业时间 <input v-model="canteenForm.openHours" placeholder="如 06:30 - 21:30" /></label>
       <label>人均 <input v-model="canteenForm.avgPrice" placeholder="如 人均 ¥12 - ¥18" /></label>
@@ -130,7 +129,7 @@ onMounted(async () => {
 });
 
 // 添加食堂
-const canteenForm = reactive({ id: '', name: '', shortName: '', rating: 5, location: '', openHours: '', avgPrice: '', peakQueue: '', bestTime: '', summary: '', rant: '', features: '', signatureDishes: '' });
+const canteenForm = reactive({ id: '', name: '', shortName: '', location: '', openHours: '', avgPrice: '', peakQueue: '', bestTime: '', summary: '', rant: '', features: '', signatureDishes: '' });
 const canteenSaving = ref(false);
 const canteenMsg = ref('');
 
@@ -144,7 +143,6 @@ async function saveCanteen() {
       id: canteenForm.id || undefined,
       name: canteenForm.name,
       short_name: canteenForm.shortName,
-      rating: canteenForm.rating,
       location: canteenForm.location,
       open_hours: canteenForm.openHours,
       avg_price: canteenForm.avgPrice,
@@ -156,7 +154,7 @@ async function saveCanteen() {
       signature_dishes: sigDishes,
     });
     canteenMsg.value = '创建成功！';
-    Object.assign(canteenForm, { id: '', name: '', shortName: '', rating: 5, location: '', openHours: '', avgPrice: '', peakQueue: '', bestTime: '', summary: '', rant: '', features: '', signatureDishes: '' });
+    Object.assign(canteenForm, { id: '', name: '', shortName: '', location: '', openHours: '', avgPrice: '', peakQueue: '', bestTime: '', summary: '', rant: '', features: '', signatureDishes: '' });
     const res = await fetchCanteens();
     canteens.value = res.data || [];
   } catch (e) {
