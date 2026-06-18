@@ -161,8 +161,10 @@ import AppFooter from './components/layout/AppFooter.vue';
 @media (max-width: 768px) {
   .app-main {
     width: 100%;
-    padding-top: 18px;
-    padding-bottom: 40px;
+    padding-top: 12px;
+    padding-bottom: calc(
+      var(--app-mobile-tabbar-height) + var(--app-mobile-safe-bottom) + 22px
+    );
   }
 
   .app-page {
@@ -170,7 +172,9 @@ import AppFooter from './components/layout/AppFooter.vue';
   }
 
   .app-page::before {
-    inset: -14px 5px -24px;
+    inset: -8px 4px -14px;
+    border-color: rgb(58 36 24 / 8%);
+    box-shadow: 0 8px 24px rgb(58 36 24 / 10%);
   }
 
   .desk-decor {

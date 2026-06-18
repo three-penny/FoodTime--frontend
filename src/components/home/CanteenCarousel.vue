@@ -115,6 +115,7 @@ useAutoHorizontalScroll(trackRef, {
   loopItemCount: computed(() => props.items.length),
   speed: 14,
   pauseOnHover: true,
+  pauseOnTouch: true,
 });
 
 function imageFrameClass(index) {
@@ -351,18 +352,61 @@ function handleSelect(canteenId) {
 @media (max-width: 768px) {
   .canteen-carousel__header {
     align-items: start;
+    display: grid;
+    gap: 8px;
+  }
+
+  .canteen-carousel__hint {
+    justify-self: start;
+    font-size: 20px;
+    transform: none;
   }
 
   .canteen-carousel__track {
-    gap: 0;
-    padding-top: 12px;
+    gap: 12px;
+    margin-inline: calc(var(--zine-page-padding-mobile) * -1);
+    padding: 12px var(--zine-page-padding-mobile) 20px;
+    scroll-snap-type: x mandatory;
+    touch-action: pan-x pan-y;
   }
 
   .canteen-card {
-    flex-basis: min(76vw, 264px);
-    width: min(76vw, 264px);
-    height: 456px;
-    margin-right: -14px;
+    flex-basis: min(82vw, 320px);
+    width: min(82vw, 320px);
+    height: auto;
+    min-height: 430px;
+    margin-right: 0;
+    grid-template-rows: 52% 48%;
+    box-shadow: var(--app-mobile-shadow);
+    transform: none;
+  }
+
+  .canteen-card--0,
+  .canteen-card--1,
+  .canteen-card--2,
+  .canteen-card--3,
+  .canteen-card__media,
+  .canteen-card__media.is-rotate-left,
+  .canteen-card__media.is-rotate-right,
+  .canteen-card__media.is-rotate-soft,
+  .canteen-card__media.is-rotate-back {
+    transform: none;
+  }
+
+  .canteen-card__content {
+    grid-template-rows: auto auto 1fr;
+  }
+
+  .canteen-card__rant {
+    font-size: 16px;
+  }
+
+  .canteen-card__title-row h3 {
+    font-size: 26px;
+  }
+
+  .canteen-card__chips {
+    max-width: 100%;
   }
 }
 </style>

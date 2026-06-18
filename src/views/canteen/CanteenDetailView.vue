@@ -454,24 +454,37 @@ async function onDeleteDish(dish) {
   }
 
   .hero__image {
-    min-height: 220px;
+    aspect-ratio: 16 / 10;
+    min-height: 0;
+    height: auto;
   }
 
   .hero__content {
     padding: 18px 16px;
 
     h1 {
-      font-size: clamp(38px, 13vw, 52px);
+      font-size: clamp(34px, 10vw, 44px);
+      line-height: 1.05;
     }
   }
 
   .hero__rant {
-    font-size: 21px;
+    font-size: 18px;
+    line-height: 1.35;
   }
 
   .hero__actions {
     display: grid;
     grid-template-columns: 1fr;
+  }
+
+  .hero__meta,
+  .hero__summary {
+    line-height: 1.5;
+  }
+
+  .hero__facts span {
+    padding: 9px 10px;
   }
 }
 </style>
@@ -485,6 +498,7 @@ async function onDeleteDish(dish) {
   align-items: center;
   justify-content: center;
   z-index: 1000;
+  padding: 16px;
 }
 
 .confirm-dialog {
@@ -509,6 +523,7 @@ async function onDeleteDish(dish) {
 .confirm-dialog__actions {
   display: flex;
   gap: 10px;
+  flex-wrap: wrap;
 }
 
 .button-ink--danger {
@@ -552,6 +567,7 @@ async function onDeleteDish(dish) {
   display: flex;
   gap: 10px;
   margin-top: 14px;
+  flex-wrap: wrap;
 }
 .form-msg {
   color: var(--zine-stamp-red);
@@ -562,5 +578,25 @@ async function onDeleteDish(dish) {
 .button-ink--danger:hover {
   background: var(--zine-stamp-red, #c0392b) !important;
   color: #fff !important;
+}
+
+@media (max-width: 520px) {
+  .confirm-dialog,
+  .edit-dialog {
+    width: 100%;
+    max-height: min(82vh, 620px);
+    padding: 18px;
+  }
+
+  .confirm-dialog h3,
+  .edit-dialog h3 {
+    font-size: 24px;
+  }
+
+  .confirm-dialog__actions,
+  .edit-dialog__actions {
+    display: grid;
+    grid-template-columns: 1fr;
+  }
 }
 </style>

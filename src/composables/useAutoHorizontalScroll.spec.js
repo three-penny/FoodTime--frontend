@@ -33,11 +33,17 @@ describe('useAutoHorizontalScroll', () => {
     vi.unstubAllGlobals();
   });
 
-  function mountScrollDemo({ options = {}, reduceMotion = false } = {}) {
+  function mountScrollDemo({
+    options = {},
+    reduceMotion = false,
+    coarsePointer = false,
+  } = {}) {
     const frame = createFrameController();
     vi.stubGlobal('requestAnimationFrame', frame.request);
     vi.stubGlobal('cancelAnimationFrame', frame.cancel);
-    vi.stubGlobal('matchMedia', () => ({ matches: reduceMotion }));
+    vi.stubGlobal('matchMedia', query => ({
+      matches: query === '(pointer: coarse)' ? coarsePointer : reduceMotion,
+    }));
 
     const Demo = defineComponent({
       setup() {
@@ -99,6 +105,18 @@ describe('useAutoHorizontalScroll', () => {
 
   it('respects prefers-reduced-motion and keeps track still', async () => {
     const { frame, track } = mountScrollDemo({ reduceMotion: true });
+
+    frame.runFrame(0);
+    frame.runFrame(120);
+
+    expect(track.scrollLeft).toBe(0);
+  });
+
+  it('can pause on coarse pointer devices', async () => {
+    const { frame, track } = mountScrollDemo({
+      options: { pauseOnTouch: true },
+      coarsePointer: true,
+    });
 
     frame.runFrame(0);
     frame.runFrame(120);

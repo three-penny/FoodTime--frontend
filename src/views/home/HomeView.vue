@@ -423,8 +423,12 @@ watch(
 }
 
 @media (max-width: 768px) {
+  .home-view {
+    gap: var(--app-mobile-section-gap);
+  }
+
   .home-view__decor-bridge {
-    min-height: 18px;
+    display: none;
   }
 
   .home-view__decor-bridge::before,
@@ -439,6 +443,10 @@ watch(
 
   .home-view__rant-preview {
     grid-template-columns: 1fr;
+  }
+
+  .home-view__notice {
+    box-shadow: var(--app-mobile-shadow);
   }
 }
 
@@ -457,6 +465,7 @@ watch(
 
   .home-view__rant-card {
     padding: 11px;
+    box-shadow: none;
   }
 }
 </style>

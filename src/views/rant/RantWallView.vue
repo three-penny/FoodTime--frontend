@@ -277,18 +277,21 @@ function handleSubmit() {
   .rant-compose,
   .rant-card {
     padding: 16px;
+    box-shadow: var(--app-mobile-shadow);
   }
 
   .rant-wall-header h1 {
-    font-size: clamp(40px, 13vw, 54px);
+    font-size: clamp(34px, 10vw, 44px);
+    line-height: 1.05;
   }
 
   .rant-wall-header p {
-    font-size: 22px;
+    font-size: 19px;
+    line-height: 1.35;
   }
 
   .rant-compose h2 {
-    font-size: 30px;
+    font-size: 26px;
   }
 
   .rant-form .button-ink {
@@ -297,6 +300,16 @@ function handleSubmit() {
 
   .rant-card {
     transform: none;
+  }
+
+  .rant-form select,
+  .rant-form textarea {
+    padding: 11px 12px;
+    font-size: 16px;
+  }
+
+  .rant-card strong {
+    font-size: 19px;
   }
 }
 </style>

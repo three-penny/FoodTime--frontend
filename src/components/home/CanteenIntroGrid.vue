@@ -278,4 +278,43 @@ function jumpToDishList(canteenId) {
     aspect-ratio: 16 / 9;
   }
 }
+
+@media (max-width: 520px) {
+  .canteen-intro {
+    gap: 14px;
+  }
+
+  .canteen-intro__item {
+    box-shadow: var(--app-mobile-shadow);
+  }
+
+  .canteen-intro__main,
+  .canteen-intro__side {
+    padding: 14px;
+  }
+
+  .canteen-intro__line {
+    display: grid;
+    justify-content: stretch;
+    gap: 8px;
+  }
+
+  .canteen-intro__line h3 {
+    font-size: 28px;
+    line-height: 1.1;
+  }
+
+  .canteen-intro__line .stamp {
+    justify-self: start;
+  }
+
+  .canteen-intro__score,
+  .canteen-intro__rant {
+    font-size: 20px;
+  }
+
+  .canteen-intro__photo-frame {
+    box-shadow: var(--app-mobile-shadow);
+  }
+}
 </style>

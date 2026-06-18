@@ -200,11 +200,80 @@ const emit = defineEmits(['review', 'recommend']);
 @media (max-width: 980px) {
   .hero {
     grid-template-columns: 1fr;
+    min-height: auto;
   }
 
   .hero__right {
     border-left: 0;
     border-top: 1px dashed rgb(58 36 24 / 35%);
+  }
+}
+
+@media (max-width: 768px) {
+  .hero {
+    box-shadow: var(--app-mobile-shadow);
+  }
+
+  .hero--wave-top {
+    clip-path: none;
+    -webkit-mask-image: none;
+    mask-image: none;
+  }
+
+  .hero__left {
+    padding: 22px 16px 18px;
+  }
+
+  .hero__title {
+    width: 100%;
+    font-size: clamp(42px, 14vw, 58px);
+    line-height: 0.95;
+    letter-spacing: 0;
+  }
+
+  .hero__slogan {
+    margin-top: 14px;
+    font-size: 20px;
+    line-height: 1.25;
+  }
+
+  .hero__actions {
+    margin-top: 18px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+
+  .hero__action {
+    min-width: 0;
+    min-height: 48px;
+    padding: 11px 12px;
+    font-size: 18px;
+    box-shadow: var(--app-mobile-shadow);
+  }
+
+  .hero__right {
+    padding: 16px;
+  }
+
+  .hero__small {
+    font-size: 11px;
+  }
+
+  .hero__desc {
+    margin-top: 8px;
+    line-height: 1.55;
+  }
+
+  .hero__sticker,
+  .hero__decor {
+    display: none;
+  }
+}
+
+@media (max-width: 420px) {
+  .hero__actions {
+    grid-template-columns: 1fr;
   }
 }
 </style>

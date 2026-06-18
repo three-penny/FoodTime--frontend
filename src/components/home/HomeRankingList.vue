@@ -427,22 +427,60 @@ function vote(id, type, baseRecommend, baseAvoid) {
   .ranking__item {
     grid-template-columns: 1fr;
     gap: 12px;
+    padding: 14px;
+    box-shadow: var(--app-mobile-shadow);
+    transform: none;
   }
 
   .ranking__index-wrap {
     justify-content: start;
+    align-self: auto;
   }
 
   .ranking__index {
     min-width: 0;
-    font-size: 50px;
+    font-size: 42px;
   }
 
   .ranking__item.is-rank-1 .ranking__line h3,
   .ranking__item.is-rank-2 .ranking__line h3,
   .ranking__item.is-rank-3 .ranking__line h3,
   .ranking__line h3 {
-    font-size: 30px;
+    font-size: 26px;
+    line-height: 1.12;
+  }
+
+  .ranking__score-line {
+    align-items: start;
+    flex-wrap: wrap;
+  }
+
+  .ranking__votes {
+    font-size: 17px;
+  }
+
+  .ranking__comment {
+    font-size: 18px;
+  }
+
+  .ranking__media {
+    width: 100%;
+    padding-bottom: 24px;
+    transform: none;
+  }
+
+  .ranking__item:nth-child(even) .ranking__media {
+    transform: none;
+  }
+
+  .ranking__badge,
+  .ranking__clip {
+    display: none;
+  }
+
+  .ranking__actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
   }
 }
 </style>
