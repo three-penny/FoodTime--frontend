@@ -128,10 +128,17 @@ function getFillWidth(star) {
 @media (max-width: 420px) {
   .star-rating-input {
     flex-wrap: wrap;
+    gap: 4px;
   }
 
   .star-rating-input legend {
     width: 100%;
+  }
+
+  .star-rating-input__star {
+    width: 31px;
+    height: 34px;
+    font-size: 32px;
   }
 }
 </style>

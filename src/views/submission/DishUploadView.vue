@@ -448,19 +448,44 @@ function goSubmissions() {
 @media (max-width: 520px) {
   .upload-paper {
     padding: 18px;
+    box-shadow: var(--app-mobile-shadow);
   }
 
   .upload-paper__header h1 {
-    font-size: clamp(38px, 13vw, 54px);
+    font-size: clamp(34px, 10vw, 44px);
+    line-height: 1.05;
   }
 
   .upload-paper__header p {
-    font-size: 22px;
+    font-size: 19px;
+    line-height: 1.35;
   }
 
   .upload-form__actions {
     display: grid;
     grid-template-columns: 1fr;
+  }
+
+  .upload-form input,
+  .upload-form select,
+  .upload-form textarea {
+    padding: 11px 12px;
+    font-size: 16px;
+  }
+
+  .tag-list {
+    gap: 8px;
+  }
+
+  .tag-input-row {
+    display: grid;
+    grid-template-columns: 1fr 72px 72px;
+    gap: 8px;
+  }
+
+  .tag-input-row input {
+    width: 100%;
+    min-width: 0;
   }
 }
 </style>

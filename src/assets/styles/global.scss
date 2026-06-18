@@ -401,33 +401,57 @@ textarea {
 }
 
 @media (max-width: 768px) {
+  html,
+  body {
+    width: 100%;
+    max-width: 100%;
+    overflow-x: hidden;
+  }
+
   body {
     font-size: 15px;
     text-wrap: auto;
+    letter-spacing: 0;
+    line-height: 1.58;
   }
 
   input,
   select,
-  textarea {
+  textarea,
+  button {
     font-size: 16px;
   }
 
   .button-ink {
-    min-height: 42px;
+    min-height: 44px;
+    width: fit-content;
+    max-width: 100%;
+    padding: 10px 14px;
+    line-height: 1.2;
     overflow-wrap: anywhere;
+    box-shadow: var(--app-mobile-shadow);
   }
 
   .section-title {
-    font-size: clamp(28px, 8vw, 38px);
+    font-size: clamp(26px, 7.4vw, 36px);
+    line-height: 1.12;
+    letter-spacing: 0;
+    text-transform: none;
   }
 
   .section-rule {
     grid-template-columns: auto minmax(0, 1fr);
     column-gap: 10px;
+    margin-bottom: 12px;
+  }
+
+  .section-rule__index {
+    font-size: clamp(26px, 9vw, 40px);
   }
 
   .section-subtitle {
     font-size: 14px;
+    line-height: 1.45;
   }
 
   body::after {
@@ -447,5 +471,49 @@ textarea {
   .section-rule::before {
     width: 72px;
     left: -6px;
+  }
+
+  .sticker {
+    max-width: 100%;
+    padding: 3px 8px;
+    font-size: 12px;
+    letter-spacing: 0.04em;
+    transform: none;
+  }
+
+  .stamp {
+    min-width: 48px;
+    height: 28px;
+    font-size: 12px;
+    transform: none;
+  }
+
+  .zine-rating-stamp {
+    width: 46px;
+    height: 46px;
+    font-size: 18px;
+    transform: none;
+  }
+
+  .zine-date-stamp {
+    width: 58px;
+    height: 58px;
+    font-size: 15px;
+    transform: none;
+  }
+
+  .dropcap::first-letter {
+    float: none;
+    margin: 0;
+    font-size: inherit;
+    line-height: inherit;
+  }
+}
+
+@media (max-width: 520px) {
+  .button-ink {
+    width: 100%;
+    justify-content: center;
+    text-align: center;
   }
 }

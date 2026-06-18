@@ -521,21 +521,56 @@ function toggleExpanded() {
     padding: 12px;
   }
 
-  .canteen-stall-card__photo-frame {
+  .canteen-stall-card__dish,
+  .canteen-stall-card__dish:nth-child(2n),
+  .canteen-stall-card__dish:nth-child(2n + 1),
+  .canteen-stall-card__dish-main,
+  .canteen-stall-card__dish-main:nth-child(2n),
+  .canteen-stall-card__dish-main:nth-child(2n + 1) {
     transform: none;
   }
 
+  .canteen-stall-card__photo-frame {
+    transform: none;
+    box-shadow: var(--app-mobile-shadow);
+  }
+
   .canteen-stall-card__copy strong {
-    font-size: clamp(30px, 10vw, 40px);
+    font-size: clamp(28px, 9vw, 36px);
+    line-height: 1.08;
   }
 
   .canteen-stall-card__dish-title {
     display: grid;
     justify-content: stretch;
+    padding-right: 0;
+  }
+
+  .canteen-stall-card__dish-title h3 {
+    font-size: 23px;
+    line-height: 1.15;
   }
 
   .canteen-stall-card__dish-title .stamp {
     justify-self: start;
+  }
+
+  .canteen-stall-card__dish-body {
+    padding: 12px;
+  }
+
+  .canteen-stall-card__dish-admin {
+    position: static;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    padding: 0 12px 12px;
+  }
+
+  .canteen-stall-card__admin-actions,
+  .canteen-stall-card__dish-edit-actions,
+  .canteen-stall-card__edit-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
   }
 
   .canteen-stall-card__toggle {

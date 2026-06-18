@@ -361,15 +361,18 @@ async function handleSubmit() {
 @media (max-width: 520px) {
   .review-paper {
     padding: 18px;
+    box-shadow: var(--app-mobile-shadow);
   }
 
   .review-paper__main h1 {
-    font-size: clamp(40px, 13vw, 54px);
+    font-size: clamp(34px, 10vw, 44px);
+    line-height: 1.05;
   }
 
   .review-paper__lead,
   .review-note p {
-    font-size: 22px;
+    font-size: 19px;
+    line-height: 1.35;
   }
 
   .review-form__actions {
@@ -379,6 +382,16 @@ async function handleSubmit() {
 
   .review-note {
     transform: none;
+  }
+
+  .review-target {
+    padding: 12px;
+  }
+
+  .review-form input,
+  .review-form textarea {
+    padding: 11px 12px;
+    font-size: 16px;
   }
 }
 </style>

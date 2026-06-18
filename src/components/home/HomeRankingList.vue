@@ -424,25 +424,134 @@ function vote(id, type, baseRecommend, baseAvoid) {
 }
 
 @media (max-width: 520px) {
+  .ranking__header {
+    margin-bottom: 8px;
+  }
+
+  .ranking__list {
+    gap: 10px;
+  }
+
   .ranking__item {
-    grid-template-columns: 1fr;
-    gap: 12px;
+    grid-template-columns: auto minmax(0, 1fr) 104px;
+    gap: 10px;
+    align-items: start;
+    padding: 12px;
+    box-shadow: var(--app-mobile-shadow);
+    transform: none;
   }
 
   .ranking__index-wrap {
     justify-content: start;
+    align-self: auto;
   }
 
   .ranking__index {
     min-width: 0;
-    font-size: 50px;
+    font-size: 24px;
+    line-height: 1;
+    -webkit-text-stroke-width: 1px;
+    text-shadow: 1px 1px 0 rgb(58 36 24 / 8%);
+  }
+
+  .ranking__body {
+    gap: 5px;
   }
 
   .ranking__item.is-rank-1 .ranking__line h3,
   .ranking__item.is-rank-2 .ranking__line h3,
   .ranking__item.is-rank-3 .ranking__line h3,
   .ranking__line h3 {
-    font-size: 30px;
+    font-size: 22px;
+    line-height: 1.12;
+  }
+
+  .ranking__score-line {
+    align-items: start;
+    flex-wrap: wrap;
+  }
+
+  .ranking__votes {
+    font-size: 14px;
+  }
+
+  .ranking__comment {
+    font-size: 15px;
+    line-height: 1.18;
+    display: -webkit-box;
+    overflow: hidden;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+  }
+
+  .ranking__count {
+    display: none;
+  }
+
+  .ranking__meta {
+    font-size: 12px;
+    line-height: 1.3;
+  }
+
+  .ranking__media {
+    grid-column: 3;
+    grid-row: 1;
+    align-self: start;
+    width: 104px;
+    padding: 5px;
+    transform: none;
+    box-shadow: none;
+  }
+
+  .ranking__image {
+    width: 100%;
+    aspect-ratio: 1 / 1;
+  }
+
+  .ranking__item:nth-child(even) .ranking__media {
+    transform: none;
+  }
+
+  .ranking__media figcaption {
+    position: static;
+    margin-top: 4px;
+    font-size: 12px;
+    line-height: 1.15;
+    text-align: center;
+  }
+
+  .ranking__badge,
+  .ranking__clip {
+    display: none;
+  }
+
+  .ranking__actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
+  }
+
+  .ranking__actions .button-ink {
+    min-height: 36px;
+    padding: 7px 8px;
+    font-size: 15px;
+  }
+
+  .ranking__score-line .zine-rating-stamp {
+    width: 38px;
+    height: 38px;
+    font-size: 15px;
+  }
+}
+
+@media (max-width: 380px) {
+  .ranking__item {
+    grid-template-columns: auto minmax(0, 1fr) 92px;
+    gap: 8px;
+  }
+
+  .ranking__media {
+    width: 92px;
   }
 }
 </style>

@@ -648,34 +648,81 @@ function rejectItem(item) {
   .audit-filter,
   .audit-card {
     padding: 16px;
+    box-shadow: var(--app-mobile-shadow);
+  }
+
+  .admin-hero {
+    gap: 14px;
   }
 
   .admin-hero h1 {
-    font-size: clamp(40px, 13vw, 54px);
+    margin-top: 12px;
+    font-size: clamp(34px, 10vw, 44px);
+    line-height: 1.05;
   }
 
   .admin-hero p {
-    font-size: 22px;
+    font-size: 19px;
+    line-height: 1.35;
   }
 
   .admin-hero__stamp {
-    width: 96px;
-    height: 96px;
+    width: 82px;
+    height: 82px;
+    justify-self: start;
+    transform: none;
+  }
+
+  .admin-hero__stamp strong {
+    font-size: 34px;
   }
 
   .audit-summary {
     grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  .audit-summary__card {
+    padding: 12px 14px;
+    box-shadow: var(--app-mobile-shadow);
+    transform: none;
+  }
+
+  .audit-summary__card.is-active {
+    transform: none;
+  }
+
+  .audit-filter h2 {
+    font-size: 28px;
+  }
+
+  .audit-filter input,
+  .audit-filter select,
+  .audit-filter textarea,
+  .edit-form-inline input,
+  .edit-form-inline textarea {
+    padding: 11px 12px;
+    font-size: 16px;
   }
 
   .audit-card__head {
     grid-template-columns: 1fr;
+    gap: 10px;
   }
 
   .audit-card h2 {
-    font-size: 30px;
+    font-size: 26px;
+    line-height: 1.12;
   }
 
-  .audit-card__actions {
+  .audit-card__image {
+    max-width: none;
+    aspect-ratio: 16 / 10;
+    object-fit: cover;
+  }
+
+  .audit-card__actions,
+  .edit-form-actions {
     display: grid;
     grid-template-columns: 1fr;
   }

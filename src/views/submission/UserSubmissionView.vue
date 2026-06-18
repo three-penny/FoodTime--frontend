@@ -213,18 +213,40 @@ function retry() {
   .submission-header,
   .submission-card {
     padding: 16px;
+    box-shadow: var(--app-mobile-shadow);
   }
 
   .submission-header h1 {
-    font-size: clamp(40px, 13vw, 54px);
+    margin-top: 12px;
+    font-size: clamp(34px, 10vw, 44px);
+    line-height: 1.05;
   }
 
   .submission-header p {
-    font-size: 22px;
+    font-size: 19px;
+    line-height: 1.35;
+  }
+
+  .submission-stats {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 8px;
   }
 
   .submission-card h2 {
-    font-size: 30px;
+    font-size: 26px;
+    line-height: 1.12;
+  }
+
+  .submission-card__meta {
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+
+  .submission-card__image {
+    max-width: none;
+    aspect-ratio: 16 / 10;
+    object-fit: cover;
   }
 
   .submission-header .button-ink {

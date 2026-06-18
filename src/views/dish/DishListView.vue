@@ -305,24 +305,37 @@ async function onDeleteDish(dish) {
   }
 
   .hero__image {
-    min-height: 220px;
+    aspect-ratio: 16 / 10;
+    min-height: 0;
+    height: auto;
   }
 
   .hero__content {
     padding: 18px 16px;
 
     h1 {
-      font-size: clamp(38px, 13vw, 52px);
+      font-size: clamp(34px, 10vw, 44px);
+      line-height: 1.05;
     }
   }
 
   .hero__rant {
-    font-size: 21px;
+    font-size: 18px;
+    line-height: 1.35;
   }
 
   .hero__actions {
     display: grid;
     grid-template-columns: 1fr;
+  }
+
+  .hero__meta,
+  .hero__summary {
+    line-height: 1.5;
+  }
+
+  .hero__facts span {
+    padding: 9px 10px;
   }
 }
 </style>

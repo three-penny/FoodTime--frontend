@@ -10,12 +10,14 @@ import { onMounted, onUnmounted, unref } from 'vue';
  * @param {import('vue').Ref<boolean>|boolean=} options.pauseWhen External pause flag.
  * @param {import('vue').Ref<number>|number=} options.loopItemCount Original item count when the DOM renders a duplicated loop.
  * @param {boolean=} options.pauseOnHover Pause when pointer is over the track.
+ * @param {boolean=} options.pauseOnTouch Pause when the device uses coarse pointers.
  * @param {number=} options.hoverPauseDelayMs Delay before hover pause starts.
  * @returns {{ pause: () => void, resume: () => void }}
  */
 export function useAutoHorizontalScroll(targetRef, options = {}) {
   const speed = Number(options.speed ?? 18);
   const pauseOnHover = options.pauseOnHover ?? true;
+  const pauseOnTouch = options.pauseOnTouch ?? false;
   const hoverPauseDelayMs = Number(options.hoverPauseDelayMs ?? 0);
   let frameId = 0;
   let lastTime = 0;
@@ -24,6 +26,7 @@ export function useAutoHorizontalScroll(targetRef, options = {}) {
   let isPausedByHover = false;
   let isFocusInside = false;
   let reducedMotionQuery = null;
+  let coarsePointerQuery = null;
 
   function shouldPause() {
     return (
@@ -31,7 +34,8 @@ export function useAutoHorizontalScroll(targetRef, options = {}) {
       isPausedByHover ||
       isFocusInside ||
       Boolean(unref(options.pauseWhen)) ||
-      Boolean(reducedMotionQuery?.matches)
+      Boolean(reducedMotionQuery?.matches) ||
+      (pauseOnTouch && Boolean(coarsePointerQuery?.matches))
     );
   }
 
@@ -140,6 +144,7 @@ export function useAutoHorizontalScroll(targetRef, options = {}) {
     const target = targetRef.value;
     const frameApi = getFrameApi();
     reducedMotionQuery = window.matchMedia?.('(prefers-reduced-motion: reduce)') ?? null;
+    coarsePointerQuery = window.matchMedia?.('(pointer: coarse)') ?? null;
 
     if (target) {
       target.addEventListener('pointerenter', onPointerEnter);
