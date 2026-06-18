@@ -106,6 +106,7 @@ useAutoHorizontalScroll(trackRef, {
   loopItemCount: computed(() => props.items.length),
   speed: 18,
   pauseOnHover: true,
+  pauseOnTouch: true,
 });
 
 function imageFrameClass(index) {
@@ -339,18 +340,52 @@ function jumpToDish(item) {
 @media (max-width: 768px) {
   .recommend__header {
     align-items: start;
+    display: grid;
+    gap: 8px;
+  }
+
+  .recommend__hint {
+    justify-self: start;
+    font-size: 20px;
+    transform: none;
   }
 
   .recommend__track {
-    gap: 0;
-    padding-top: 12px;
+    gap: 12px;
+    margin-inline: calc(var(--zine-page-padding-mobile) * -1);
+    padding: 12px var(--zine-page-padding-mobile) 20px;
+    scroll-snap-type: x mandatory;
+    touch-action: pan-x pan-y;
   }
 
   .recommend-card {
-    flex-basis: min(76vw, 264px);
-    width: min(76vw, 264px);
-    height: 396px;
-    margin-right: -14px;
+    flex-basis: min(82vw, 318px);
+    width: min(82vw, 318px);
+    height: auto;
+    min-height: 372px;
+    margin-right: 0;
+    box-shadow: var(--app-mobile-shadow);
+    transform: none;
+  }
+
+  .recommend-card--0,
+  .recommend-card--1,
+  .recommend-card--2,
+  .recommend-card--3,
+  .recommend-card__media,
+  .recommend-card__media.is-rotate-left,
+  .recommend-card__media.is-rotate-right,
+  .recommend-card__media.is-rotate-soft,
+  .recommend-card__media.is-rotate-back {
+    transform: none;
+  }
+
+  .recommend-card__comment {
+    font-size: 17px;
+  }
+
+  .recommend-card__title-row h3 {
+    font-size: 26px;
   }
 }
 </style>
