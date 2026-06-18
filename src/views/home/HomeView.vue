@@ -424,7 +424,7 @@ watch(
 
 @media (max-width: 768px) {
   .home-view {
-    gap: var(--app-mobile-section-gap);
+    gap: 12px;
   }
 
   .home-view__decor-bridge {
@@ -434,6 +434,28 @@ watch(
   .home-view__decor-bridge::before,
   .home-view__decor-bridge::after {
     display: none;
+  }
+
+  .home-view__section {
+    gap: 6px;
+  }
+
+  :deep(.recommend),
+  :deep(.canteen-carousel),
+  :deep(.ranking) {
+    margin-top: 0;
+  }
+
+  :deep(.section-rule) {
+    margin-bottom: 4px;
+  }
+
+  :deep(.section-rule)::before {
+    display: none;
+  }
+
+  :deep(.section-rule__line) {
+    opacity: 0.16;
   }
 
   .home-view__notice-head {
@@ -451,6 +473,10 @@ watch(
 }
 
 @media (max-width: 520px) {
+  .home-view {
+    gap: 10px;
+  }
+
   .home-view__notice {
     padding: 16px;
 
