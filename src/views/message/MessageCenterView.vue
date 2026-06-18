@@ -137,4 +137,46 @@ onMounted(async () => {
     grid-template-columns: 1fr;
   }
 }
+
+@media (max-width: 520px) {
+  .message-view__header,
+  .message-card {
+    padding: 16px;
+    box-shadow: var(--app-mobile-shadow);
+  }
+
+  .message-view__header h1 {
+    margin-top: 12px;
+    font-size: clamp(34px, 10vw, 44px);
+    line-height: 1.05;
+  }
+
+  .message-view__header p {
+    font-size: 19px;
+    line-height: 1.35;
+  }
+
+  .message-list {
+    gap: 14px;
+  }
+
+  .message-card {
+    min-height: 0;
+    transform: none;
+  }
+
+  .message-card::before {
+    display: none;
+  }
+
+  .message-card__time,
+  .message-card__tag {
+    margin-bottom: 6px;
+  }
+
+  .message-card h2 {
+    font-size: 25px;
+    line-height: 1.12;
+  }
+}
 </style>

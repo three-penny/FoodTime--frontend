@@ -302,8 +302,63 @@ async function saveDish() {
   font-size: 14px;
 }
 @media (max-width: 600px) {
+  .manage-hero,
+  .manage-form {
+    padding: 16px;
+    box-shadow: var(--app-mobile-shadow);
+  }
+
+  .manage-hero h1 {
+    margin-top: 12px;
+    font-size: clamp(34px, 10vw, 44px);
+    line-height: 1.05;
+  }
+
+  .manage-hero p {
+    font-size: 19px;
+    line-height: 1.35;
+  }
+
   .manage-tabs {
-    flex-wrap: wrap;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 8px;
+  }
+
+  .manage-tabs button {
+    min-height: 50px;
+    padding: 9px 8px;
+    text-align: center;
+    font-size: 14px;
+  }
+
+  .manage-tabs button.is-active {
+    transform: none;
+    box-shadow: var(--app-mobile-shadow);
+  }
+
+  .manage-tabs button span {
+    display: block;
+    margin: 0 0 2px;
+  }
+
+  .manage-form {
+    max-width: none;
+  }
+
+  .manage-form h2 {
+    font-size: 28px;
+  }
+
+  .manage-form input,
+  .manage-form textarea,
+  .manage-form select {
+    padding: 11px 12px;
+    font-size: 16px;
+  }
+
+  .manage-form .button-ink {
+    width: 100%;
   }
 }
 </style>

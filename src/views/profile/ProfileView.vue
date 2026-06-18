@@ -781,29 +781,98 @@ button:disabled {
   .profile-card,
   .profile-panel {
     padding: 16px;
+    box-shadow: var(--app-mobile-shadow);
   }
 
   .profile-header {
     display: grid;
+    gap: 12px;
   }
 
   .profile-header h1 {
-    font-size: clamp(40px, 13vw, 54px);
+    margin-top: 12px;
+    font-size: clamp(34px, 10vw, 44px);
+    line-height: 1.05;
   }
 
   .profile-header p {
-    font-size: 22px;
+    font-size: 19px;
+    line-height: 1.35;
+  }
+
+  .profile-header__mark {
+    justify-self: start;
+    padding: 10px 12px;
+    transform: none;
+  }
+
+  .avatar-stamp {
+    width: 72px;
+    height: 72px;
+    font-size: 32px;
+    transform: none;
+  }
+
+  .profile-card h2 {
+    font-size: 30px;
+    line-height: 1.08;
   }
 
   .info-grid,
-  .points-summary,
-  .profile-tabs {
+  .points-summary {
     grid-template-columns: 1fr;
   }
 
+  .profile-tabs {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 8px;
+    padding-bottom: 12px;
+  }
+
+  .profile-tabs button {
+    min-height: 50px;
+    padding: 9px 8px;
+    text-align: center;
+    font-size: 14px;
+    box-shadow: var(--app-mobile-shadow);
+  }
+
+  .profile-tabs button.is-active {
+    transform: none;
+  }
+
+  .profile-tabs button.is-active::after {
+    display: none;
+  }
+
+  .panel-title h2 {
+    font-size: 28px;
+  }
+
+  .invite-code-box,
+  .invite-code-meta,
+  .edit-form__actions {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+
+  .invite-code-value {
+    font-size: 30px;
+    letter-spacing: 3px;
+    overflow-wrap: anywhere;
+  }
+
   .point-actions .button-ink,
-  .quick-actions .button-ink {
+  .quick-actions .button-ink,
+  .edit-form__actions .button-ink,
+  .invite-code-section .button-ink {
     width: 100%;
+  }
+
+  .ledger-list > div {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
   }
 }
 </style>
