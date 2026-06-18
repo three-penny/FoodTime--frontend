@@ -351,19 +351,21 @@ function jumpToDish(item) {
   }
 
   .recommend__track {
-    gap: 12px;
+    gap: 10px;
     margin-inline: calc(var(--zine-page-padding-mobile) * -1);
-    padding: 12px var(--zine-page-padding-mobile) 20px;
+    padding: 8px var(--zine-page-padding-mobile) 14px;
     scroll-snap-type: x mandatory;
     touch-action: pan-x pan-y;
   }
 
   .recommend-card {
-    flex-basis: min(82vw, 318px);
-    width: min(82vw, 318px);
+    flex-basis: min(74vw, 280px);
+    width: min(74vw, 280px);
     height: auto;
-    min-height: 372px;
+    min-height: 308px;
     margin-right: 0;
+    grid-template-rows: auto minmax(0, 1fr);
+    padding: 8px;
     box-shadow: var(--app-mobile-shadow);
     transform: none;
   }
@@ -380,12 +382,41 @@ function jumpToDish(item) {
     transform: none;
   }
 
+  .recommend-card__media {
+    aspect-ratio: 16 / 10;
+    padding: 5px 5px 12px;
+  }
+
+  .recommend-card__tape {
+    display: none;
+  }
+
+  .recommend-card__content {
+    padding-top: 8px;
+    grid-template-rows: minmax(36px, auto) auto auto;
+    gap: 5px;
+  }
+
   .recommend-card__comment {
-    font-size: 17px;
+    font-size: 15px;
+    line-height: 1.14;
   }
 
   .recommend-card__title-row h3 {
-    font-size: 26px;
+    font-size: 22px;
+    line-height: 1.08;
+  }
+
+  .recommend-card__meta {
+    font-size: 13px;
+    line-height: 1.25;
+  }
+
+  .recommend-card__title-row :deep(.zine-rating-stamp),
+  .recommend-card .zine-rating-stamp {
+    width: 40px;
+    height: 40px;
+    font-size: 16px;
   }
 }
 </style>

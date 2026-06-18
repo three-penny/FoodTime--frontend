@@ -363,20 +363,21 @@ function handleSelect(canteenId) {
   }
 
   .canteen-carousel__track {
-    gap: 12px;
+    gap: 10px;
     margin-inline: calc(var(--zine-page-padding-mobile) * -1);
-    padding: 12px var(--zine-page-padding-mobile) 20px;
+    padding: 8px var(--zine-page-padding-mobile) 14px;
     scroll-snap-type: x mandatory;
     touch-action: pan-x pan-y;
   }
 
   .canteen-card {
-    flex-basis: min(82vw, 320px);
-    width: min(82vw, 320px);
+    flex-basis: min(76vw, 288px);
+    width: min(76vw, 288px);
     height: auto;
-    min-height: 430px;
+    min-height: 348px;
     margin-right: 0;
-    grid-template-rows: 52% 48%;
+    grid-template-rows: auto minmax(0, 1fr);
+    padding: 8px;
     box-shadow: var(--app-mobile-shadow);
     transform: none;
   }
@@ -393,20 +394,59 @@ function handleSelect(canteenId) {
     transform: none;
   }
 
+  .canteen-card__media {
+    aspect-ratio: 16 / 10;
+    padding: 6px 6px 12px;
+  }
+
+  .canteen-card__postage {
+    opacity: 0.36;
+  }
+
+  .canteen-card__tape {
+    display: none;
+  }
+
   .canteen-card__content {
     grid-template-rows: auto auto 1fr;
+    gap: 7px;
+    padding: 9px 2px 0;
   }
 
   .canteen-card__rant {
-    font-size: 16px;
+    font-size: 15px;
+    line-height: 1.18;
+  }
+
+  .canteen-card__rant-text {
+    min-height: 0;
+    -webkit-line-clamp: 2;
+  }
+
+  .canteen-card__count {
+    display: none;
   }
 
   .canteen-card__title-row h3 {
-    font-size: 26px;
+    font-size: 22px;
+    line-height: 1.08;
   }
 
   .canteen-card__chips {
     max-width: 100%;
+    gap: 4px;
+  }
+
+  .canteen-card .zine-chip {
+    min-height: 22px;
+    padding: 2px 7px;
+    font-size: 11px;
+  }
+
+  .canteen-card .zine-rating-stamp {
+    width: 40px;
+    height: 40px;
+    font-size: 16px;
   }
 }
 </style>
