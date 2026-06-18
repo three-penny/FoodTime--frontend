@@ -235,6 +235,8 @@ function handleClick() {
 @media (max-width: 520px) {
   .dish-card {
     transform: none;
+    padding: 12px;
+    box-shadow: var(--app-mobile-shadow);
   }
 
   .dish-card.is-tilt {
@@ -242,7 +244,8 @@ function handleClick() {
   }
 
   .dish-card__image {
-    height: 180px;
+    aspect-ratio: 16 / 10;
+    height: auto;
   }
 
   .dish-card__title-row {
@@ -250,7 +253,8 @@ function handleClick() {
     gap: 8px;
 
     h3 {
-      font-size: 28px;
+      font-size: 25px;
+      line-height: 1.12;
     }
   }
 
@@ -261,6 +265,11 @@ function handleClick() {
   .dish-card__meta {
     flex-wrap: wrap;
     gap: 6px;
+  }
+
+  .dish-card__comment {
+    font-size: 18px;
+    line-height: 1.35;
   }
 }
 </style>

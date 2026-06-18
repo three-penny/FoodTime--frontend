@@ -356,29 +356,42 @@ function toReviewPage() {
   }
 
   .crumb {
-    font-size: 20px;
+    font-size: 16px;
     overflow-wrap: anywhere;
   }
 
   .dish-main__image {
-    min-height: 230px;
+    aspect-ratio: 16 / 10;
+    min-height: 0;
+    height: auto;
   }
 
   .dish-main__content {
     padding: 18px 16px;
 
     h1 {
-      font-size: clamp(38px, 13vw, 54px);
+      font-size: clamp(34px, 10vw, 44px);
+      line-height: 1.05;
     }
   }
 
   .dish-main__comment {
-    font-size: 21px;
+    font-size: 18px;
+    line-height: 1.35;
   }
 
   .dish-main__actions {
     display: grid;
     grid-template-columns: 1fr;
+  }
+
+  .dish-main__sticker {
+    left: 12px;
+    bottom: 12px;
+  }
+
+  .dish-main__meta {
+    line-height: 1.5;
   }
 }
 </style>
@@ -392,6 +405,7 @@ function toReviewPage() {
   align-items: center;
   justify-content: center;
   z-index: 1000;
+  padding: 16px;
 }
 
 .confirm-dialog {
@@ -416,6 +430,7 @@ function toReviewPage() {
 .confirm-dialog__actions {
   display: flex;
   gap: 10px;
+  flex-wrap: wrap;
 }
 
 .button-ink--danger {
@@ -426,5 +441,21 @@ function toReviewPage() {
 .button-ink--danger:hover {
   background: var(--zine-stamp-red, #c0392b) !important;
   color: #fff !important;
+}
+
+@media (max-width: 520px) {
+  .confirm-dialog {
+    width: 100%;
+    padding: 18px;
+  }
+
+  .confirm-dialog h3 {
+    font-size: 24px;
+  }
+
+  .confirm-dialog__actions {
+    display: grid;
+    grid-template-columns: 1fr;
+  }
 }
 </style>
