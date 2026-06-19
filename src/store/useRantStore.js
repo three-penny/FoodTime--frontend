@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia';
 import { fetchRants, createRant, auditRant } from '../api/rant.api';
+import { formatTime } from '../utils/formatDate';
 
 export const useRantStore = defineStore('rant', {
   state: () => ({
@@ -65,7 +66,7 @@ export const useRantStore = defineStore('rant', {
         author: payload.author || '匿名同学',
         content: payload.content,
         tag: payload.tag || '吐槽',
-        createdAt: new Date().toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit', hour12: false }),
+        createdAt: formatTime(new Date()),
         status: 'pending',
         reason: '',
       };

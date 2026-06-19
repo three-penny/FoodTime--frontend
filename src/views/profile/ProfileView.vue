@@ -217,6 +217,7 @@ import { useRouter } from 'vue-router';
 import { useAuthStore } from '../../store/useAuthStore';
 import { usePointsStore } from '../../store/usePointsStore';
 import { updateProfile, generateInviteCode, getInviteCode } from '../../api/auth.api';
+import { formatDate, formatShortDateTime, getTodayDateString } from '../../utils/formatDate';
 
 defineOptions({
   name: 'ProfileView',
@@ -235,11 +236,7 @@ const inviteCodeLoading = ref(false);
 const inviteCodeMessage = ref('');
 
 function formatExpiry(isoString) {
-  const date = new Date(isoString);
-  return date.toLocaleString('zh-CN', {
-    year: 'numeric', month: '2-digit', day: '2-digit',
-    hour: '2-digit', minute: '2-digit',
-  });
+  return formatShortDateTime(isoString);
 }
 
 async function handleGenerateInviteCode() {
@@ -337,7 +334,7 @@ const spentRecords = computed(() =>
 );
 
 const isCheckedInToday = computed(() => {
-  const today = new Date().toLocaleDateString('zh-CN');
+  const today = getTodayDateString()
   const lastCheckIn = pointsStore.currentUserHistory.find(
     item => item.type === 'daily'
   );
@@ -346,7 +343,7 @@ const isCheckedInToday = computed(() => {
     return false;
   }
 
-  return new Date(lastCheckIn.timestamp).toLocaleDateString('zh-CN') === today;
+  return formatDate(lastCheckIn.timestamp) === today;
 });
 
 const checkInButtonText = computed(() =>

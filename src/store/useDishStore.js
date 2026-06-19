@@ -3,6 +3,7 @@ import { fetchDishes, fetchDishById, fetchDishReviews, recommendDish, avoidDish 
 import { createReview } from '../api/review.api';
 import { fetchCanteenDishes } from '../api/canteen.api';
 import { resolveDishImage } from '../utils/imageMapper';
+import { formatShortDateTime } from '../utils/formatDate';
 
 function applySort(list, sortBy) {
   const cloned = [...list];
@@ -151,7 +152,7 @@ export const useDishStore = defineStore('dish', {
         rating: safeRating,
         comment: payload.comment,
         reviewer: payload.reviewer || '匿名同学',
-        createdAt: new Date().toLocaleString('zh-CN', { hour12: false }),
+        createdAt: formatShortDateTime(new Date()),
       };
       this.reviewsByDishId = {
         ...this.reviewsByDishId,

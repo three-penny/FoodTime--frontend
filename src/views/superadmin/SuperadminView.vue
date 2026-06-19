@@ -273,6 +273,7 @@ import {
   listUsers, setUserRole, setUserStatus, changeUserPassword,
   listAuditLogs, getDashboard,
 } from '../../api/superadmin.api';
+import { formatShortDateTime } from '../../utils/formatDate';
 
 defineOptions({ name: 'SuperadminView' });
 
@@ -473,8 +474,7 @@ function targetTypeLabel(type) {
 }
 
 function formatTime(iso) {
-  if (!iso) return '';
-  return new Date(iso).toLocaleString('zh-CN');
+  return formatShortDateTime(iso);
 }
 </script>
 

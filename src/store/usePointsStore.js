@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia';
 import { useAuthStore } from './useAuthStore';
 import { fetchPoints, fetchPointsHistory, dailyCheckin, consumePoints } from '../api/points.api';
+import { formatShortDateTime } from '../utils/formatDate';
 
 export const usePointsStore = defineStore('points', {
   state: () => ({
@@ -82,7 +83,7 @@ export const usePointsStore = defineStore('points', {
         amount: `+${amount}`,
         reason,
         type,
-        timestamp: new Date().toLocaleString('zh-CN', { hour12: false }),
+        timestamp: formatShortDateTime(new Date()),
       });
     },
     async consumePoints(amount, reason) {
@@ -99,7 +100,7 @@ export const usePointsStore = defineStore('points', {
           amount: `-${amount}`,
           reason,
           type: 'consume',
-          timestamp: new Date().toLocaleString('zh-CN', { hour12: false }),
+          timestamp: formatShortDateTime(new Date()),
         });
         return true;
       } catch (e) {
@@ -124,7 +125,7 @@ export const usePointsStore = defineStore('points', {
             amount: '+5',
             reason: '每日签到奖励',
             type: 'daily',
-            timestamp: new Date().toLocaleString('zh-CN', { hour12: false }),
+            timestamp: formatShortDateTime(new Date()),
           });
           return true;
         }

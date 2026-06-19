@@ -3,6 +3,7 @@
 import { defineStore } from 'pinia';
 import { fetchMySubmissions, fetchAllSubmissions } from '../api/submission.api';
 import { auditSubmission } from '../api/adminAudit.api';
+import { formatShortDateTime } from '../utils/formatDate';
 
 const STATUS_LABELS = {
   pending: '待审核',
@@ -25,7 +26,7 @@ function mapSubmission(item) {
     price: item.price,
     submitter: item.submitter_account,
     submittedAt: item.created_at
-      ? new Date(item.created_at).toLocaleString('zh-CN', { hour12: false })
+      ? formatShortDateTime(item.created_at)
       : '',
     status: item.status,
     imageUrl: filename ? `/api/v1/images/submission/${filename}` : '',
@@ -141,9 +142,7 @@ export const useSubmissionStore = defineStore('submission', {
         stallName: payload.stallName,
         price: Number(payload.price),
         submitter: payload.submitter || '当前用户',
-        submittedAt: new Date().toLocaleString('zh-CN', {
-          hour12: false,
-        }),
+        submittedAt: formatShortDateTime(new Date()),
         status: 'pending',
         imageName: payload.imageName || '待补充图片',
         reason: '',
