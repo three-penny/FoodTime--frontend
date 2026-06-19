@@ -84,13 +84,13 @@
       </div>
 
       <button
-        v-if="hiddenCount > 0"
+        v-if="totalCount > 0"
         class="canteen-stall-card__toggle button-ink"
         type="button"
         :aria-expanded="String(expanded)"
         @click="toggleExpanded"
       >
-        {{ expanded ? '收起菜品' : `展开其余 ${hiddenCount} 道` }}
+        {{ expanded ? '收起全部菜品' : `展开全部菜品（共 ${totalCount} 道）` }}
       </button>
     </div>
   </article>
@@ -99,7 +99,7 @@
 <script setup>
 /**
  * CanteenStallCard
- * 职责：展示食堂详情页中的单个档口，并按评分展示前三个菜品，其余菜品折叠。
+ * 职责：展示食堂详情页中的单个档口，菜品默认全部折叠，点击展开后展示全部菜品。
  * 作者：XXXXX
  * 使用场景：食堂详细页档口展开列表。
  * 依赖：Vue 局部状态、全局 zine 视觉类。
@@ -129,9 +129,9 @@ const sortedDishes = computed(() =>
   [...(props.stall.dishes ?? [])].sort((a, b) => b.rating - a.rating),
 );
 const visibleDishes = computed(() =>
-  expanded.value ? sortedDishes.value : sortedDishes.value.slice(0, 3),
+  expanded.value ? sortedDishes.value : [],
 );
-const hiddenCount = computed(() => Math.max(sortedDishes.value.length - 3, 0));
+const totalCount = computed(() => sortedDishes.value.length);
 
 const editingStall = ref(false);
 const editStallForm = reactive({ name: '', avgPrice: '', bestTime: '', summary: '' });
@@ -192,9 +192,7 @@ function saveEditDish(dish) {
 }
 
 function toggleExpanded() {
-  if (hiddenCount.value > 0) {
-    expanded.value = !expanded.value;
-  }
+  expanded.value = !expanded.value;
 }
 </script>
 
