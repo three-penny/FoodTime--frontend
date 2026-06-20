@@ -86,7 +86,7 @@ import ReviewTargetPicker from '../../components/review/ReviewTargetPicker.vue';
 import { useAuthStore } from '../../store/useAuthStore';
 import { useCanteenStore } from '../../store/useCanteenStore';
 import { useDishStore } from '../../store/useDishStore';
-import { createReview } from '../../api/review.api';
+
 
 defineOptions({
   name: 'ReviewCreateView',
@@ -245,15 +245,7 @@ async function handleSubmit() {
   message.value = '';
 
   try {
-    const res = await createReview({
-      dish_id: dishId.value,
-      user_id: authStore.session.id,
-      rating: form.rating,
-      comment: form.comment,
-    });
-
-    // 同步写入前端 store，确保 dishDetail 页面可以即时展示
-    dishStore.createDishReview({
+    await dishStore.createDishReview({
       dishId: dishId.value,
       rating: form.rating,
       comment: form.comment,
