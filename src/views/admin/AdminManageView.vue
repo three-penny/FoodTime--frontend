@@ -32,7 +32,6 @@
       <label>食堂ID <input v-model="canteenForm.id" placeholder="如 xuewu" /></label>
       <label>名称 <input v-model="canteenForm.name" /></label>
       <label>简称 <input v-model="canteenForm.shortName" /></label>
-      <label>评分 <input v-model.number="canteenForm.rating" type="number" step="0.1" min="0" max="5" /></label>
       <label>位置 <input v-model="canteenForm.location" /></label>
       <label>营业时间 <input v-model="canteenForm.openHours" placeholder="如 06:30 - 21:30" /></label>
       <label>人均 <input v-model="canteenForm.avgPrice" placeholder="如 人均 ¥12 - ¥18" /></label>
@@ -78,10 +77,17 @@
         </select>
       </label>
       <label>所属档口
-        <select v-model="dishForm.stallId">
+        <select v-model="dishForm.stallId" :disabled="dishForm.newStallMode" @change="dishForm.newStallMode = false">
           <option value="">请选择档口</option>
           <option v-for="s in stalls" :key="s.id" :value="s.id">{{ s.name }}</option>
         </select>
+        <label class="manage-form__checkbox">
+          <input type="checkbox" v-model="dishForm.newStallMode" @change="onNewStallToggle" />
+          新增档口
+        </label>
+      </label>
+      <label v-if="dishForm.newStallMode">
+        新档口名称 <input v-model="dishForm.newStallName" placeholder="输入新档口名称" />
       </label>
       <label>菜品名称 <input v-model="dishForm.name" /></label>
       <label>价格 <input v-model.number="dishForm.price" type="number" /></label>
@@ -123,7 +129,7 @@ onMounted(async () => {
 });
 
 // 添加食堂
-const canteenForm = reactive({ id: '', name: '', shortName: '', rating: 5, location: '', openHours: '', avgPrice: '', peakQueue: '', bestTime: '', summary: '', rant: '', features: '', signatureDishes: '' });
+const canteenForm = reactive({ id: '', name: '', shortName: '', location: '', openHours: '', avgPrice: '', peakQueue: '', bestTime: '', summary: '', rant: '', features: '', signatureDishes: '' });
 const canteenSaving = ref(false);
 const canteenMsg = ref('');
 
@@ -137,7 +143,6 @@ async function saveCanteen() {
       id: canteenForm.id || undefined,
       name: canteenForm.name,
       short_name: canteenForm.shortName,
-      rating: canteenForm.rating,
       location: canteenForm.location,
       open_hours: canteenForm.openHours,
       avg_price: canteenForm.avgPrice,
@@ -149,7 +154,7 @@ async function saveCanteen() {
       signature_dishes: sigDishes,
     });
     canteenMsg.value = '创建成功！';
-    Object.assign(canteenForm, { id: '', name: '', shortName: '', rating: 5, location: '', openHours: '', avgPrice: '', peakQueue: '', bestTime: '', summary: '', rant: '', features: '', signatureDishes: '' });
+    Object.assign(canteenForm, { id: '', name: '', shortName: '', location: '', openHours: '', avgPrice: '', peakQueue: '', bestTime: '', summary: '', rant: '', features: '', signatureDishes: '' });
     const res = await fetchCanteens();
     canteens.value = res.data || [];
   } catch (e) {
@@ -186,12 +191,20 @@ async function saveStall() {
 }
 
 // 添加菜品
-const dishForm = reactive({ canteenId: '', stallId: '', name: '', price: null, rating: 5, description: '', valueNote: '' });
+const dishForm = reactive({ canteenId: '', stallId: '', name: '', price: null, rating: 5, description: '', valueNote: '', newStallMode: false, newStallName: '' });
 const dishSaving = ref(false);
 const dishMsg = ref('');
 
+function onNewStallToggle() {
+  if (dishForm.newStallMode) {
+    dishForm.stallId = '';
+  }
+}
+
 async function onCanteenChange() {
   dishForm.stallId = '';
+  dishForm.newStallMode = false;
+  dishForm.newStallName = '';
   stalls.value = [];
   if (!dishForm.canteenId) return;
   try {
@@ -206,9 +219,24 @@ async function saveDish() {
   dishSaving.value = true;
   dishMsg.value = '';
   try {
+    let stallId = dishForm.stallId;
+
+    if (dishForm.newStallMode && dishForm.newStallName) {
+      const canteen = canteens.value.find(c => c.id === dishForm.canteenId);
+      const baseId = dishForm.canteenId;
+      stallId = `${baseId}-${dishForm.newStallName.replace(/\s+/g, '').slice(0, 20)}`;
+      await createStall(dishForm.canteenId, {
+        id: stallId,
+        name: dishForm.newStallName,
+        avg_price: '',
+        best_time: '',
+        summary: `管理台新建 - ${dishForm.newStallName}`,
+      });
+    }
+
     await createDish({
       name: dishForm.name,
-      stall_id: dishForm.stallId,
+      stall_id: stallId,
       canteen_id: dishForm.canteenId,
       price: dishForm.price || null,
       rating: dishForm.rating,
@@ -216,7 +244,10 @@ async function saveDish() {
       value_note: dishForm.valueNote,
     });
     dishMsg.value = '菜品创建成功！';
-    Object.assign(dishForm, { ...dishForm, name: '', price: null, rating: 5, description: '', valueNote: '' });
+    const prevCanteenId = dishForm.canteenId;
+    const prevNewMode = dishForm.newStallMode;
+    Object.assign(dishForm, { canteenId: prevCanteenId, stallId: '', name: '', price: null, rating: 5, description: '', valueNote: '', newStallMode: prevNewMode, newStallName: '' });
+    if (prevCanteenId) await onCanteenChange();
   } catch (e) {
     dishMsg.value = e.message || '创建失败';
   } finally {
@@ -300,6 +331,18 @@ async function saveDish() {
 .form-msg {
   color: var(--zine-stamp-red);
   font-size: 14px;
+}
+
+.manage-form__checkbox {
+  display: flex !important;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  margin-top: 4px;
+  cursor: pointer;
+}
+.manage-form__checkbox input {
+  width: auto !important;
 }
 @media (max-width: 600px) {
   .manage-hero,

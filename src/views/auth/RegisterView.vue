@@ -42,7 +42,7 @@
         </label>
         <label>
           <span>邮箱</span>
-          <input v-model.trim="form.email" type="text" autocomplete="email" placeholder="20240001@bjtu.edu.cn" />
+          <input v-model.trim="form.email" type="text" autocomplete="email" placeholder="example@email.com" />
         </label>
         <div class="auth-form__code-row">
           <label class="auth-form__code-label">
@@ -104,7 +104,7 @@ defineOptions({
   name: 'RegisterView',
 });
 
-const EMAIL_REGEX = /^\d+@bjtu\.edu\.cn$/i;
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 const router = useRouter();
 const authStore = useAuthStore();
@@ -127,7 +127,7 @@ async function sendCode() {
     return;
   }
   if (!EMAIL_REGEX.test(form.email)) {
-    message.value = '邮箱格式不正确，必须为 <数字>@bjtu.edu.cn。';
+    message.value = '邮箱格式不正确。';
     return;
   }
   codeSending.value = true;
@@ -149,7 +149,7 @@ async function handleRegister() {
   }
 
   if (!EMAIL_REGEX.test(form.email)) {
-    message.value = '邮箱格式不正确，必须为 <数字>@bjtu.edu.cn。';
+    message.value = '邮箱格式不正确。';
     return;
   }
 

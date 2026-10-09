@@ -80,7 +80,6 @@
             <div class="edit-dialog__body">
               <label>名称 <input v-model="editCanteen.name" /></label>
               <label>简称 <input v-model="editCanteen.shortName" /></label>
-              <label>评分 <input v-model.number="editCanteen.rating" type="number" step="0.1" min="0" max="5" /></label>
               <label>位置 <input v-model="editCanteen.location" /></label>
               <label>营业时间 <input v-model="editCanteen.openHours" /></label>
               <label>人均 <input v-model="editCanteen.avgPrice" /></label>
@@ -146,7 +145,7 @@ const isAdmin = computed(() => authStore.isAdmin);
 const showEditCanteen = ref(false);
 const editCanteenSaving = ref(false);
 const editCanteenMsg = ref('');
-const editCanteen = reactive({ name: '', shortName: '', rating: 5, location: '', openHours: '', avgPrice: '', peakQueue: '', bestTime: '', summary: '', rant: '' });
+const editCanteen = reactive({ name: '', shortName: '', location: '', openHours: '', avgPrice: '', peakQueue: '', bestTime: '', summary: '', rant: '' });
 let canteenImageFile = null;
 
 function onCanteenImageChange(e) {
@@ -158,7 +157,6 @@ function openEditCanteen() {
   if (!c) return;
   editCanteen.name = c.name || '';
   editCanteen.shortName = c.shortName || '';
-  editCanteen.rating = c.rating ?? 5;
   editCanteen.location = c.location || '';
   editCanteen.openHours = c.openHours || '';
   editCanteen.avgPrice = c.avgPrice || '';
@@ -183,7 +181,6 @@ async function saveEditCanteen() {
     await updateCanteen(canteenId.value, {
       name: editCanteen.name,
       short_name: editCanteen.shortName,
-      rating: editCanteen.rating,
       location: editCanteen.location,
       open_hours: editCanteen.openHours,
       avg_price: editCanteen.avgPrice,

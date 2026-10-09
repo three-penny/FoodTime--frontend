@@ -98,7 +98,7 @@ export const useCanteenStore = defineStore('canteen', {
         this.dailyRecommendations = (res.data || []).map(item => ({
           ...item,
           image: resolveDishImage(item.imageUrl),
-          comment: item.description || '',
+          comment: item.comment || item.description || '',
         }));
       } catch (e) {
         console.error('加载每日推荐失败:', e);

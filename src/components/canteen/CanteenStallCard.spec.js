@@ -13,7 +13,7 @@ const baseDish = {
 };
 
 describe('CanteenStallCard', () => {
-  it('shows top three rated dishes first and expands the rest on click', async () => {
+  it('starts with all dishes collapsed and toggles the full list in rating order', async () => {
     const wrapper = mount(CanteenStallCard, {
       global: { plugins: [createPinia()] },
       props: {
@@ -34,10 +34,8 @@ describe('CanteenStallCard', () => {
       },
     });
 
-    expect(wrapper.text()).toContain('最高分菜');
-    expect(wrapper.text()).toContain('第二名菜');
-    expect(wrapper.text()).toContain('第三名菜');
-    expect(wrapper.text()).not.toContain('低分菜');
+    expect(wrapper.findAll('.canteen-stall-card__dish')).toHaveLength(0);
+    expect(wrapper.text()).toContain('展开全部菜品（共 4 道）');
     expect(
       wrapper
         .find('.canteen-stall-card__dishes .canteen-stall-card__toggle')
@@ -54,13 +52,20 @@ describe('CanteenStallCard', () => {
 
     await wrapper.find('.canteen-stall-card__toggle').trigger('click');
 
-    expect(wrapper.text()).toContain('低分菜');
+    expect(wrapper.findAll('.canteen-stall-card__dish-title h3').map((title) => title.text())).toEqual([
+      '最高分菜', '第二名菜', '第三名菜', '低分菜',
+    ]);
     expect(
       wrapper.find('.canteen-stall-card__toggle').attributes('aria-expanded'),
     ).toBe('true');
+
+    await wrapper.find('.canteen-stall-card__toggle').trigger('click');
+
+    expect(wrapper.findAll('.canteen-stall-card__dish')).toHaveLength(0);
+    expect(wrapper.find('.canteen-stall-card__toggle').attributes('aria-expanded')).toBe('false');
   });
 
-  it('renders dish items as vertical text rows without dish images', () => {
+  it('renders expanded dish items as vertical text rows without dish images', async () => {
     const wrapper = mount(CanteenStallCard, {
       global: { plugins: [createPinia()] },
       props: {
@@ -84,6 +89,8 @@ describe('CanteenStallCard', () => {
         },
       },
     });
+
+    await wrapper.find('.canteen-stall-card__toggle').trigger('click');
 
     expect(wrapper.find('.canteen-stall-card__dish-image').exists()).toBe(
       false,
@@ -117,6 +124,7 @@ describe('CanteenStallCard', () => {
       },
     });
 
+    await wrapper.find('.canteen-stall-card__toggle').trigger('click');
     await wrapper.find('.canteen-stall-card__dish-main').trigger('click');
 
     expect(wrapper.emitted('dish-click')?.[0][0].id).toBe('dish-clickable');
