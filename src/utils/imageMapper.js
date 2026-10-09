@@ -52,5 +52,6 @@ export function resolveStallImage(imageUrl) {
 
 export function resolveDishImage(imageUrl) {
   if (isRemoteUrl(imageUrl)) return imageUrl;
-  return DISH_IMAGE_MAP[imageUrl] || DISH_IMAGE_MAP['番茄肥牛饭.jpg'];
+  // 未知或缺失的图片名称统一使用现存图片兜底。
+  return DISH_IMAGE_MAP[imageUrl] || DISH_IMAGE_MAP['红烧牛肉面.jpg'];
 }

@@ -120,7 +120,7 @@
  * 使用场景：普通用户提交新增菜品、补充食堂菜品信息。
  * 依赖：Pinia、Vue Router、useCanteenStore、useAuthStore、submission.api.js。
  */
-import { computed, nextTick, reactive, ref } from 'vue';
+import { computed, nextTick, onMounted, reactive, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { useCanteenStore } from '../../store/useCanteenStore';
 import { useAuthStore } from '../../store/useAuthStore';
@@ -153,6 +153,8 @@ const form = reactive({
 });
 
 const canteens = computed(() => canteenStore.canteens);
+
+onMounted(() => canteenStore.loadCanteens());
 
 function getTags() {
   return tags.filter(Boolean);

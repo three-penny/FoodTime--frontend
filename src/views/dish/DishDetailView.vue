@@ -23,7 +23,7 @@
           <span class="stamp">{{ stampLabel }}</span>
           <h1>{{ dish.name }}</h1>
           <p class="dish-main__meta">
-            评分 {{ dish.rating.toFixed(1) }} · {{ dish.canteenName }} · {{ dish.stall ?? dish.valueNote }}
+            评分 {{ (dish.rating ?? 0).toFixed(1) }} · {{ dish.canteenName }} · {{ dish.stall ?? dish.valueNote }}
           </p>
           <p class="dish-main__comment handwrite">
             “{{ formatComment(dish.comment, 42).text }}”
@@ -125,7 +125,7 @@ const authStore = useAuthStore();
 
 const showDeleteConfirm = ref(false);
 const deleting = ref(false);
-const isAdmin = computed(() => authStore.currentRole === 'admin');
+const isAdmin = computed(() => authStore.isAdmin);
 
 const canteenId = computed(() => String(route.params.canteenId ?? ''));
 const dishId = computed(() => String(route.params.dishId ?? ''));

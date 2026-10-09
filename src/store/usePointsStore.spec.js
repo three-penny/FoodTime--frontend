@@ -2,8 +2,10 @@ import { createPinia, setActivePinia } from 'pinia';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { useAuthStore } from './useAuthStore';
 import { usePointsStore } from './usePointsStore';
+import { consumePoints } from '../api/points.api';
 
 vi.mock('../api/points.api', () => ({
+  consumePoints: vi.fn().mockResolvedValue({ data: { currentPoints: 10 } }),
   fetchPoints: vi.fn().mockResolvedValue({ data: { currentPoints: 0, totalEarned: 0, totalUsed: 0 } }),
   fetchPointsHistory: vi.fn().mockResolvedValue({ data: [] }),
   dailyCheckin: vi.fn().mockResolvedValue({ data: { checkedIn: true } }),
@@ -42,13 +44,14 @@ describe('usePointsStore', () => {
     expect(pointsStore.currentUserStats.checkInDays).toBe(1);
   });
 
-  it('tracks spent points separately from earned points', () => {
+  it('tracks spent points separately from earned points', async () => {
     const authStore = useAuthStore();
     const pointsStore = usePointsStore();
-    authStore.login({ account: '2024211003', role: 'user' });
+    authStore.login({ id: 'user-1003', account: '2024211003', role: 'user' });
 
     pointsStore.addPoints(30, '投稿审核通过', 'upload');
-    expect(pointsStore.consumePoints(20, '兑换食堂优惠券')).toBe(true);
+    expect(await pointsStore.consumePoints(20, '兑换食堂优惠券')).toBe(true);
+    expect(consumePoints).toHaveBeenCalledWith('user-1003', 20, '兑换食堂优惠券');
 
     expect(pointsStore.currentUserPoints).toBe(10);
     expect(pointsStore.currentUserStats.earnedPoints).toBe(30);

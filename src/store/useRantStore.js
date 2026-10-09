@@ -1,6 +1,5 @@
 import { defineStore } from 'pinia';
 import { fetchRants, createRant, auditRant } from '../api/rant.api';
-import { formatTime } from '../utils/formatDate';
 
 export const useRantStore = defineStore('rant', {
   state: () => ({
@@ -42,36 +41,24 @@ export const useRantStore = defineStore('rant', {
         this.loading = false;
       }
     },
+    /**
+     * 提交吐槽并缓存服务端记录，失败时不生成本地替代记录。
+     * @param {Object} payload 吐槽内容与关联食堂
+     * @returns {Promise<Object>} 服务端创建的吐槽
+     * @throws {Error} 请求失败或未返回吐槽时抛出异常
+     * @example await store.createRant({ canteenName: '学一', content: '排队很快' });
+     */
     async createRant(payload) {
-      try {
-        const res = await createRant({
-          canteenName: payload.canteenName || '',
-          author: payload.author || '',
-          content: payload.content,
-          tag: payload.tag || '吐槽',
-        });
-        const newRant = res.data;
-        if (newRant) {
-          newRant.canteenId = payload.canteenId || '';
-          this.rants.unshift(newRant);
-          return newRant;
-        }
-      } catch (e) {
-        console.error('发布吐槽失败:', e);
-      }
-      const fallback = {
-        id: `rant-${Date.now()}`,
-        canteenId: payload.canteenId || '',
+      const res = await createRant({
         canteenName: payload.canteenName || '',
-        author: payload.author || '匿名同学',
+        author: payload.author || '',
         content: payload.content,
         tag: payload.tag || '吐槽',
-        createdAt: formatTime(new Date()),
-        status: 'pending',
-        reason: '',
-      };
-      this.rants.unshift(fallback);
-      return fallback;
+      });
+      if (!res.data) throw new Error('提交失败，未收到吐槽记录。');
+      const newRant = { ...res.data, canteenId: payload.canteenId || '' };
+      this.rants.unshift(newRant);
+      return newRant;
     },
     async approveRant(rantId) {
       try {

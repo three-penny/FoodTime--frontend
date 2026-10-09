@@ -71,7 +71,7 @@
  * 依赖：Pinia、Vue Router、useAuthStore、auth.api.js。
  */
 import { reactive, ref } from 'vue';
-import { useRouter } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 import { useAuthStore } from '../../store/useAuthStore';
 import { login as loginApi } from '../../api/auth.api';
 
@@ -80,6 +80,7 @@ defineOptions({
 });
 
 const router = useRouter();
+const route = useRoute();
 const authStore = useAuthStore();
 const message = ref('');
 const submitting = ref(false);
@@ -110,7 +111,13 @@ async function handleLogin() {
       id: res.data.id,
       token: res.data.token,
     });
-    router.push({ name: 'homeCanteenSelect' });
+    const redirect = route.query.redirect;
+    const isValidRedirect = typeof redirect === 'string'
+      && redirect.startsWith('/')
+      && !redirect.startsWith('//')
+      && !redirect.includes('\\')
+      && router.resolve(redirect).matched.length > 0;
+    router.push(isValidRedirect ? redirect : { name: 'homeCanteenSelect' });
   } catch (e) {
     message.value = e.message || '登录失败，请稍后重试。';
   } finally {

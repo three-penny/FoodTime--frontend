@@ -26,4 +26,11 @@ dist-ssr
 *.sw?
 
 
-package-lock.json
+# Node 编译缓存
+/tmp/node-compile-cache/
+
+# 临时验证环境
+/.tmp-ci-verify/
+
+# 生成的 PDF 报告
+/output/pdf/*.pdf

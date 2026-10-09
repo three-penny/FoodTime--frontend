@@ -1,6 +1,11 @@
 import { setActivePinia, createPinia } from 'pinia';
-import { beforeEach, describe, expect, it } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { useSubmissionStore } from './useSubmissionStore';
+import { auditSubmission } from '../api/adminAudit.api';
+
+vi.mock('../api/adminAudit.api', () => ({
+  auditSubmission: vi.fn().mockResolvedValue({}),
+}));
 
 describe('useSubmissionStore', () => {
   beforeEach(() => {
@@ -26,7 +31,7 @@ describe('useSubmissionStore', () => {
     expect(store.pendingCount).toBeGreaterThan(0);
   });
 
-  it('supports approving and rejecting submissions', () => {
+  it('supports approving and rejecting submissions', async () => {
     const store = useSubmissionStore();
 
     const created = store.createSubmission({
@@ -39,11 +44,13 @@ describe('useSubmissionStore', () => {
     });
     const targetId = created.id;
 
-    store.approveSubmission(targetId);
+    await store.approveSubmission(targetId);
     expect(store.submissions[0].status).toBe('approved');
+    expect(auditSubmission).toHaveBeenCalledWith(targetId, expect.objectContaining({ status: 'approved' }));
 
-    store.rejectSubmission(targetId, '图片不清晰');
+    await store.rejectSubmission(targetId, '图片不清晰');
     expect(store.submissions[0].status).toBe('rejected');
     expect(store.submissions[0].reason).toBe('图片不清晰');
+    expect(auditSubmission).toHaveBeenCalledWith(targetId, expect.objectContaining({ status: 'rejected', reason: '图片不清晰' }));
   });
 });

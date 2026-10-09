@@ -1,4 +1,6 @@
 import { mount } from '@vue/test-utils';
+import { createPinia } from 'pinia';
+import { useAuthStore } from '../../store/useAuthStore';
 import { describe, expect, it } from 'vitest';
 import CanteenStallCard from './CanteenStallCard.vue';
 
@@ -11,8 +13,9 @@ const baseDish = {
 };
 
 describe('CanteenStallCard', () => {
-  it('shows top three rated dishes first and expands the rest on click', async () => {
+  it('starts with all dishes collapsed and toggles the full list in rating order', async () => {
     const wrapper = mount(CanteenStallCard, {
+      global: { plugins: [createPinia()] },
       props: {
         stall: {
           id: 'stall-1',
@@ -31,10 +34,8 @@ describe('CanteenStallCard', () => {
       },
     });
 
-    expect(wrapper.text()).toContain('最高分菜');
-    expect(wrapper.text()).toContain('第二名菜');
-    expect(wrapper.text()).toContain('第三名菜');
-    expect(wrapper.text()).not.toContain('低分菜');
+    expect(wrapper.findAll('.canteen-stall-card__dish')).toHaveLength(0);
+    expect(wrapper.text()).toContain('展开全部菜品（共 4 道）');
     expect(
       wrapper
         .find('.canteen-stall-card__dishes .canteen-stall-card__toggle')
@@ -51,14 +52,22 @@ describe('CanteenStallCard', () => {
 
     await wrapper.find('.canteen-stall-card__toggle').trigger('click');
 
-    expect(wrapper.text()).toContain('低分菜');
+    expect(wrapper.findAll('.canteen-stall-card__dish-title h3').map((title) => title.text())).toEqual([
+      '最高分菜', '第二名菜', '第三名菜', '低分菜',
+    ]);
     expect(
       wrapper.find('.canteen-stall-card__toggle').attributes('aria-expanded'),
     ).toBe('true');
+
+    await wrapper.find('.canteen-stall-card__toggle').trigger('click');
+
+    expect(wrapper.findAll('.canteen-stall-card__dish')).toHaveLength(0);
+    expect(wrapper.find('.canteen-stall-card__toggle').attributes('aria-expanded')).toBe('false');
   });
 
-  it('renders dish items as vertical text rows without dish images', () => {
+  it('renders expanded dish items as vertical text rows without dish images', async () => {
     const wrapper = mount(CanteenStallCard, {
+      global: { plugins: [createPinia()] },
       props: {
         stall: {
           id: 'stall-2',
@@ -81,6 +90,8 @@ describe('CanteenStallCard', () => {
       },
     });
 
+    await wrapper.find('.canteen-stall-card__toggle').trigger('click');
+
     expect(wrapper.find('.canteen-stall-card__dish-image').exists()).toBe(
       false,
     );
@@ -92,6 +103,7 @@ describe('CanteenStallCard', () => {
 
   it('emits selected dish when a dish row is clicked', async () => {
     const wrapper = mount(CanteenStallCard, {
+      global: { plugins: [createPinia()] },
       props: {
         stall: {
           id: 'stall-3',
@@ -112,8 +124,28 @@ describe('CanteenStallCard', () => {
       },
     });
 
-    await wrapper.find('.canteen-stall-card__dish').trigger('click');
+    await wrapper.find('.canteen-stall-card__toggle').trigger('click');
+    await wrapper.find('.canteen-stall-card__dish-main').trigger('click');
 
     expect(wrapper.emitted('dish-click')?.[0][0].id).toBe('dish-clickable');
+  });
+
+  it('includes the selected image file when saving a stall edit', async () => {
+    const pinia = createPinia();
+    useAuthStore(pinia).login({ account: 'admin', role: 'admin' });
+    const wrapper = mount(CanteenStallCard, {
+      global: { plugins: [pinia] },
+      props: { stall: { id: 'stall-1', name: '测试档口', dishes: [] } },
+    });
+    await wrapper.find('.canteen-stall-card__admin-actions button').trigger('click');
+    const file = new File(['image'], 'stall.jpg', { type: 'image/jpeg' });
+    const input = wrapper.find('input[type="file"]');
+    Object.defineProperty(input.element, 'files', { value: [file] });
+    await input.trigger('change');
+    await wrapper.find('.canteen-stall-card__edit-actions button').trigger('click');
+
+    expect(wrapper.emitted('edit-stall')[0][0]).toMatchObject({ id: 'stall-1', _imageFile: file });
+    expect(wrapper.emitted('edit-stall')[0][0]._imageFile).toBe(file);
+    wrapper.unmount();
   });
 });

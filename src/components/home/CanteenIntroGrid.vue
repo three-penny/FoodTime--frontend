@@ -23,7 +23,7 @@
           <span class="stamp">{{ getRatingLabel(canteen.rating) }}</span>
         </div>
         <p class="canteen-intro__score">
-          评分 {{ canteen.rating.toFixed(1) }} · {{ canteen.avgPrice }}
+          评分 {{ (canteen.rating ?? 0).toFixed(1) }} · {{ canteen.avgPrice }}
         </p>
         <p class="dropcap">{{ canteen.summary }}</p>
 

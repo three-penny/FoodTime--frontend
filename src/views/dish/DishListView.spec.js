@@ -3,8 +3,10 @@ import { createMemoryHistory, createRouter } from 'vue-router';
 import { shallowMount, flushPromises } from '@vue/test-utils';
 import { describe, expect, it, vi } from 'vitest';
 import DishListView from './DishListView.vue';
+import { deleteStall } from '../../api/canteen.api';
 
 vi.mock('../../api/canteen.api', () => ({
+  deleteStall: vi.fn().mockResolvedValue({}),
   fetchCanteenById: vi.fn().mockResolvedValue({
     data: {
       id: 'xueyi',
@@ -48,6 +50,35 @@ vi.mock('../../api/dish.api', () => ({
 }));
 
 describe('DishListView', () => {
+  it('confirms a stall deletion before calling the API and removing the card', async () => {
+    const router = createRouter({
+      history: createMemoryHistory(),
+      routes: [{ path: '/canteens/:canteenId/dishes', component: DishListView }],
+    });
+    await router.push('/canteens/xueyi/dishes');
+    const wrapper = shallowMount(DishListView, {
+      global: { plugins: [createPinia(), router], stubs: { Teleport: true } },
+    });
+    await flushPromises();
+    const card = wrapper.findComponent({ name: 'CanteenStallCard' });
+    card.vm.$emit('delete-stall', card.props('stall'));
+    await wrapper.vm.$nextTick();
+
+    expect(wrapper.find('.confirm-dialog').text()).toContain('西北面食');
+    expect(deleteStall).not.toHaveBeenCalled();
+    await wrapper.findAll('.confirm-dialog button')[1].trigger('click');
+    expect(deleteStall).not.toHaveBeenCalled();
+    card.vm.$emit('delete-stall', card.props('stall'));
+    await wrapper.vm.$nextTick();
+    await wrapper.find('.confirm-dialog button').trigger('click');
+    await flushPromises();
+
+    expect(deleteStall).toHaveBeenCalledExactlyOnceWith('stall-1');
+    expect(wrapper.findAllComponents({ name: 'CanteenStallCard' })).toHaveLength(8);
+    expect(wrapper.find('.confirm-dialog').exists()).toBe(false);
+    wrapper.unmount();
+  });
+
   it('renders the stall expansion page on the dish list route', async () => {
     const router = createRouter({
       history: createMemoryHistory(),

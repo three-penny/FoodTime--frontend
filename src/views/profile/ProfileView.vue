@@ -68,7 +68,25 @@
             </button>
           </div>
 
-          <div v-if="authStore.currentRole === 'admin' && !isEditing" class="invite-code-section">
+          <div v-else class="edit-form">
+            <label>
+              <span>昵称</span>
+              <input v-model="editForm.nickname" type="text" maxlength="50" />
+            </label>
+            <label>
+              <span>邮箱</span>
+              <input v-model="editForm.email" type="email" maxlength="120" />
+            </label>
+            <p v-if="editMessage" class="edit-form__message">{{ editMessage }}</p>
+            <div class="edit-form__actions">
+              <button class="button-ink is-primary" type="button" @click="saveEdit" :disabled="editSaving">
+                {{ editSaving ? '保存中...' : '保存' }}
+              </button>
+              <button class="button-ink" type="button" @click="cancelEdit">取消</button>
+            </div>
+          </div>
+
+          <div v-if="authStore.isAdmin && !isEditing" class="invite-code-section">
             <div class="panel-title" style="margin-top: 28px;">
               <span class="sticker sticker--r-2">邀请码</span>
               <h2>管理员邀请码</h2>
@@ -99,24 +117,6 @@
             </div>
 
             <p v-if="inviteCodeMessage" class="invite-code-message">{{ inviteCodeMessage }}</p>
-          </div>
-
-          <div v-else class="edit-form">
-            <label>
-              <span>昵称</span>
-              <input v-model="editForm.nickname" type="text" maxlength="50" />
-            </label>
-            <label>
-              <span>邮箱</span>
-              <input v-model="editForm.email" type="email" maxlength="120" />
-            </label>
-            <p v-if="editMessage" class="edit-form__message">{{ editMessage }}</p>
-            <div class="edit-form__actions">
-              <button class="button-ink is-primary" type="button" @click="saveEdit" :disabled="editSaving">
-                {{ editSaving ? '保存中...' : '保存' }}
-              </button>
-              <button class="button-ink" type="button" @click="cancelEdit">取消</button>
-            </div>
           </div>
         </section>
 
@@ -256,7 +256,7 @@ async function handleGenerateInviteCode() {
 }
 
 async function loadInviteCode() {
-  if (authStore.currentRole !== 'admin') return;
+  if (!authStore.isAdmin) return;
   try {
     const res = await getInviteCode();
     if (res.data) {
@@ -314,9 +314,10 @@ const tabs = [
 
 const account = computed(() => authStore.session?.account || '未登录');
 const nickname = computed(() => authStore.session?.nickname || account.value);
-const roleLabel = computed(() =>
-  authStore.currentRole === 'admin' ? '管理员' : '普通用户'
-);
+const roleLabel = computed(() => {
+  if (authStore.isSuperAdmin) return '超级管理员';
+  return authStore.isAdmin ? '管理员' : '普通用户';
+});
 const avatarText = computed(() => nickname.value.slice(0, 1).toUpperCase());
 
 const accountInfo = computed(() => [

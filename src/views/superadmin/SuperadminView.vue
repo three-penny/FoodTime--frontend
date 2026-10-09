@@ -268,7 +268,7 @@
 </template>
 
 <script setup>
-import { computed, onMounted, reactive, ref } from 'vue';
+import { computed, onMounted, reactive, ref, watch } from 'vue';
 import {
   listUsers, setUserRole, setUserStatus, changeUserPassword,
   listAuditLogs, getDashboard,
@@ -288,6 +288,11 @@ const tabs = [
 const stats = ref({});
 onMounted(async () => {
   await loadStats();
+});
+
+watch(activeTab, async tab => {
+  if (tab === 'users') await loadUsers();
+  if (tab === 'logs') await loadLogs();
 });
 
 async function loadStats() {

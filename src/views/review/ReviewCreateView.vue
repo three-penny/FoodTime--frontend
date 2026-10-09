@@ -77,7 +77,7 @@
  * 创建时间：2026-05-09
  * 使用场景：用户从某个菜品评论区进入 03 点评页面后提交点评。
  * 依赖：Pinia、Vue Router、useDishStore、useCanteenStore、useAuthStore。
- * 设计说明：当前阶段点评写入前端 store，提交后回到对应菜品评论区。
+ * 设计说明：提交一次 API 请求，将返回点评缓存到 store 后回到评论区。
  */
 import { computed, onMounted, reactive, ref, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
@@ -86,7 +86,7 @@ import ReviewTargetPicker from '../../components/review/ReviewTargetPicker.vue';
 import { useAuthStore } from '../../store/useAuthStore';
 import { useCanteenStore } from '../../store/useCanteenStore';
 import { useDishStore } from '../../store/useDishStore';
-
+import { createReview } from '../../api/review.api';
 
 defineOptions({
   name: 'ReviewCreateView',
@@ -245,12 +245,15 @@ async function handleSubmit() {
   message.value = '';
 
   try {
-    await dishStore.createDishReview({
-      dishId: dishId.value,
+    const res = await createReview({
+      dish_id: dishId.value,
+      user_id: authStore.session.id,
       rating: form.rating,
       comment: form.comment,
-      reviewer: authStore.displayName,
     });
+
+    // 同步写入前端 store，确保 dishDetail 页面可以即时展示
+    dishStore.appendReview(dishId.value, res.data);
 
     message.value = '点评已提交。';
     setTimeout(() => {

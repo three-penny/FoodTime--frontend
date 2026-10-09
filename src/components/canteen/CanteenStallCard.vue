@@ -102,7 +102,8 @@
  * 职责：展示食堂详情页中的单个档口，菜品默认全部折叠，点击展开后展示全部菜品。
  * 作者：XXXXX
  * 使用场景：食堂详细页档口展开列表。
- * 依赖：Vue 局部状态、全局 zine 视觉类。
+ * 依赖：Vue 局部状态、useAuthStore、全局 zine 视觉类。
+ * 输出：edit-stall / edit-dish 携带 _imageFile，由父页面上传图片并保存。
  * 注意：展开状态属于当前卡片交互，不进入 Pinia，避免污染跨页面状态。
  */
 import { computed, reactive, ref } from 'vue';
