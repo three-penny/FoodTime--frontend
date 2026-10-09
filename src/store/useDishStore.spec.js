@@ -1,6 +1,13 @@
 import { setActivePinia, createPinia } from 'pinia';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { useDishStore } from './useDishStore';
+import { createReview } from '../api/review.api';
+
+vi.mock('../api/review.api', () => ({
+  createReview: vi.fn().mockImplementation(async payload => ({
+    data: { id: 'review-1', rating: payload.rating, comment: payload.comment },
+  })),
+}));
 
 vi.mock('../api/dish.api', () => ({
   fetchDishes: vi.fn().mockResolvedValue({ data: [] }),
@@ -23,6 +30,26 @@ vi.mock('../api/canteen.api', () => ({
 describe('useDishStore', () => {
   beforeEach(() => {
     setActivePinia(createPinia());
+  });
+
+  it('propagates submission errors without adding a fake review', async () => {
+    const store = useDishStore();
+    const existing = { id: 'existing-review' };
+    store.appendReview('dish-1', existing);
+    createReview.mockRejectedValueOnce(new Error('点评提交失败'));
+
+    await expect(store.createDishReview({ dishId: 'dish-1', rating: 4, comment: '测试' }))
+      .rejects.toThrow('点评提交失败');
+    expect(store.getReviewsByDishId('dish-1')).toEqual([existing]);
+  });
+
+  it('appends the server review locally without sending another request', () => {
+    const store = useDishStore();
+    const review = { id: 'server-review', rating: 4.5, comment: '服务端记录' };
+    const callsBefore = createReview.mock.calls.length;
+    store.appendReview('dish-1', review);
+    expect(store.getReviewsByDishId('dish-1')).toEqual([review]);
+    expect(createReview.mock.calls.length).toBe(callsBefore);
   });
 
   it('creates a dish review with star rating and comment text', async () => {

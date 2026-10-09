@@ -68,20 +68,42 @@
             @edit-dish="onEditDish"
             @delete-dish="onDeleteDish"
             @edit-stall="onEditStall"
+            @delete-stall="onDeleteStall"
           />
         </div>
       </section>
+      <Teleport to="body">
+        <div v-if="stallToDelete" class="overlay" @click.self="!deleting && (stallToDelete = null)">
+          <div class="confirm-dialog torn-edge">
+            <h3>确认删除</h3>
+            <p>确定要删除档口「{{ stallToDelete.name }}」吗？该档口下的所有菜品也将被删除，此操作不可恢复。</p>
+            <p v-if="deleteMessage">{{ deleteMessage }}</p>
+            <div class="confirm-dialog__actions">
+              <button class="button-ink is-primary" type="button" :disabled="deleting" @click="confirmDeleteStall">
+                {{ deleting ? '删除中...' : '确认删除' }}
+              </button>
+              <button class="button-ink" type="button" :disabled="deleting" @click="stallToDelete = null">取消</button>
+            </div>
+          </div>
+        </div>
+      </Teleport>
     </template>
   </section>
 </template>
 
 <script setup>
+/**
+ * DishListView
+ * 职责：展示食堂档口与菜品，承接管理员编辑和删除事件。
+ * 依赖：useCanteenStore、canteen.api.js、dish.api.js。
+ * 注意：删除档口须确认后请求 API，成功后移除卡片，失败保留并提示。
+ */
 import { computed, ref, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import CanteenStallCard from '../../components/canteen/CanteenStallCard.vue';
 import { useCanteenStore } from '../../store/useCanteenStore';
 import { updateDish, deleteDish as deleteDishApi } from '../../api/dish.api';
-import { updateStall, uploadImage } from '../../api/canteen.api';
+import { deleteStall as deleteStallApi, updateStall, uploadImage } from '../../api/canteen.api';
 import { formatComment } from '../../utils/commentText';
 
 defineOptions({
@@ -95,6 +117,9 @@ const canteenStore = useCanteenStore();
 const canteenId = computed(() => String(route.params.canteenId ?? ''));
 const canteen = computed(() => canteenStore.getCanteenById(canteenId.value));
 const stallSections = ref([]);
+const stallToDelete = ref(null);
+const deleting = ref(false);
+const deleteMessage = ref('');
 const heroFacts = computed(() =>
   canteen.value
     ? [
@@ -129,6 +154,26 @@ function toDishDetail(dish) {
       dishId: dish.id,
     },
   });
+}
+
+function onDeleteStall(stall) {
+  stallToDelete.value = stall;
+  deleteMessage.value = '';
+}
+
+async function confirmDeleteStall() {
+  if (!stallToDelete.value || deleting.value) return;
+  const target = stallToDelete.value;
+  deleting.value = true;
+  try {
+    await deleteStallApi(target.id);
+    stallSections.value = stallSections.value.filter(stall => stall.id !== target.id);
+    stallToDelete.value = null;
+  } catch (e) {
+    deleteMessage.value = e.message || '删除失败，请稍后重试。';
+  } finally {
+    deleting.value = false;
+  }
 }
 
 async function onEditStall(stall) {
@@ -182,6 +227,42 @@ async function onDeleteDish(dish) {
 </script>
 
 <style scoped lang="scss">
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgb(0 0 0 / 40%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 16px;
+}
+
+.confirm-dialog {
+  background: var(--ft-color-surface);
+  border: 1px solid var(--ft-color-secondary);
+  padding: 24px;
+  max-width: 400px;
+  width: 90%;
+}
+
+.confirm-dialog h3 {
+  margin: 0 0 8px;
+  font-family: var(--ft-font-family-title);
+  font-size: 28px;
+}
+
+.confirm-dialog p {
+  margin: 0 0 16px;
+  color: var(--ft-color-text-muted);
+}
+
+.confirm-dialog__actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
 .empty {
   border: 1px solid var(--ft-color-secondary);
   background: var(--ft-color-surface);

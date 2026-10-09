@@ -57,6 +57,12 @@ async function mountCarousel(items = [createItem()]) {
 }
 
 describe('TodayRecommendationCarousel', () => {
+  it('renders a null recommendation rating as zero', async () => {
+    const { wrapper } = await mountCarousel([createItem({ rating: null })]);
+    expect(wrapper.text()).toContain('0.0');
+    wrapper.unmount();
+  });
+
   it('renders canteen and stall without count or bottom tags', async () => {
     const { wrapper } = await mountCarousel();
 

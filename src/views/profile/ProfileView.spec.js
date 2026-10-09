@@ -1,12 +1,18 @@
-import { mount } from '@vue/test-utils';
+import { mount, flushPromises } from '@vue/test-utils';
 import { createPinia } from 'pinia';
 import { createMemoryHistory, createRouter } from 'vue-router';
 import { describe, expect, it, vi } from 'vitest';
 import ProfileView from './ProfileView.vue';
 import { useAuthStore } from '../../store/useAuthStore';
 import { usePointsStore } from '../../store/usePointsStore';
+import { getInviteCode } from '../../api/auth.api';
+
+vi.mock('../../api/auth.api', () => ({
+  getInviteCode: vi.fn().mockResolvedValue({ data: { code: 'INVITE', expires_at: '2026-10-12', is_active: true } }),
+}));
 
 vi.mock('../../api/points.api', () => ({
+  consumePoints: vi.fn().mockResolvedValue({ data: { currentPoints: 10 } }),
   fetchPoints: vi.fn().mockResolvedValue({ data: { currentPoints: 10, totalEarned: 30, totalUsed: 20 } }),
   fetchPointsHistory: vi.fn().mockResolvedValue({ data: [] }),
   dailyCheckin: vi.fn().mockResolvedValue({ data: { checkedIn: false } }),
@@ -36,6 +42,45 @@ vi.mock('../../api/submission.api', () => ({
 }));
 
 describe('ProfileView', () => {
+  it('shows the superadmin role and loads its admin invite code', async () => {
+    const pinia = createPinia();
+    useAuthStore(pinia).login({ id: 'root-1', account: 'root', role: 'superadmin' });
+    const router = createRouter({
+      history: createMemoryHistory(),
+      routes: [{ path: '/', component: ProfileView }],
+    });
+    await router.push('/');
+    const wrapper = mount(ProfileView, { global: { plugins: [pinia, router] } });
+    await flushPromises();
+
+    expect(wrapper.text()).toContain('超级管理员');
+    expect(getInviteCode).toHaveBeenCalledTimes(1);
+    expect(wrapper.find('.invite-code-value').text()).toBe('INVITE');
+    expect(wrapper.find('.edit-form').exists()).toBe(false);
+    wrapper.unmount();
+  });
+
+  it('shows the edit form only after choosing to edit account info', async () => {
+    window.localStorage.clear();
+    const pinia = createPinia();
+    useAuthStore(pinia).login({ account: 'student', role: 'user' });
+    const router = createRouter({
+      history: createMemoryHistory(),
+      routes: [{ path: '/', component: ProfileView }],
+    });
+    await router.push('/');
+    const wrapper = mount(ProfileView, { global: { plugins: [pinia, router] } });
+
+    expect(wrapper.find('.info-grid').exists()).toBe(true);
+    expect(wrapper.find('.edit-form').exists()).toBe(false);
+    await wrapper.find('.info-grid button').trigger('click');
+    expect(wrapper.find('.edit-form').exists()).toBe(true);
+    expect(wrapper.find('.info-grid').exists()).toBe(false);
+    await wrapper.findAll('.edit-form button')[1].trigger('click');
+    expect(wrapper.find('.edit-form').exists()).toBe(false);
+    wrapper.unmount();
+  });
+
   it('renders account info and shows point income and spending ledgers', async () => {
     window.localStorage.clear();
     const pinia = createPinia();
@@ -67,12 +112,13 @@ describe('ProfileView', () => {
     const authStore = useAuthStore();
     const pointsStore = usePointsStore();
     authStore.login({
+      id: 'user-1001',
       account: '2024211001',
       role: 'user',
       nickname: '测试同学',
     });
     pointsStore.addPoints(30, '发表菜品点评', 'review');
-    pointsStore.consumePoints(20, '兑换食堂优惠券');
+    await pointsStore.consumePoints(20, '兑换食堂优惠券');
     await wrapper.vm.$nextTick();
 
     expect(wrapper.text()).toContain('测试同学');

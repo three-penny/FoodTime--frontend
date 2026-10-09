@@ -3,6 +3,11 @@ import { describe, expect, it } from 'vitest';
 import DishCard from './DishCard.vue';
 
 describe('DishCard', () => {
+  it('renders a null rating as zero', () => {
+    const wrapper = mount(DishCard, { props: { dish: { id: 'null-rating', name: '测试菜', rating: null } } });
+    expect(wrapper.text()).toContain('评分 0.0');
+  });
+
   it('renders core dish info and value note', () => {
     const wrapper = mount(DishCard, {
       props: {

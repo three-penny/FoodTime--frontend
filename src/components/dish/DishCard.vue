@@ -29,7 +29,7 @@
       </p>
 
       <div class="dish-card__meta">
-        <span>评分 {{ dish.rating.toFixed(1) }}</span>
+        <span>评分 {{ (dish.rating ?? 0).toFixed(1) }}</span>
         <span v-if="hasMonthlySales">月售 {{ dish.monthlySales }}</span>
       </div>
 

@@ -63,6 +63,12 @@ async function mountGrid(canteens = [createCanteen()]) {
 }
 
 describe('CanteenIntroGrid', () => {
+  it('renders a null canteen rating as zero', async () => {
+    const { wrapper } = await mountGrid([createCanteen({ rating: null })]);
+    expect(wrapper.find('.canteen-intro__score').text()).toContain('评分 0.0');
+    wrapper.unmount();
+  });
+
   it('renders canteen photo under the rant area', async () => {
     const item = createCanteen();
     const { wrapper } = await mountGrid([item]);

@@ -1,16 +1,28 @@
 import { setActivePinia, createPinia } from 'pinia';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { useRantStore } from './useRantStore';
+import { createRant } from '../api/rant.api';
 
 vi.mock('../api/rant.api', () => ({
   fetchRants: vi.fn().mockResolvedValue({ data: [] }),
-  createRant: vi.fn().mockRejectedValue(new Error('Network Error')),
+  createRant: vi.fn().mockImplementation(async payload => ({
+    data: { ...payload, id: 'server-rant', status: 'pending' },
+  })),
   auditRant: vi.fn().mockResolvedValue({}),
 }));
 
 describe('useRantStore', () => {
   beforeEach(() => {
     setActivePinia(createPinia());
+  });
+
+  it('propagates submission errors without adding a fake rant', async () => {
+    const store = useRantStore();
+    store.rants = [{ id: 'existing-rant', status: 'approved' }];
+    createRant.mockRejectedValueOnce(new Error('吐槽提交失败'));
+
+    await expect(store.createRant({ content: '测试吐槽' })).rejects.toThrow('吐槽提交失败');
+    expect(store.rants).toEqual([{ id: 'existing-rant', status: 'approved' }]);
   });
 
   it('creates a new rant as pending and publishes it after approval', async () => {

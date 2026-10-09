@@ -62,6 +62,20 @@ export const useDishStore = defineStore('dish', {
     },
   },
   actions: {
+    /**
+     * 将服务端已创建的点评追加到本地缓存，避免再次发起提交请求。
+     * @param {string} dishId 菜品标识
+     * @param {Object} review 服务端返回的点评
+     * @returns {void}
+     * @throws {Error} 不主动抛出异常
+     * @example store.appendReview(dishId, res.data);
+     */
+    appendReview(dishId, review) {
+      this.reviewsByDishId = {
+        ...this.reviewsByDishId,
+        [dishId]: [review, ...(this.reviewsByDishId[dishId] ?? [])],
+      };
+    },
     async loadDishes() {
       this.loading = true;
       try {
@@ -120,65 +134,50 @@ export const useDishStore = defineStore('dish', {
         console.error('加载评论失败:', e);
       }
     },
+    /**
+     * 提交点评，成功后缓存服务端记录；失败时交由调用方提示。
+     * @param {Object} payload 点评内容及菜品标识
+     * @returns {Promise<Object>} 服务端创建的点评
+     * @throws {Error} 请求失败或未返回点评时抛出异常
+     * @example await store.createDishReview({ dishId, rating: 4, comment: '好吃' });
+     */
     async createDishReview(payload) {
       const safeRating = Math.min(5, Math.max(1, Number(payload.rating) || 1));
       const { useAuthStore } = await import('./useAuthStore');
       const authStore = useAuthStore();
-      const userId = authStore.session?.id || '';
-      try {
-        const res = await createReview({
-          dish_id: payload.dishId,
-          user_id: userId,
-          rating: safeRating,
-          comment: payload.comment,
-        });
-        if (res.data) {
-          this.reviewsByDishId = {
-            ...this.reviewsByDishId,
-            [payload.dishId]: [
-              res.data,
-              ...(this.reviewsByDishId[payload.dishId] ?? []),
-            ],
-          };
-          return res.data;
-        }
-      } catch (e) {
-        console.error('提交评价失败:', e);
-      }
-      const nextReview = {
-        id: `review-${payload.dishId}-${Date.now()}`,
-        dishId: payload.dishId,
+      const res = await createReview({
+        dish_id: payload.dishId,
+        user_id: authStore.session?.id || '',
         rating: safeRating,
         comment: payload.comment,
-        reviewer: payload.reviewer || '匿名同学',
-        createdAt: new Date().toLocaleString('zh-CN', { hour12: false }),
-      };
-      this.reviewsByDishId = {
-        ...this.reviewsByDishId,
-        [payload.dishId]: [
-          nextReview,
-          ...(this.reviewsByDishId[payload.dishId] ?? []),
-        ],
-      };
-      return nextReview;
+      });
+      if (!res.data) throw new Error('提交失败，未收到点评记录。');
+      this.appendReview(payload.dishId, res.data);
+      return res.data;
     },
+    /**
+     * 推荐菜品，成功后更新缓存票数，失败交由调用方提示。
+     * @param {string} dishId 菜品标识
+     * @returns {Promise<void>}
+     * @throws {Error} 投票请求失败
+     * @example await store.recommendDish(dishId);
+     */
     async recommendDish(dishId) {
-      try {
-        await recommendDish(dishId);
-        const dish = this.dishes.find(d => d.id === dishId);
-        if (dish) dish.recommendVotes = (dish.recommendVotes || 0) + 1;
-      } catch (e) {
-        console.error('推荐失败:', e);
-      }
+      await recommendDish(dishId);
+      const dish = this.dishes.find(d => d.id === dishId);
+      if (dish) dish.recommendVotes = (dish.recommendVotes || 0) + 1;
     },
+    /**
+     * 为菜品投避雷票，成功后更新缓存票数，失败交由调用方提示。
+     * @param {string} dishId 菜品标识
+     * @returns {Promise<void>}
+     * @throws {Error} 投票请求失败
+     * @example await store.avoidDish(dishId);
+     */
     async avoidDish(dishId) {
-      try {
-        await avoidDish(dishId);
-        const dish = this.dishes.find(d => d.id === dishId);
-        if (dish) dish.avoidVotes = (dish.avoidVotes || 0) + 1;
-      } catch (e) {
-        console.error('操作失败:', e);
-      }
+      await avoidDish(dishId);
+      const dish = this.dishes.find(d => d.id === dishId);
+      if (dish) dish.avoidVotes = (dish.avoidVotes || 0) + 1;
     },
     setDishFilter(payload) {
       this.filters = { ...this.filters, ...payload };

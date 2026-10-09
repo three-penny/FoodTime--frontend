@@ -56,7 +56,7 @@
 
           <div class="recommend-card__title-row">
             <h3>{{ item.name }}</h3>
-            <span class="zine-rating-stamp">{{ item.rating.toFixed(1) }}</span>
+            <span class="zine-rating-stamp">{{ (item.rating ?? 0).toFixed(1) }}</span>
           </div>
 
           <p class="recommend-card__meta">

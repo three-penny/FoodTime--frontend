@@ -6,21 +6,22 @@ import ReviewCreateView from './ReviewCreateView.vue';
 import { useDishStore } from '../../store/useDishStore';
 import { useCanteenStore } from '../../store/useCanteenStore';
 import { useAuthStore } from '../../store/useAuthStore';
+import { createReview } from '../../api/review.api';
 
 // Mock review API 返回成功响应
 vi.mock('../../api/review.api', () => ({
-  createReview: vi.fn().mockResolvedValue({
+  createReview: vi.fn().mockImplementation(async payload => ({
     code: 0,
     message: '点评成功。',
     data: {
       id: 'review-mock-001',
       dish_id: 'xueyi-northwest-noodles-1',
       user_id: 'test-user-uuid',
-      rating: 4.5,
-      comment: 'mock comment',
+      rating: payload.rating,
+      comment: payload.comment,
       created_at: '2026-05-24T12:00:00',
     },
-  }),
+  })),
   fetchReviewsByDish: vi.fn(),
 }));
 
@@ -64,6 +65,7 @@ describe('ReviewCreateView', () => {
   let pinia;
 
   beforeEach(() => {
+    vi.clearAllMocks();
     pinia = createPinia();
     setActivePinia(pinia);
     // 确保 authStore 有 session（有 id）
@@ -138,6 +140,8 @@ describe('ReviewCreateView', () => {
       },
     });
 
+    await flushPromises();
+
     await wrapper.find('[aria-label="4.5 星"]').trigger('click');
     await wrapper.find('textarea').setValue('面条筋道，辣香比较明显。');
     await wrapper.find('form').trigger('submit.prevent');
@@ -147,6 +151,9 @@ describe('ReviewCreateView', () => {
     const reviews = dishStore.getReviewsByDishId('xueyi-northwest-noodles-1');
     expect(reviews[0].rating).toBe(4.5);
     expect(reviews[0].comment).toContain('面条筋道');
+    expect(createReview).toHaveBeenCalledTimes(1);
+    expect(reviews).toHaveLength(1);
+    expect(reviews[0]).toEqual((await createReview.mock.results[0].value).data);
     // 导航在 setTimeout 600ms 后触发
     await new Promise(r => setTimeout(r, 650));
     expect(router.currentRoute.value.name).toBe('dishDetail');
@@ -174,6 +181,7 @@ describe('ReviewCreateView', () => {
       },
     });
 
+    await flushPromises();
     const selects = wrapper.findAll('select');
     await selects[0].setValue('xueyi');
     await selects[1].setValue('西北面食');

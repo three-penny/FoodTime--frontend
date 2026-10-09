@@ -14,6 +14,7 @@
       <span class="sticker sticker--r3">学生实时票选</span>
     </header>
 
+    <p v-if="voteMessage" class="ranking__message">{{ voteMessage }}</p>
     <ol class="ranking__list">
       <li
         v-for="(item, index) in rankings"
@@ -34,9 +35,9 @@
           </div>
 
           <div class="ranking__score-line">
-            <span class="zine-rating-stamp">{{ item.score.toFixed(1) }}</span>
+            <span class="zine-rating-stamp">{{ (item.score ?? 0).toFixed(1) }}</span>
             <span class="ranking__votes handwrite">
-              （× {{ item.recommendVotes }} 人推荐）
+              （× {{ voteCount(item, 'recommend') }} 人推荐）
             </span>
           </div>
 
@@ -55,18 +56,20 @@
             <button
               class="button-ink is-stamp-red"
               type="button"
-              :class="{ 'is-selected': voteMap[item.rank]?.type === 'recommend' }"
-              @click="vote(item.rank, 'recommend', item.recommendVotes, item.avoidVotes)"
+              :disabled="Boolean(pendingVotes[item.dishId])"
+              :class="{ 'is-selected': voteMap[item.dishId]?.type === 'recommend' }"
+              @click="vote(item, 'recommend')"
             >
-              推荐 {{ voteMap[item.rank]?.recommend ?? item.recommendVotes }}
+              推荐 {{ voteCount(item, 'recommend') }}
             </button>
             <button
               class="button-ink is-stamp-blue"
               type="button"
-              :class="{ 'is-selected': voteMap[item.rank]?.type === 'avoid' }"
-              @click="vote(item.rank, 'avoid', item.recommendVotes, item.avoidVotes)"
+              :disabled="Boolean(pendingVotes[item.dishId])"
+              :class="{ 'is-selected': voteMap[item.dishId]?.type === 'avoid' }"
+              @click="vote(item, 'avoid')"
             >
-              避雷 {{ voteMap[item.rank]?.avoid ?? item.avoidVotes }}
+              避雷 {{ voteCount(item, 'avoid') }}
             </button>
           </div>
         </div>
@@ -90,7 +93,14 @@
 </template>
 
 <script setup>
-import { reactive } from 'vue';
+/**
+ * HomeRankingList
+ * 职责：展示每周榜单，通过 useDishStore 将推荐和避雷投票提交到 API。
+ * 输入：rankings 榜单条目，以 dishId 关联真实菜品和票数。
+ * 注意：榜单接口的票数可能为占位值，优先展示菜品 store 加载的票数。
+ */
+import { reactive, ref } from 'vue';
+import { useDishStore } from '../../store/useDishStore';
 import { formatComment } from '../../utils/commentText';
 import { getRatingLabel } from '../../utils/ratingLabel';
 
@@ -105,7 +115,10 @@ defineProps({
   },
 });
 
+const dishStore = useDishStore();
 const voteMap = reactive({});
+const pendingVotes = reactive({});
+const voteMessage = ref('');
 
 function rankNumber(rank) {
   return String(rank).padStart(2, '0');
@@ -121,33 +134,37 @@ function badgeText(rank) {
   return 'NO.3 / 季军';
 }
 
-function vote(id, type, baseRecommend, baseAvoid) {
-  if (!voteMap[id]) {
-    voteMap[id] = {
-      type: null,
-      recommend: baseRecommend,
-      avoid: baseAvoid,
-    };
-  }
-
-  const current = voteMap[id];
-  if (current.type === type) {
-    return;
-  }
-
-  if (current.type === 'recommend') {
-    current.recommend -= 1;
-  }
-  if (current.type === 'avoid') {
-    current.avoid -= 1;
-  }
-  if (type === 'recommend') {
-    current.recommend += 1;
-  } else {
-    current.avoid += 1;
-  }
-  current.type = type;
+function voteCount(item, type) {
+  const field = type === 'recommend' ? 'recommendVotes' : 'avoidVotes';
+  return dishStore.getDishById(item.dishId)?.[field]
+    ?? voteMap[item.dishId]?.[type]
+    ?? item[field]
+    ?? 0;
 }
+
+async function vote(item, type) {
+  const id = item.dishId;
+  if (!id || pendingVotes[id] || voteMap[id]?.type === type) return;
+  pendingVotes[id] = true;
+  voteMessage.value = '';
+  const current = voteMap[id] ?? {
+    recommend: voteCount(item, 'recommend'),
+    avoid: voteCount(item, 'avoid'),
+  };
+  try {
+    if (type === 'recommend') await dishStore.recommendDish(id);
+    else await dishStore.avoidDish(id);
+    // 两种接口各自累加票数，切换类型时不能撤销已写入服务端的票。
+    current[type] += 1;
+    current.type = type;
+    voteMap[id] = current;
+  } catch (e) {
+    voteMessage.value = e.message || '投票失败，请稍后重试。';
+  } finally {
+    pendingVotes[id] = false;
+  }
+}
+
 </script>
 
 <style scoped lang="scss">

@@ -46,7 +46,7 @@
           ></textarea>
         </label>
         <p v-if="message" class="rant-form__message">{{ message }}</p>
-        <button class="button-ink is-primary" type="submit">贴到吐槽墙</button>
+        <button class="button-ink is-primary" type="submit" :disabled="submitting">{{ submitting ? '提交中...' : '贴到吐槽墙' }}</button>
       </form>
     </article>
 
@@ -77,7 +77,7 @@
  * 创建时间：2026-05-09
  * 使用场景：首页吐槽墙入口跳转后的浏览与发布页面。
  * 依赖：Pinia、Vue Router、useRantStore、useCanteenStore、useAuthStore。
- * 设计说明：当前阶段写入前端状态，模拟实时吐槽墙追加效果。
+ * 设计说明：等待后端提交成功后更新状态，失败时保留表单供重试。
  */
 import { computed, onMounted, reactive, ref } from 'vue';
 import { useAuthStore } from '../../store/useAuthStore';
@@ -92,6 +92,7 @@ const authStore = useAuthStore();
 const canteenStore = useCanteenStore();
 const rantStore = useRantStore();
 const message = ref('');
+const submitting = ref(false);
 const form = reactive({
   canteenId: '',
   tag: '排队',
@@ -117,7 +118,14 @@ function resetForm() {
   form.content = '';
 }
 
-function handleSubmit() {
+/**
+ * 校验表单并等待吐槽提交，失败时保留内容供重试。
+ * @returns {Promise<void>}
+ * @throws {Error} 请求错误在页面内处理，不向外抛出
+ * @example await handleSubmit();
+ */
+async function handleSubmit() {
+  if (submitting.value) return;
   if (!selectedCanteen.value) {
     message.value = '请选择关联食堂。';
     return;
@@ -128,15 +136,23 @@ function handleSubmit() {
     return;
   }
 
-  rantStore.createRant({
-    canteenId: selectedCanteen.value.id,
-    canteenName: selectedCanteen.value.name,
-    tag: form.tag,
-    content: form.content,
-    author: authStore.displayName,
-  });
-  message.value = '已提交审核，通过后会展示在吐槽墙。';
-  resetForm();
+  submitting.value = true;
+  message.value = '';
+  try {
+    await rantStore.createRant({
+      canteenId: selectedCanteen.value.id,
+      canteenName: selectedCanteen.value.name,
+      tag: form.tag,
+      content: form.content,
+      author: authStore.displayName,
+    });
+    message.value = '已提交审核，通过后会展示在吐槽墙。';
+    resetForm();
+  } catch (e) {
+    message.value = e.message || '提交失败，请稍后重试。';
+  } finally {
+    submitting.value = false;
+  }
 }
 </script>
 
